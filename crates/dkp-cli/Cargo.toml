@@ -1,0 +1,75 @@
+[package]
+name = "dkp"
+description = "dkp — Domain Knowledge Pack management CLI"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "dkp"
+path = "src/lib.rs"
+
+[[bin]]
+name = "dkp"
+path = "src/main.rs"
+
+[features]
+default = ["full"]
+tui = ["dep:ratatui", "dep:crossterm"]
+mcp = ["dep:rmcp"]
+procedures = ["dkp-core/procedures"]
+webui = ["dep:axum", "dep:rust-embed", "dep:tower-http", "dep:open"]
+full = ["tui", "mcp", "procedures", "webui"]
+
+[dependencies]
+dkp-core = { workspace = true }
+dkp-gen-core = { workspace = true }
+
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+clap = { workspace = true }
+tokio = { workspace = true }
+reqwest = { workspace = true }
+figment = { workspace = true }
+comfy-table = { workspace = true }
+owo-colors = { workspace = true }
+indicatif = { workspace = true }
+zip = { workspace = true }
+tar = { workspace = true }
+flate2 = { workspace = true }
+ed25519-dalek = { workspace = true }
+rand = { workspace = true }
+sha2 = { workspace = true }
+csv = { workspace = true }
+dirs = { workspace = true }
+rpassword = { workspace = true }
+base64 = { workspace = true }
+hex = { workspace = true }
+tempfile = { workspace = true }
+
+ratatui = { workspace = true, optional = true }
+crossterm = { workspace = true, optional = true }
+rmcp = { workspace = true, optional = true }
+axum = { workspace = true, optional = true }
+rust-embed = { workspace = true, optional = true }
+tower-http = { workspace = true, optional = true }
+open = { workspace = true, optional = true }
+
+[package.metadata.deb]
+maintainer = "DKP Authors <hello@dkp-standard.dev>"
+copyright = "2025, DKP Authors"
+license-file = ["../../LICENSE-MIT", "4"]
+extended-description = "Domain Knowledge Pack management CLI — build, validate, search, and publish DKP packs."
+depends = "$auto"
+section = "utility"
+priority = "optional"
+assets = [
+    ["../../target/release/dkp", "usr/bin/", "755"],
+    ["../../docs/man/dkp.1", "usr/share/man/man1/", "644"],
+    ["../../docs/completions/dkp.bash", "usr/share/bash-completion/completions/dkp", "644"],
+    ["../../docs/completions/_dkp", "usr/share/zsh/vendor-completions/", "644"],
+    ["../../docs/completions/dkp.fish", "usr/share/fish/vendor_completions.d/", "644"],
+]
+

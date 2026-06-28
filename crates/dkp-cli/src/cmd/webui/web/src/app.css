@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #0d1117;
+  color: #e6edf3;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track { background: #161b22; }
+::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #484f58; }

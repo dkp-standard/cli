@@ -1,0 +1,39 @@
+pub mod build;
+pub mod chunk;
+pub mod cross_refs;
+pub mod diff;
+pub mod eval;
+pub mod export;
+pub mod fix;
+pub mod generate;
+pub mod get;
+pub mod graph;
+pub mod info;
+pub mod init;
+pub mod inject;
+pub mod keygen;
+pub mod l10n;
+pub mod list;
+pub mod mcp_manifest;
+pub mod new;
+pub mod okf;
+pub mod procedures;
+pub mod prompt;
+pub mod registry;
+pub mod release_check;
+pub mod review;
+pub mod rights;
+pub mod run;
+pub mod search;
+pub mod sign;
+pub mod skills;
+pub mod validate;
+
+#[cfg(feature = "tui")]
+pub mod tui;
+
+#[cfg(feature = "mcp")]
+pub mod serve;
+
+#[cfg(feature = "webui")]
+pub mod webui;

@@ -1,0 +1,9 @@
+dist/
+target/
+node_modules/
+
+# mdBook build output
+docs/book/
+
+# Generated CLI reference — recreated by `cargo build -p dkp-cli --features full`
+docs/src/reference/cli-reference.md

@@ -1,0 +1,57 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH dkp-init 1  "init 0.1.0" 
+.SH NAME
+dkp\-init \- Scaffold a new DKP pack directory with all required files
+.SH SYNOPSIS
+\fBdkp init\fR <\fB\-\-domain\fR> [\fB\-\-output\fR] [\fB\-\-out\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-extras\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-\-force\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fINAME\fR> 
+.SH DESCRIPTION
+Scaffold a new DKP pack directory with all required files
+.SH OPTIONS
+.TP
+\fB\-\-domain\fR \fI<DOMAIN>\fR
+Top\-level domain category (e.g. "Health", "Finance")
+.TP
+\fB\-\-output\fR \fI<OUTPUT>\fR [default: plain]
+Output format
+.br
+
+.br
+\fIPossible values:\fR
+.RS 14
+.IP \(bu 2
+plain: Human\-readable plain text (default)
+.IP \(bu 2
+table: Aligned table using comfy\-table
+.IP \(bu 2
+json: Pretty\-printed JSON
+.RE
+.TP
+\fB\-\-out\fR \fI<OUT>\fR
+Output directory (default: ./<name\-slug>/)
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Suppress informational output; print only results
+.TP
+\fB\-\-extras\fR
+Also scaffold optional recommended assets: eval_set.jsonl, knowledge_graph.json, human/handbook.md, README.md, CHANGELOG.md
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Print debug info (schema paths, provider calls, etc.)
+.TP
+\fB\-\-audience\fR \fI<ID>\fR
+Filter content to assets tagged for a specific audience profile
+.TP
+\fB\-\-force\fR
+Overwrite if directory already exists
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help (see a summary with \*(Aq\-h\*(Aq)
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.TP
+<\fINAME\fR>
+Pack name (e.g. "Nutrition for Men")
+.SH VERSION
+v0.1.0

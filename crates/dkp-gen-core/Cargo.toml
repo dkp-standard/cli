@@ -1,0 +1,24 @@
+[package]
+name = "dkp-gen-core"
+description = "LLM-driven DKP generation pipeline library"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+dkp-core = { workspace = true }
+
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+tokio = { workspace = true }
+reqwest = { workspace = true }
+indicatif = { workspace = true }
+sha2 = { workspace = true }
+dirs = { workspace = true }
+figment = { workspace = true }
+async-trait = { workspace = true }
+futures = { workspace = true }
+zip = { workspace = true }
+csv = { workspace = true }

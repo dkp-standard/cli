@@ -1,0 +1,51 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH dkp-yank 1  "yank 0.1.0" 
+.SH NAME
+dkp\-yank \- Mark a published version as yanked
+.SH SYNOPSIS
+\fBdkp yank\fR [\fB\-\-output\fR] <\fB\-\-reason\fR> [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-token\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fINAME\fR> 
+.SH DESCRIPTION
+Mark a published version as yanked
+.SH OPTIONS
+.TP
+\fB\-\-output\fR \fI<OUTPUT>\fR [default: plain]
+Output format
+.br
+
+.br
+\fIPossible values:\fR
+.RS 14
+.IP \(bu 2
+plain: Human\-readable plain text (default)
+.IP \(bu 2
+table: Aligned table using comfy\-table
+.IP \(bu 2
+json: Pretty\-printed JSON
+.RE
+.TP
+\fB\-\-reason\fR \fI<TEXT>\fR
+Reason shown to consumers who attempt to install this version
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Suppress informational output; print only results
+.TP
+\fB\-\-token\fR \fI<KEY>\fR
+Registry API token
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Print debug info (schema paths, provider calls, etc.)
+.TP
+\fB\-\-audience\fR \fI<ID>\fR
+Filter content to assets tagged for a specific audience profile
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help (see a summary with \*(Aq\-h\*(Aq)
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.TP
+<\fINAME\fR>
+Pack name and version, e.g. @mathis/nutrition\-for\-men@1.0.0
+.SH VERSION
+v0.1.0

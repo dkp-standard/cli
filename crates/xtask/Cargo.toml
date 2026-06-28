@@ -1,0 +1,18 @@
+[package]
+name = "xtask"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[[bin]]
+name = "xtask"
+path = "src/main.rs"
+
+[dependencies]
+dkp = { path = "../dkp-cli", features = ["full"] }
+clap = { workspace = true }
+clap_mangen = { workspace = true }
+clap_complete = { workspace = true }
+clap-markdown = { workspace = true }
+anyhow = { workspace = true }

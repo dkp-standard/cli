@@ -1,0 +1,42 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH dkp-registry-logout 1  "logout 0.1.0" 
+.SH NAME
+dkp\-registry\-logout \- Remove saved credentials
+.SH SYNOPSIS
+\fBdkp registry logout\fR [\fB\-\-output\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] 
+.SH DESCRIPTION
+Remove saved credentials
+.SH OPTIONS
+.TP
+\fB\-\-output\fR \fI<OUTPUT>\fR [default: plain]
+Output format
+.br
+
+.br
+\fIPossible values:\fR
+.RS 14
+.IP \(bu 2
+plain: Human\-readable plain text (default)
+.IP \(bu 2
+table: Aligned table using comfy\-table
+.IP \(bu 2
+json: Pretty\-printed JSON
+.RE
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Suppress informational output; print only results
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Print debug info (schema paths, provider calls, etc.)
+.TP
+\fB\-\-audience\fR \fI<ID>\fR
+Filter content to assets tagged for a specific audience profile
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help (see a summary with \*(Aq\-h\*(Aq)
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.SH VERSION
+v0.1.0

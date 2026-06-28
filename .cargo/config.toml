@@ -1,0 +1,4 @@
+[alias]
+# Generate man pages, shell completions, and Markdown reference into cli/docs/
+# Usage: cargo docs
+docs = "run -p xtask -- docs"

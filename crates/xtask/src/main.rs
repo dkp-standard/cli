@@ -1,0 +1,60 @@
+use std::{env, fs, path::PathBuf};
+
+use anyhow::{Context, Result};
+use clap::CommandFactory;
+use clap_complete::{generate_to, Shell};
+use dkp::Cli;
+
+fn main() -> Result<()> {
+    let task = env::args().nth(1).unwrap_or_else(|| "docs".to_string());
+    match task.as_str() {
+        "docs" => generate_docs(),
+        other => anyhow::bail!("unknown xtask: {other}. Available: docs"),
+    }
+}
+
+fn generate_docs() -> Result<()> {
+    let workspace_root = workspace_root();
+    let docs_root = workspace_root.join("docs");
+
+    let dist_man = docs_root.join("man");
+    let dist_completions = docs_root.join("completions");
+    let dist_reference = docs_root.join("src").join("reference");
+
+    fs::create_dir_all(&dist_man).context("create docs/man")?;
+    fs::create_dir_all(&dist_completions).context("create docs/completions")?;
+    fs::create_dir_all(&dist_reference).context("create docs/src/reference")?;
+
+    let mut cmd = Cli::command();
+    cmd.set_bin_name("dkp");
+
+    // 1. Man pages — clap_mangen::generate_to handles subcommands recursively
+    println!("Generating man pages → docs/man/");
+    clap_mangen::generate_to(cmd.clone(), &dist_man).context("generate man pages")?;
+
+    // 2. Shell completions
+    println!("Generating shell completions → docs/completions/");
+    for shell in [Shell::Bash, Shell::Zsh, Shell::Fish, Shell::PowerShell] {
+        let path = generate_to(shell, &mut cmd.clone(), "dkp", &dist_completions)
+            .context("generate completions")?;
+        println!("  {}", path.display());
+    }
+
+    // 3. Markdown reference (overwrites the committed placeholder)
+    println!("Generating CLI reference → docs/src/reference/cli-reference.md");
+    let md = clap_markdown::help_markdown::<Cli>();
+    fs::write(dist_reference.join("cli-reference.md"), md).context("write cli-reference.md")?;
+
+    println!("Done. Run `cd docs && mdbook build` for HTML output.");
+    Ok(())
+}
+
+fn workspace_root() -> PathBuf {
+    // CARGO_MANIFEST_DIR is crates/xtask/ — go up two levels to cli/
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_path_buf()
+}

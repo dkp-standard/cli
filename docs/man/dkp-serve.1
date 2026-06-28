@@ -1,0 +1,63 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH dkp-serve 1  "serve 0.1.0" 
+.SH NAME
+dkp\-serve \- Start the pack as an MCP server (requires \-\-features mcp)
+.SH SYNOPSIS
+\fBdkp serve\fR [\fB\-\-output\fR] [\fB\-\-transport\fR] [\fB\-\-port\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-readonly\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-\-auth\-token\fR] [\fB\-\-log\-level\fR] [\fB\-\-allow\-unsigned\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIPACK\fR> 
+.SH DESCRIPTION
+Start the pack as an MCP server (requires \-\-features mcp)
+.SH OPTIONS
+.TP
+\fB\-\-output\fR \fI<OUTPUT>\fR [default: plain]
+Output format
+.br
+
+.br
+\fIPossible values:\fR
+.RS 14
+.IP \(bu 2
+plain: Human\-readable plain text (default)
+.IP \(bu 2
+table: Aligned table using comfy\-table
+.IP \(bu 2
+json: Pretty\-printed JSON
+.RE
+.TP
+\fB\-\-transport\fR \fI<TRANSPORT>\fR [default: stdio]
+Transport mechanism: stdio | http
+.TP
+\fB\-\-port\fR \fI<PORT>\fR [default: 8734]
+HTTP server port (when \-\-transport http)
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Suppress informational output; print only results
+.TP
+\fB\-\-readonly\fR
+Expose resources only; do not expose any tools
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Print debug info (schema paths, provider calls, etc.)
+.TP
+\fB\-\-audience\fR \fI<ID>\fR
+Filter content to assets tagged for a specific audience profile
+.TP
+\fB\-\-auth\-token\fR \fI<TOKEN>\fR
+Static bearer token for authentication
+.TP
+\fB\-\-log\-level\fR \fI<LEVEL>\fR [default: info]
+Server log verbosity: debug | info | warn
+.TP
+\fB\-\-allow\-unsigned\fR
+Allow running non\-WASM procedures from unsigned bundles (dev/testing only)
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help (see a summary with \*(Aq\-h\*(Aq)
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.TP
+<\fIPACK\fR>
+Path to the DKP bundle directory
+.SH VERSION
+v0.1.0

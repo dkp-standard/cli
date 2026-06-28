@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+
+jobs:
+  fmt:
+    name: Format
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: cargo fmt --check
+
+  # Clippy and tests share a build, cutting one full Rust compilation.
+  lint-and-test:
+    name: Lint & Test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ". -> target"
+      - run: cargo clippy --workspace --exclude xtask --no-default-features --features tui,mcp,procedures -- -D warnings
+      - run: cargo test --workspace --exclude xtask --no-default-features --features tui,mcp,procedures
+
+  # build-check and docs share the expensive pnpm + full-features Rust build.
+  build-and-docs:
+    name: Build & Docs
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: crates/dkp-cli/src/cmd/webui/web/pnpm-lock.yaml
+      - run: pnpm install
+        working-directory: crates/dkp-cli/src/cmd/webui/web
+      - run: pnpm build
+        working-directory: crates/dkp-cli/src/cmd/webui/web
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ". -> target"
+          cache-on-failure: true
+      - run: cargo build --workspace --features full
+      - run: cargo docs

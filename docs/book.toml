@@ -1,0 +1,12 @@
+[book]
+title = "dkp — Domain Knowledge Pack CLI"
+authors = ["DKP Authors"]
+language = "en"
+src = "src"
+
+[build]
+build-dir = "book"
+create-missing = false
+
+[output.html]
+no-section-label = false

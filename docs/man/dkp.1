@@ -1,0 +1,157 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH dkp 1  "dkp 0.1.0" 
+.SH NAME
+dkp \- Manage, inspect, search, and deploy Domain Knowledge Packs
+.SH SYNOPSIS
+\fBdkp\fR [\fB\-\-output\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIsubcommands\fR>
+.SH DESCRIPTION
+Manage, inspect, search, and deploy Domain Knowledge Packs
+.SH OPTIONS
+.TP
+\fB\-\-output\fR \fI<OUTPUT>\fR [default: plain]
+Output format
+.br
+
+.br
+\fIPossible values:\fR
+.RS 14
+.IP \(bu 2
+plain: Human\-readable plain text (default)
+.IP \(bu 2
+table: Aligned table using comfy\-table
+.IP \(bu 2
+json: Pretty\-printed JSON
+.RE
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Suppress informational output; print only results
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Print debug info (schema paths, provider calls, etc.)
+.TP
+\fB\-\-audience\fR \fI<ID>\fR
+Filter content to assets tagged for a specific audience profile
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help (see a summary with \*(Aq\-h\*(Aq)
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.SH SUBCOMMANDS
+.TP
+dkp\-init(1)
+Scaffold a new DKP pack directory with all required files
+.TP
+dkp\-info(1)
+Print a summary of a pack (name, version, asset counts, compliance)
+.TP
+dkp\-list(1)
+List all packs under a root directory
+.TP
+dkp\-validate(1)
+Run schema and compliance checks; exit non\-zero on failure
+.TP
+dkp\-search(1)
+Full\-text BM25 search across machine assets (or registry with \-\-registry)
+.TP
+dkp\-get(1)
+Retrieve a specific asset or all assets of a type
+.TP
+dkp\-inject(1)
+Print a ready\-to\-inject LLM context block
+.TP
+dkp\-export(1)
+Convert machine assets to another format (okf, langchain, llamaindex, …)
+.TP
+dkp\-okf(1)
+OKF\-specific operations (export, validate, stats, links, browse)
+.TP
+dkp\-chunk(1)
+Retrieve the top\-N most relevant retrieval chunks for a query
+.TP
+dkp\-eval(1)
+Run eval set against baseline and grounded prompts; print delta report
+.TP
+dkp\-prompt(1)
+Interactive grounded prompt REPL for testing a pack
+.TP
+dkp\-diff(1)
+Compare two pack versions and report what changed
+.TP
+dkp\-build(1)
+Package a pack into a versioned archive with checksums.json
+.TP
+dkp\-release\-check(1)
+Pre\-release compliance checklist (runs all gates, checks human fields)
+.TP
+dkp\-rights(1)
+Source and rights log operations
+.TP
+dkp\-mcp\-manifest(1)
+Generate or regenerate machine/mcp_manifest.json
+.TP
+dkp\-serve(1)
+Start the pack as an MCP server (requires \-\-features mcp)
+.TP
+dkp\-tui(1)
+Interactive TUI browser (requires \-\-features tui)
+.TP
+dkp\-webui(1)
+Browse a pack in a local web UI (requires \-\-features webui)
+.TP
+dkp\-run(1)
+Invoke a WASM/WASI procedure from machine/procedures/
+.TP
+dkp\-procedures(1)
+List, validate, and scaffold executable procedures
+.TP
+dkp\-graph(1)
+Inspect and validate knowledge_graph.json
+.TP
+dkp\-cross\-refs(1)
+Inspect and validate cross_refs.json
+.TP
+dkp\-skills(1)
+Manage and validate the skills/ layer
+.TP
+dkp\-l10n(1)
+Manage and validate the l10n/ localization layer
+.TP
+dkp\-new(1)
+Scaffold + LLM\-generate a complete pack in one command
+.TP
+dkp\-generate(1)
+Run (or re\-run) LLM generation on an existing pack
+.TP
+dkp\-fix(1)
+Failure\-aware chunk regeneration using eval results
+.TP
+dkp\-review(1)
+Generate evidence drafts for manual review gates
+.TP
+dkp\-keygen(1)
+Generate an Ed25519 keypair for signing packs
+.TP
+dkp\-sign(1)
+Sign a built archive with an Ed25519 private key
+.TP
+dkp\-install(1)
+Install a pack from the registry
+.TP
+dkp\-uninstall(1)
+Remove an installed pack
+.TP
+dkp\-update(1)
+Re\-resolve and update installed packs to satisfy lock\-file constraints
+.TP
+dkp\-publish(1)
+Publish a built and signed pack to the registry
+.TP
+dkp\-yank(1)
+Mark a published version as yanked
+.TP
+dkp\-registry(1)
+Registry account and pack management (login, logout, keys, access)
+.SH VERSION
+v0.1.0

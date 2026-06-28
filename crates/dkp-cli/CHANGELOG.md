@@ -1,0 +1,45 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [0.1.0](https://github.com/dkp-standard/cli-wip/releases/tag/dkp-v0.1.0) - 2026-06-27
+
+### Added
+
+- add `dkp registry yank` command to yank published pack versions
+- *(serve)* implement HTTP SSE transport support for dkp serve
+- *(cli)* add generic asset get, refactor inject with budget truncation
+- add cargo docs alias, doc generation deps, and project FAQ
+- *(webui/graph)* add node selection and detail popover to GraphPanel
+- add knowledge graph visualization, update deps and gitignore
+- *(dkp-cli)* add interactive REPL commands for procedure management
+- *(dkp-cli)* add configurable pack context injection to prompt command
+- implement cross-refs CLI commands and rights expiry utilities
+- *(dkp-cli)* implement MCP manifest generation and TUI panel
+- add multi-language procedure scaffolding and unsigned dev support
+- *(serve)* add feature-gated procedure tools to MCP server
+- *(dkp)* add Gate 4 procedure validation for DKP packs
+- *(dkp-cli)* implement eval, review, and fix command logic
+- *(gen)* add LLM pack generation workflow and dkp-gen-core crate
+- *(dkp-cli)* implement pack archiving with checksums and search index
+- *(dkp-cli)* implement chunk search and add OKF export subcommands
+- *(dkp-cli)* add init subcommand and table render for info
+
+### Fixed
+
+- *(dkp-cli)* correct serve handler indentation, format eval pct calc
+- *(cli)* unify API key env var, secure output, fix build/eval issues
+
+### Other
+
+- *(dkp-cli)* improve command code quality and prevent overflow
+- adopt idiomatic is_none_or and div_ceil std methods
+- reformat long function calls and literals for readability
+- *(github)* add GitHub Actions CI, release and build workflows
+- *(dkp-core)* simplify constraint/eval types, update dependencies
+- initial commit

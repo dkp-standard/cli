@@ -1,0 +1,63 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH dkp-search 1  "search 0.1.0" 
+.SH NAME
+dkp\-search \- Full\-text BM25 search across machine assets (or registry with \-\-registry)
+.SH SYNOPSIS
+\fBdkp search\fR [\fB\-\-output\fR] [\fB\-\-registry\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-type\fR] [\fB\-\-limit\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-\-domain\fR] [\fB\-\-conformance\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] [\fIPACK\fR] [\fIQUERY\fR] 
+.SH DESCRIPTION
+Full\-text BM25 search across machine assets (or registry with \-\-registry)
+.SH OPTIONS
+.TP
+\fB\-\-output\fR \fI<OUTPUT>\fR [default: plain]
+Output format
+.br
+
+.br
+\fIPossible values:\fR
+.RS 14
+.IP \(bu 2
+plain: Human\-readable plain text (default)
+.IP \(bu 2
+table: Aligned table using comfy\-table
+.IP \(bu 2
+json: Pretty\-printed JSON
+.RE
+.TP
+\fB\-\-registry\fR
+Search the registry index instead of a local pack
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Suppress informational output; print only results
+.TP
+\fB\-\-type\fR \fI<TYPE>\fR
+Narrow results to a specific asset type
+.TP
+\fB\-\-limit\fR \fI<LIMIT>\fR [default: 10]
+Maximum number of results
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Print debug info (schema paths, provider calls, etc.)
+.TP
+\fB\-\-audience\fR \fI<ID>\fR
+Filter content to assets tagged for a specific audience profile
+.TP
+\fB\-\-domain\fR \fI<NAME>\fR
+
+.TP
+\fB\-\-conformance\fR \fI<LEVEL>\fR
+
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help (see a summary with \*(Aq\-h\*(Aq)
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.TP
+[\fIPACK\fR]
+Path to the DKP bundle (omit when using \-\-registry)
+.TP
+[\fIQUERY\fR]
+Search query
+.SH VERSION
+v0.1.0

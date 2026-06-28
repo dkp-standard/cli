@@ -1,0 +1,63 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH dkp-eval 1  "eval 0.1.0" 
+.SH NAME
+dkp\-eval \- Run eval set against baseline and grounded prompts; print delta report
+.SH SYNOPSIS
+\fBdkp eval\fR [\fB\-\-output\fR] [\fB\-\-provider\fR] [\fB\-\-model\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-base\-url\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-api\-key\fR] [\fB\-\-audience\fR] [\fB\-\-pairs\fR] [\fB\-\-baseline\-only\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIPACK\fR> 
+.SH DESCRIPTION
+Run eval set against baseline and grounded prompts; print delta report
+.SH OPTIONS
+.TP
+\fB\-\-output\fR \fI<OUTPUT>\fR [default: plain]
+Output format
+.br
+
+.br
+\fIPossible values:\fR
+.RS 14
+.IP \(bu 2
+plain: Human\-readable plain text (default)
+.IP \(bu 2
+table: Aligned table using comfy\-table
+.IP \(bu 2
+json: Pretty\-printed JSON
+.RE
+.TP
+\fB\-\-provider\fR \fI<PROVIDER>\fR
+
+.TP
+\fB\-\-model\fR \fI<MODEL>\fR
+
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Suppress informational output; print only results
+.TP
+\fB\-\-base\-url\fR \fI<URL>\fR
+
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Print debug info (schema paths, provider calls, etc.)
+.TP
+\fB\-\-api\-key\fR \fI<KEY>\fR
+
+.TP
+\fB\-\-audience\fR \fI<ID>\fR
+Filter content to assets tagged for a specific audience profile
+.TP
+\fB\-\-pairs\fR \fI<N>\fR
+Run only first N eval pairs (default: all)
+.TP
+\fB\-\-baseline\-only\fR
+Score without DKP context (baseline only)
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help (see a summary with \*(Aq\-h\*(Aq)
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.TP
+<\fIPACK\fR>
+Path to the DKP bundle directory
+.SH VERSION
+v0.1.0

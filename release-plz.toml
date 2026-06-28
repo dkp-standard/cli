@@ -1,0 +1,13 @@
+[workspace]
+changelog_update = true
+git_release_enable = true
+publish = true
+publish_no_verify = true
+
+[[package]]
+name = "dkp"
+publish = false
+
+[[package]]
+name = "xtask"
+publish = false

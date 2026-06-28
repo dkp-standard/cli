@@ -1,0 +1,54 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH dkp-diff 1  "diff 0.1.0" 
+.SH NAME
+dkp\-diff \- Compare two pack versions and report what changed
+.SH SYNOPSIS
+\fBdkp diff\fR [\fB\-\-output\fR] [\fB\-\-type\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-threshold\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIPACK_A\fR> <\fIPACK_B\fR> 
+.SH DESCRIPTION
+Compare two pack versions and report what changed
+.SH OPTIONS
+.TP
+\fB\-\-output\fR \fI<OUTPUT>\fR [default: plain]
+Output format
+.br
+
+.br
+\fIPossible values:\fR
+.RS 14
+.IP \(bu 2
+plain: Human\-readable plain text (default)
+.IP \(bu 2
+table: Aligned table using comfy\-table
+.IP \(bu 2
+json: Pretty\-printed JSON
+.RE
+.TP
+\fB\-\-type\fR \fI<TYPE>\fR
+Diff only one asset type (term, chunk, rule, constraint)
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Suppress informational output; print only results
+.TP
+\fB\-\-threshold\fR \fI<THRESHOLD>\fR [default: 20]
+Content\-drift percentage threshold for "modified" classification
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Print debug info (schema paths, provider calls, etc.)
+.TP
+\fB\-\-audience\fR \fI<ID>\fR
+Filter content to assets tagged for a specific audience profile
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help (see a summary with \*(Aq\-h\*(Aq)
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.TP
+<\fIPACK_A\fR>
+First pack directory or archive
+.TP
+<\fIPACK_B\fR>
+Second pack directory or archive
+.SH VERSION
+v0.1.0

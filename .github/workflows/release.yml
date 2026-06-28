@@ -1,0 +1,241 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # ── Linux x86_64 glibc (full features, native) ─────────────────────────────
+  build-linux-x86_64-gnu:
+    name: Build linux/x86_64 (glibc)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ". -> target"
+          cache-on-failure: true
+      - name: Generate completions and man pages
+        run: cargo docs
+      - name: Build
+        run: cargo build --release --target x86_64-unknown-linux-gnu -p dkp --features full
+      - name: Strip binary
+        run: strip target/x86_64-unknown-linux-gnu/release/dkp
+      - name: Package
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          ARTIFACT="dkp-${VERSION}-x86_64-unknown-linux-gnu"
+          mkdir -p "dist/${ARTIFACT}"
+          cp target/x86_64-unknown-linux-gnu/release/dkp "dist/${ARTIFACT}/"
+          cp -r docs/completions "dist/${ARTIFACT}/"
+          cp -r docs/man "dist/${ARTIFACT}/"
+          tar -C dist -czf "dist/${ARTIFACT}.tar.gz" "${ARTIFACT}"
+          sha256sum "dist/${ARTIFACT}.tar.gz" > "dist/${ARTIFACT}.tar.gz.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-x86_64-gnu
+          path: dist/dkp-*.tar.gz*
+
+  # ── Linux x86_64 musl (full features, static) ──────────────────────────────
+  build-linux-x86_64-musl:
+    name: Build linux/x86_64 (musl, static)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-musl
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ". -> target"
+          cache-on-failure: true
+      - name: Install cross
+        run: cargo install cross --locked
+      - name: Generate completions and man pages
+        run: cargo docs
+      - name: Build (static musl)
+        run: cross build --release --target x86_64-unknown-linux-musl -p dkp --features full
+      - name: Strip binary
+        run: strip target/x86_64-unknown-linux-musl/release/dkp
+      - name: Package
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          ARTIFACT="dkp-${VERSION}-x86_64-unknown-linux-musl"
+          mkdir -p "dist/${ARTIFACT}"
+          cp target/x86_64-unknown-linux-musl/release/dkp "dist/${ARTIFACT}/"
+          cp -r docs/completions "dist/${ARTIFACT}/"
+          cp -r docs/man "dist/${ARTIFACT}/"
+          tar -C dist -czf "dist/${ARTIFACT}.tar.gz" "${ARTIFACT}"
+          sha256sum "dist/${ARTIFACT}.tar.gz" > "dist/${ARTIFACT}.tar.gz.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-x86_64-musl
+          path: dist/dkp-*.tar.gz*
+
+  # ── Linux ARM64 musl (lite: no procedures/wasmtime, static) ────────────────
+  build-linux-aarch64-musl:
+    name: Build linux/aarch64 (musl, static, lite)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ". -> target"
+          cache-on-failure: true
+      - name: Install cross
+        run: cargo install cross --locked
+      - name: Generate completions and man pages
+        run: cargo docs
+      - name: Build (ARM64 musl, lite — no wasmtime)
+        run: cross build --release --target aarch64-unknown-linux-musl -p dkp --no-default-features --features tui,mcp,webui
+      - name: Package
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          ARTIFACT="dkp-${VERSION}-aarch64-unknown-linux-musl"
+          mkdir -p "dist/${ARTIFACT}"
+          cp target/aarch64-unknown-linux-musl/release/dkp "dist/${ARTIFACT}/"
+          cp -r docs/completions "dist/${ARTIFACT}/"
+          cp -r docs/man "dist/${ARTIFACT}/"
+          tar -C dist -czf "dist/${ARTIFACT}.tar.gz" "${ARTIFACT}"
+          sha256sum "dist/${ARTIFACT}.tar.gz" > "dist/${ARTIFACT}.tar.gz.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-aarch64-musl
+          path: dist/dkp-*.tar.gz*
+
+  # ── macOS universal binary (unsigned) ──────────────────────────────────────
+  build-macos-universal:
+    name: Build macOS universal (unsigned)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-apple-darwin,aarch64-apple-darwin
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ". -> target"
+          cache-on-failure: true
+      - name: Generate completions and man pages
+        run: cargo docs
+      - name: Build x86_64
+        run: cargo build --release --target x86_64-apple-darwin -p dkp --features full
+      - name: Build aarch64
+        run: cargo build --release --target aarch64-apple-darwin -p dkp --features full
+      - name: Create universal binary
+        run: |
+          mkdir -p dist
+          lipo -create -output dist/dkp \
+            target/x86_64-apple-darwin/release/dkp \
+            target/aarch64-apple-darwin/release/dkp
+          lipo -info dist/dkp
+      - name: Package
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          ARTIFACT="dkp-${VERSION}-universal-apple-darwin"
+          mkdir -p "dist/${ARTIFACT}"
+          cp dist/dkp "dist/${ARTIFACT}/"
+          cp -r docs/completions "dist/${ARTIFACT}/"
+          cp -r docs/man "dist/${ARTIFACT}/"
+          tar -C dist -czf "dist/${ARTIFACT}.tar.gz" "${ARTIFACT}"
+          shasum -a 256 "dist/${ARTIFACT}.tar.gz" > "dist/${ARTIFACT}.tar.gz.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-universal
+          path: dist/dkp-*.tar.gz*
+
+  # ── Windows x86_64 (unsigned) ───────────────────────────────────────────────
+  build-windows-x86_64:
+    name: Build Windows x86_64 (unsigned)
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ". -> target"
+          cache-on-failure: true
+      - name: Generate completions and man pages
+        run: cargo docs
+      - name: Build
+        run: cargo build --release --target x86_64-pc-windows-msvc -p dkp --features full
+      - name: Package
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          ARTIFACT="dkp-${VERSION}-x86_64-pc-windows-msvc"
+          mkdir -p "dist/${ARTIFACT}"
+          cp target/x86_64-pc-windows-msvc/release/dkp.exe "dist/${ARTIFACT}/"
+          cp -r docs/completions "dist/${ARTIFACT}/"
+          cp -r docs/man "dist/${ARTIFACT}/"
+          cd dist
+          7z a "${ARTIFACT}.zip" "${ARTIFACT}"
+          cd ..
+          sha256sum "dist/${ARTIFACT}.zip" > "dist/${ARTIFACT}.zip.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-x86_64
+          path: |
+            dist/dkp-*.zip
+            dist/dkp-*.zip.sha256
+
+  # ── Publish GitHub Release ──────────────────────────────────────────────────
+  publish:
+    name: Publish GitHub Release
+    needs:
+      - build-linux-x86_64-gnu
+      - build-linux-x86_64-musl
+      - build-linux-aarch64-musl
+      - build-macos-universal
+      - build-windows-x86_64
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+          merge-multiple: true
+      - name: Merge checksums
+        run: |
+          mkdir -p release
+          find artifacts/ -name "*.tar.gz" -o -name "*.zip" | xargs -I{} cp {} release/
+          find artifacts/ -name "*.sha256" | xargs cat > release/SHA256SUMS
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          generate_release_notes: true
+          files: release/*
+          body: |
+            ## Installation
+
+            **Linux / macOS** (shell installer):
+            ```sh
+            curl --proto '=https' --tlsv1.2 -LsSf \
+              https://github.com/dkp-standard/cli/releases/download/${{ github.ref_name }}/dkp-installer.sh | sh
+            ```
+
+            **Windows** (PowerShell):
+            ```powershell
+            irm https://github.com/dkp-standard/cli/releases/download/${{ github.ref_name }}/dkp-installer.ps1 | iex
+            ```
+
+            **macOS note:** Binaries are unsigned. If Gatekeeper blocks the binary, run:
+            ```sh
+            xattr -d com.apple.quarantine $(which dkp)
+            ```
+
+            **ARM64 Linux note:** The `aarch64` build ships without WASM procedure support (`--features tui,mcp,webui` only).
+
+            See [SHA256SUMS](SHA256SUMS) to verify downloads.

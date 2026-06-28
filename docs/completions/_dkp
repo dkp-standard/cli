@@ -1,0 +1,3685 @@
+#compdef dkp
+
+autoload -U is-at-least
+
+_dkp() {
+    typeset -A opt_args
+    typeset -a _arguments_options
+    local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
+    local context curcontext="$curcontext" state line
+    _arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_dkp_commands" \
+"*::: :->dkp" \
+&& ret=0
+    case $state in
+    (dkp)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-command-$line[1]:"
+        case $line[1] in
+            (init)
+_arguments "${_arguments_options[@]}" : \
+'--domain=[Top-level domain category (e.g. "Health", "Finance")]:DOMAIN:_default' \
+'--out=[Output directory (default\: ./<name-slug>/)]:OUT:_files' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--extras[Also scaffold optional recommended assets\: eval_set.jsonl, knowledge_graph.json, human/handbook.md, README.md, CHANGELOG.md]' \
+'--force[Overwrite if directory already exists]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':name -- Pack name (e.g. "Nutrition for Men"):_default' \
+&& ret=0
+;;
+(info)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--check[Exit non-zero if any required machine asset is missing]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory or .zip archive:_files' \
+&& ret=0
+;;
+(list)
+_arguments "${_arguments_options[@]}" : \
+'--domain=[Filter by domain name]:NAME:_default' \
+'--tier=[Filter by tier tag (e.g. starter, pro)]:TIER:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':root -- Root directory to scan for DKP packs (or path to a single pack):_files' \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+'--gate=[Run only a specific quality gate (4, 7, or 8)]:N:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--strict[Treat warnings as errors]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+&& ret=0
+;;
+(search)
+_arguments "${_arguments_options[@]}" : \
+'--type=[Narrow results to a specific asset type]:TYPE:_default' \
+'--limit=[Maximum number of results]:LIMIT:_default' \
+'--domain=[]:NAME:_default' \
+'--conformance=[]:LEVEL:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--registry[Search the registry index instead of a local pack]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+'::pack -- Path to the DKP bundle (omit when using --registry):_files' \
+'::query -- Search query:_default' \
+&& ret=0
+;;
+(get)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--by-id[Fetch by ID field instead of title search]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+':asset_type -- Asset type\: term | rule | chunk | constraint | entity | eval | graph | cross-ref | system-prompt:_default' \
+'::id -- Asset ID or title to retrieve (omit for all assets of this type):_default' \
+&& ret=0
+;;
+(inject)
+_arguments "${_arguments_options[@]}" : \
+'--scope=[Content scope\: system-prompt | full | minimal | chunks]:SCOPE:_default' \
+'--format=[Wrapping format\: markdown | xml | json]:FMT:_default' \
+'--max-tokens=[Truncate to fit within a token budget, dropping lowest-confidence chunks first]:N:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--count-tokens[Print estimated token count before the block]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+&& ret=0
+;;
+(export)
+_arguments "${_arguments_options[@]}" : \
+'--out=[Output directory]:DIR:_files' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+':format -- Target format\: okf | langchain | llamaindex | openai-files | markdown | csv | anki:_default' \
+&& ret=0
+;;
+(okf)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+":: :_dkp__subcmd__okf_commands" \
+"*::: :->okf" \
+&& ret=0
+
+    case $state in
+    (okf)
+        words=($line[2] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-okf-command-$line[2]:"
+        case $line[2] in
+            (export)
+_arguments "${_arguments_options[@]}" : \
+'--out=[]:DIR:_files' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(stats)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(links)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(browse)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__okf__subcmd__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-okf-help-command-$line[1]:"
+        case $line[1] in
+            (export)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(stats)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(links)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(browse)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(chunk)
+_arguments "${_arguments_options[@]}" : \
+'--top=[Number of chunks to return]:TOP:_default' \
+'--min-confidence=[Filter by minimum confidence score]:F:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+':query -- Query string:_default' \
+&& ret=0
+;;
+(eval)
+_arguments "${_arguments_options[@]}" : \
+'--provider=[]:PROVIDER:_default' \
+'--model=[]:MODEL:_default' \
+'--base-url=[]:URL:_default' \
+'--api-key=[]:KEY:_default' \
+'--pairs=[Run only first N eval pairs (default\: all)]:N:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--baseline-only[Score without DKP context (baseline only)]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+&& ret=0
+;;
+(prompt)
+_arguments "${_arguments_options[@]}" : \
+'--provider=[]:PROVIDER:_default' \
+'--model=[]:MODEL:_default' \
+'--api-key=[]:KEY:_default' \
+'--max-tokens=[Token budget for injected pack context]:N:_default' \
+'--scope=[Context scope\: system-prompt | full | chunks | minimal]:SCOPE:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+'::question -- Optional question (omit to enter interactive REPL):_default' \
+&& ret=0
+;;
+(diff)
+_arguments "${_arguments_options[@]}" : \
+'--type=[Diff only one asset type (term, chunk, rule, constraint)]:TYPE:_default' \
+'--threshold=[Content-drift percentage threshold for "modified" classification]:THRESHOLD:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack_a -- First pack directory or archive:_files' \
+':pack_b -- Second pack directory or archive:_files' \
+&& ret=0
+;;
+(build)
+_arguments "${_arguments_options[@]}" : \
+'--format=[Archive format\: zip | tar.gz]:FMT:_default' \
+'--out=[Output directory (default\: build/)]:DIR:_files' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--no-human[Exclude human/ assets (machine-only distribution)]' \
+'--gen-mcp-manifest[Regenerate machine/mcp_manifest.json before packaging]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+&& ret=0
+;;
+(release-check)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--strict[Fail on warnings]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+&& ret=0
+;;
+(rights)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+":: :_dkp__subcmd__rights_commands" \
+"*::: :->rights" \
+&& ret=0
+
+    case $state in
+    (rights)
+        words=($line[2] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-rights-command-$line[2]:"
+        case $line[2] in
+            (status)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(check)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(add-source)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(report)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__rights__subcmd__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-rights-help-command-$line[1]:"
+        case $line[1] in
+            (status)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(check)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(add-source)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(report)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(mcp-manifest)
+_arguments "${_arguments_options[@]}" : \
+'--out=[Write to a custom path instead of machine/mcp_manifest.json]:PATH:_files' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--dry-run[Print what would be written without writing]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+&& ret=0
+;;
+(serve)
+_arguments "${_arguments_options[@]}" : \
+'--transport=[Transport mechanism\: stdio | http]:TRANSPORT:_default' \
+'--port=[HTTP server port (when --transport http)]:PORT:_default' \
+'--auth-token=[Static bearer token for authentication]:TOKEN:_default' \
+'--log-level=[Server log verbosity\: debug | info | warn]:LEVEL:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--readonly[Expose resources only; do not expose any tools]' \
+'--allow-unsigned[Allow running non-WASM procedures from unsigned bundles (dev/testing only)]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+&& ret=0
+;;
+(tui)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+&& ret=0
+;;
+(webui)
+_arguments "${_arguments_options[@]}" : \
+'--port=[Port to listen on (0 = OS-assigned random port)]:PORT:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--no-open[Do not automatically open the browser]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP pack directory or archive:_files' \
+&& ret=0
+;;
+(run)
+_arguments "${_arguments_options[@]}" : \
+'--input=[JSON object to pass as stdin to the procedure (default\: {})]:JSON:_default' \
+'--timeout-ms=[Override the wall-clock timeout in milliseconds]:MS:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--allow-unsigned[Allow running non-WASM procedures from unsigned bundles (dev/testing only)]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+':procedure -- Procedure ID (stem name without extension, e.g. "macro-calc"):_default' \
+&& ret=0
+;;
+(procedures)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_dkp__subcmd__procedures_commands" \
+"*::: :->procedures" \
+&& ret=0
+
+    case $state in
+    (procedures)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-procedures-command-$line[1]:"
+        case $line[1] in
+            (list)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+&& ret=0
+;;
+(new)
+_arguments "${_arguments_options[@]}" : \
+'--title=[Human-readable title for the procedure]:TITLE:_default' \
+'--description=[One-sentence description of what the procedure does]:DESCRIPTION:_default' \
+'--lang=[Procedure language/runtime\: wasm | python | javascript]:LANG:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+':id -- Procedure ID — used as the file stem and Rust crate name (e.g. "macro-calc"):_default' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__procedures__subcmd__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-procedures-help-command-$line[1]:"
+        case $line[1] in
+            (list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(new)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(graph)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+":: :_dkp__subcmd__graph_commands" \
+"*::: :->graph" \
+&& ret=0
+
+    case $state in
+    (graph)
+        words=($line[2] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-graph-command-$line[2]:"
+        case $line[2] in
+            (stats)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(list)
+_arguments "${_arguments_options[@]}" : \
+'--type=[]:TYPE:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__graph__subcmd__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-graph-help-command-$line[1]:"
+        case $line[1] in
+            (stats)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(cross-refs)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+":: :_dkp__subcmd__cross-refs_commands" \
+"*::: :->cross-refs" \
+&& ret=0
+
+    case $state in
+    (cross-refs)
+        words=($line[2] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-cross-refs-command-$line[2]:"
+        case $line[2] in
+            (list)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__cross-refs__subcmd__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-cross-refs-help-command-$line[1]:"
+        case $line[1] in
+            (list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(skills)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+":: :_dkp__subcmd__skills_commands" \
+"*::: :->skills" \
+&& ret=0
+
+    case $state in
+    (skills)
+        words=($line[2] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-skills-command-$line[2]:"
+        case $line[2] in
+            (list)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(show)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':name:_default' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__skills__subcmd__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-skills-help-command-$line[1]:"
+        case $line[1] in
+            (list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(show)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(l10n)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+":: :_dkp__subcmd__l10n_commands" \
+"*::: :->l10n" \
+&& ret=0
+
+    case $state in
+    (l10n)
+        words=($line[2] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-l10n-command-$line[2]:"
+        case $line[2] in
+            (list)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(export)
+_arguments "${_arguments_options[@]}" : \
+'--out=[]:DIR:_files' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':locale:_default' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__l10n__subcmd__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-l10n-help-command-$line[1]:"
+        case $line[1] in
+            (list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(export)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(new)
+_arguments "${_arguments_options[@]}" : \
+'--domain=[Domain category (e.g. "Kubernetes", "Clinical Nutrition")]:DOMAIN:_default' \
+'--dir=[Output directory (default\: ./<name-slug>/)]:DIR:_files' \
+'--api-key=[]:KEY:_default' \
+'--base-url=[]:URL:_default' \
+'--model=[]:MODEL:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--overwrite[Overwrite already-generated assets]' \
+'--skip-validate[Skip validation step]' \
+'--skip-package[Skip packaging step]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':name -- Pack name (e.g. "Kubernetes Networking"):_default' \
+&& ret=0
+;;
+(generate)
+_arguments "${_arguments_options[@]}" : \
+'--api-key=[]:KEY:_default' \
+'--base-url=[]:URL:_default' \
+'--model=[]:MODEL:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--overwrite[Overwrite existing assets]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP pack directory:_files' \
+'*::assets -- Specific assets to regenerate (default\: all machine assets):_default' \
+&& ret=0
+;;
+(fix)
+_arguments "${_arguments_options[@]}" : \
+'--api-key=[]:KEY:_default' \
+'--base-url=[]:URL:_default' \
+'--model=[]:MODEL:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP pack directory:_files' \
+&& ret=0
+;;
+(review)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP pack directory:_files' \
+&& ret=0
+;;
+(keygen)
+_arguments "${_arguments_options[@]}" : \
+'--out=[Write keys to a custom directory (default\: ~/.dkp/)]:DIR:_files' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--force[Overwrite existing keys without prompting]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(sign)
+_arguments "${_arguments_options[@]}" : \
+'--key=[Path to Ed25519 private key (default\: ~/.dkp/private.key)]:PATH:_files' \
+'--out=[Write signature to a custom path (default\: <archive-dir>/bundle.sig)]:PATH:_files' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':archive -- Path to the built archive to sign:_files' \
+&& ret=0
+;;
+(install)
+_arguments "${_arguments_options[@]}" : \
+'--dest=[Install to a custom directory]:DIR:_files' \
+'--registry=[Override registry URL]:URL:_default' \
+'--token=[Registry API token]:KEY:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-g[Install to global store (~/.dkp/packs/)]' \
+'--global[Install to global store (~/.dkp/packs/)]' \
+'--no-verify[Skip signature verification (NOT RECOMMENDED)]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':name -- Pack name, e.g. @mathis/nutrition-for-men or @mathis/pack@1.2.0:_default' \
+&& ret=0
+;;
+(uninstall)
+_arguments "${_arguments_options[@]}" : \
+'--dest=[Remove from a custom directory]:DIR:_files' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-g[Remove from global store]' \
+'--global[Remove from global store]' \
+'--all-versions[Remove all installed versions]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':name -- Pack name, e.g. @mathis/nutrition-for-men or @mathis/pack@1.2.0:_default' \
+&& ret=0
+;;
+(update)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+'::name -- Update only this pack (omit to update all packs in dkp.lock):_default' \
+&& ret=0
+;;
+(publish)
+_arguments "${_arguments_options[@]}" : \
+'--url=[HTTPS URL to the hosted archive (publisher-controlled storage)]:URL:_default' \
+'--registry=[Override registry URL]:URL:_default' \
+'--token=[Registry API token]:KEY:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--private[Set pack visibility to private]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(yank)
+_arguments "${_arguments_options[@]}" : \
+'--reason=[Reason shown to consumers who attempt to install this version]:TEXT:_default' \
+'--token=[Registry API token]:KEY:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':name -- Pack name and version, e.g. @mathis/nutrition-for-men@1.0.0:_default' \
+&& ret=0
+;;
+(registry)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_dkp__subcmd__registry_commands" \
+"*::: :->registry" \
+&& ret=0
+
+    case $state in
+    (registry)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-registry-command-$line[1]:"
+        case $line[1] in
+            (login)
+_arguments "${_arguments_options[@]}" : \
+'--email=[]:EMAIL:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(logout)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(token)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_dkp__subcmd__registry__subcmd__token_commands" \
+"*::: :->token" \
+&& ret=0
+
+    case $state in
+    (token)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-registry-token-command-$line[1]:"
+        case $line[1] in
+            (rotate)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__registry__subcmd__token__subcmd__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-registry-token-help-command-$line[1]:"
+        case $line[1] in
+            (rotate)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(keys)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_dkp__subcmd__registry__subcmd__keys_commands" \
+"*::: :->keys" \
+&& ret=0
+
+    case $state in
+    (keys)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-registry-keys-command-$line[1]:"
+        case $line[1] in
+            (add)
+_arguments "${_arguments_options[@]}" : \
+'--key=[]:PATH:_files' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__registry__subcmd__keys__subcmd__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-registry-keys-help-command-$line[1]:"
+        case $line[1] in
+            (add)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(pack)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_dkp__subcmd__registry__subcmd__pack_commands" \
+"*::: :->pack" \
+&& ret=0
+
+    case $state in
+    (pack)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-registry-pack-command-$line[1]:"
+        case $line[1] in
+            (versions)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':name:_default' \
+&& ret=0
+;;
+(set-visibility)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':name:_default' \
+':visibility:_default' \
+&& ret=0
+;;
+(grant)
+_arguments "${_arguments_options[@]}" : \
+'--to=[]:EMAIL:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':name:_default' \
+&& ret=0
+;;
+(revoke)
+_arguments "${_arguments_options[@]}" : \
+'--from=[]:EMAIL:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':name:_default' \
+&& ret=0
+;;
+(access)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':name:_default' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__registry__subcmd__pack__subcmd__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-registry-pack-help-command-$line[1]:"
+        case $line[1] in
+            (versions)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(set-visibility)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(grant)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(revoke)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(access)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__registry__subcmd__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-registry-help-command-$line[1]:"
+        case $line[1] in
+            (login)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(logout)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(token)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__registry__subcmd__help__subcmd__token_commands" \
+"*::: :->token" \
+&& ret=0
+
+    case $state in
+    (token)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-registry-help-token-command-$line[1]:"
+        case $line[1] in
+            (rotate)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(keys)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__registry__subcmd__help__subcmd__keys_commands" \
+"*::: :->keys" \
+&& ret=0
+
+    case $state in
+    (keys)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-registry-help-keys-command-$line[1]:"
+        case $line[1] in
+            (add)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(pack)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__registry__subcmd__help__subcmd__pack_commands" \
+"*::: :->pack" \
+&& ret=0
+
+    case $state in
+    (pack)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-registry-help-pack-command-$line[1]:"
+        case $line[1] in
+            (versions)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(set-visibility)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(grant)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(revoke)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(access)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-help-command-$line[1]:"
+        case $line[1] in
+            (init)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(info)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(search)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(get)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(inject)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(export)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(okf)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__help__subcmd__okf_commands" \
+"*::: :->okf" \
+&& ret=0
+
+    case $state in
+    (okf)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-help-okf-command-$line[1]:"
+        case $line[1] in
+            (export)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(stats)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(links)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(browse)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(chunk)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(eval)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(prompt)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(diff)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(build)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(release-check)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(rights)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__help__subcmd__rights_commands" \
+"*::: :->rights" \
+&& ret=0
+
+    case $state in
+    (rights)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-help-rights-command-$line[1]:"
+        case $line[1] in
+            (status)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(check)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(add-source)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(report)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(mcp-manifest)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(serve)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(tui)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(webui)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(run)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(procedures)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__help__subcmd__procedures_commands" \
+"*::: :->procedures" \
+&& ret=0
+
+    case $state in
+    (procedures)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-help-procedures-command-$line[1]:"
+        case $line[1] in
+            (list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(new)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(graph)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__help__subcmd__graph_commands" \
+"*::: :->graph" \
+&& ret=0
+
+    case $state in
+    (graph)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-help-graph-command-$line[1]:"
+        case $line[1] in
+            (stats)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(cross-refs)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__help__subcmd__cross-refs_commands" \
+"*::: :->cross-refs" \
+&& ret=0
+
+    case $state in
+    (cross-refs)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-help-cross-refs-command-$line[1]:"
+        case $line[1] in
+            (list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(skills)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__help__subcmd__skills_commands" \
+"*::: :->skills" \
+&& ret=0
+
+    case $state in
+    (skills)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-help-skills-command-$line[1]:"
+        case $line[1] in
+            (list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(show)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(l10n)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__help__subcmd__l10n_commands" \
+"*::: :->l10n" \
+&& ret=0
+
+    case $state in
+    (l10n)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-help-l10n-command-$line[1]:"
+        case $line[1] in
+            (list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(validate)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(export)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(new)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(generate)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(fix)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(review)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(keygen)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(sign)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(install)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(uninstall)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(update)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(publish)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(yank)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(registry)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__help__subcmd__registry_commands" \
+"*::: :->registry" \
+&& ret=0
+
+    case $state in
+    (registry)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-help-registry-command-$line[1]:"
+        case $line[1] in
+            (login)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(logout)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(token)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__help__subcmd__registry__subcmd__token_commands" \
+"*::: :->token" \
+&& ret=0
+
+    case $state in
+    (token)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-help-registry-token-command-$line[1]:"
+        case $line[1] in
+            (rotate)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(keys)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__help__subcmd__registry__subcmd__keys_commands" \
+"*::: :->keys" \
+&& ret=0
+
+    case $state in
+    (keys)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-help-registry-keys-command-$line[1]:"
+        case $line[1] in
+            (add)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(pack)
+_arguments "${_arguments_options[@]}" : \
+":: :_dkp__subcmd__help__subcmd__registry__subcmd__pack_commands" \
+"*::: :->pack" \
+&& ret=0
+
+    case $state in
+    (pack)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dkp-help-registry-pack-command-$line[1]:"
+        case $line[1] in
+            (versions)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(set-visibility)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(grant)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(revoke)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(access)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+}
+
+(( $+functions[_dkp_commands] )) ||
+_dkp_commands() {
+    local commands; commands=(
+'init:Scaffold a new DKP pack directory with all required files' \
+'info:Print a summary of a pack (name, version, asset counts, compliance)' \
+'list:List all packs under a root directory' \
+'validate:Run schema and compliance checks; exit non-zero on failure' \
+'search:Full-text BM25 search across machine assets (or registry with --registry)' \
+'get:Retrieve a specific asset or all assets of a type' \
+'inject:Print a ready-to-inject LLM context block' \
+'export:Convert machine assets to another format (okf, langchain, llamaindex, …)' \
+'okf:OKF-specific operations (export, validate, stats, links, browse)' \
+'chunk:Retrieve the top-N most relevant retrieval chunks for a query' \
+'eval:Run eval set against baseline and grounded prompts; print delta report' \
+'prompt:Interactive grounded prompt REPL for testing a pack' \
+'diff:Compare two pack versions and report what changed' \
+'build:Package a pack into a versioned archive with checksums.json' \
+'release-check:Pre-release compliance checklist (runs all gates, checks human fields)' \
+'rights:Source and rights log operations' \
+'mcp-manifest:Generate or regenerate machine/mcp_manifest.json' \
+'serve:Start the pack as an MCP server (requires --features mcp)' \
+'tui:Interactive TUI browser (requires --features tui)' \
+'webui:Browse a pack in a local web UI (requires --features webui)' \
+'run:Invoke a WASM/WASI procedure from machine/procedures/' \
+'procedures:List, validate, and scaffold executable procedures' \
+'graph:Inspect and validate knowledge_graph.json' \
+'cross-refs:Inspect and validate cross_refs.json' \
+'skills:Manage and validate the skills/ layer' \
+'l10n:Manage and validate the l10n/ localization layer' \
+'new:Scaffold + LLM-generate a complete pack in one command' \
+'generate:Run (or re-run) LLM generation on an existing pack' \
+'fix:Failure-aware chunk regeneration using eval results' \
+'review:Generate evidence drafts for manual review gates' \
+'keygen:Generate an Ed25519 keypair for signing packs' \
+'sign:Sign a built archive with an Ed25519 private key' \
+'install:Install a pack from the registry' \
+'uninstall:Remove an installed pack' \
+'update:Re-resolve and update installed packs to satisfy lock-file constraints' \
+'publish:Publish a built and signed pack to the registry' \
+'yank:Mark a published version as yanked' \
+'registry:Registry account and pack management (login, logout, keys, access)' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__build_commands] )) ||
+_dkp__subcmd__build_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp build commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__chunk_commands] )) ||
+_dkp__subcmd__chunk_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp chunk commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__cross-refs_commands] )) ||
+_dkp__subcmd__cross-refs_commands() {
+    local commands; commands=(
+'list:List all declared pack dependencies' \
+'validate:Check local_id values resolve to concepts in this bundle (Gate 4)' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp cross-refs commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__cross-refs__subcmd__help_commands] )) ||
+_dkp__subcmd__cross-refs__subcmd__help_commands() {
+    local commands; commands=(
+'list:List all declared pack dependencies' \
+'validate:Check local_id values resolve to concepts in this bundle (Gate 4)' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp cross-refs help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__cross-refs__subcmd__help__subcmd__help_commands] )) ||
+_dkp__subcmd__cross-refs__subcmd__help__subcmd__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp cross-refs help help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__cross-refs__subcmd__help__subcmd__list_commands] )) ||
+_dkp__subcmd__cross-refs__subcmd__help__subcmd__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp cross-refs help list commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__cross-refs__subcmd__help__subcmd__validate_commands] )) ||
+_dkp__subcmd__cross-refs__subcmd__help__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp cross-refs help validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__cross-refs__subcmd__list_commands] )) ||
+_dkp__subcmd__cross-refs__subcmd__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp cross-refs list commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__cross-refs__subcmd__validate_commands] )) ||
+_dkp__subcmd__cross-refs__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp cross-refs validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__diff_commands] )) ||
+_dkp__subcmd__diff_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp diff commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__eval_commands] )) ||
+_dkp__subcmd__eval_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp eval commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__export_commands] )) ||
+_dkp__subcmd__export_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp export commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__fix_commands] )) ||
+_dkp__subcmd__fix_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp fix commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__generate_commands] )) ||
+_dkp__subcmd__generate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp generate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__get_commands] )) ||
+_dkp__subcmd__get_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp get commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__graph_commands] )) ||
+_dkp__subcmd__graph_commands() {
+    local commands; commands=(
+'stats:Print node and edge counts by type' \
+'validate:Check all edges resolve to known concept IDs (Gate 4)' \
+'list:List all nodes with their type and id' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp graph commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__graph__subcmd__help_commands] )) ||
+_dkp__subcmd__graph__subcmd__help_commands() {
+    local commands; commands=(
+'stats:Print node and edge counts by type' \
+'validate:Check all edges resolve to known concept IDs (Gate 4)' \
+'list:List all nodes with their type and id' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp graph help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__graph__subcmd__help__subcmd__help_commands] )) ||
+_dkp__subcmd__graph__subcmd__help__subcmd__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp graph help help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__graph__subcmd__help__subcmd__list_commands] )) ||
+_dkp__subcmd__graph__subcmd__help__subcmd__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp graph help list commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__graph__subcmd__help__subcmd__stats_commands] )) ||
+_dkp__subcmd__graph__subcmd__help__subcmd__stats_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp graph help stats commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__graph__subcmd__help__subcmd__validate_commands] )) ||
+_dkp__subcmd__graph__subcmd__help__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp graph help validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__graph__subcmd__list_commands] )) ||
+_dkp__subcmd__graph__subcmd__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp graph list commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__graph__subcmd__stats_commands] )) ||
+_dkp__subcmd__graph__subcmd__stats_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp graph stats commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__graph__subcmd__validate_commands] )) ||
+_dkp__subcmd__graph__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp graph validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help_commands] )) ||
+_dkp__subcmd__help_commands() {
+    local commands; commands=(
+'init:Scaffold a new DKP pack directory with all required files' \
+'info:Print a summary of a pack (name, version, asset counts, compliance)' \
+'list:List all packs under a root directory' \
+'validate:Run schema and compliance checks; exit non-zero on failure' \
+'search:Full-text BM25 search across machine assets (or registry with --registry)' \
+'get:Retrieve a specific asset or all assets of a type' \
+'inject:Print a ready-to-inject LLM context block' \
+'export:Convert machine assets to another format (okf, langchain, llamaindex, …)' \
+'okf:OKF-specific operations (export, validate, stats, links, browse)' \
+'chunk:Retrieve the top-N most relevant retrieval chunks for a query' \
+'eval:Run eval set against baseline and grounded prompts; print delta report' \
+'prompt:Interactive grounded prompt REPL for testing a pack' \
+'diff:Compare two pack versions and report what changed' \
+'build:Package a pack into a versioned archive with checksums.json' \
+'release-check:Pre-release compliance checklist (runs all gates, checks human fields)' \
+'rights:Source and rights log operations' \
+'mcp-manifest:Generate or regenerate machine/mcp_manifest.json' \
+'serve:Start the pack as an MCP server (requires --features mcp)' \
+'tui:Interactive TUI browser (requires --features tui)' \
+'webui:Browse a pack in a local web UI (requires --features webui)' \
+'run:Invoke a WASM/WASI procedure from machine/procedures/' \
+'procedures:List, validate, and scaffold executable procedures' \
+'graph:Inspect and validate knowledge_graph.json' \
+'cross-refs:Inspect and validate cross_refs.json' \
+'skills:Manage and validate the skills/ layer' \
+'l10n:Manage and validate the l10n/ localization layer' \
+'new:Scaffold + LLM-generate a complete pack in one command' \
+'generate:Run (or re-run) LLM generation on an existing pack' \
+'fix:Failure-aware chunk regeneration using eval results' \
+'review:Generate evidence drafts for manual review gates' \
+'keygen:Generate an Ed25519 keypair for signing packs' \
+'sign:Sign a built archive with an Ed25519 private key' \
+'install:Install a pack from the registry' \
+'uninstall:Remove an installed pack' \
+'update:Re-resolve and update installed packs to satisfy lock-file constraints' \
+'publish:Publish a built and signed pack to the registry' \
+'yank:Mark a published version as yanked' \
+'registry:Registry account and pack management (login, logout, keys, access)' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__build_commands] )) ||
+_dkp__subcmd__help__subcmd__build_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help build commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__chunk_commands] )) ||
+_dkp__subcmd__help__subcmd__chunk_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help chunk commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__cross-refs_commands] )) ||
+_dkp__subcmd__help__subcmd__cross-refs_commands() {
+    local commands; commands=(
+'list:List all declared pack dependencies' \
+'validate:Check local_id values resolve to concepts in this bundle (Gate 4)' \
+    )
+    _describe -t commands 'dkp help cross-refs commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__cross-refs__subcmd__list_commands] )) ||
+_dkp__subcmd__help__subcmd__cross-refs__subcmd__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help cross-refs list commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__cross-refs__subcmd__validate_commands] )) ||
+_dkp__subcmd__help__subcmd__cross-refs__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help cross-refs validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__diff_commands] )) ||
+_dkp__subcmd__help__subcmd__diff_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help diff commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__eval_commands] )) ||
+_dkp__subcmd__help__subcmd__eval_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help eval commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__export_commands] )) ||
+_dkp__subcmd__help__subcmd__export_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help export commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__fix_commands] )) ||
+_dkp__subcmd__help__subcmd__fix_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help fix commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__generate_commands] )) ||
+_dkp__subcmd__help__subcmd__generate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help generate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__get_commands] )) ||
+_dkp__subcmd__help__subcmd__get_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help get commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__graph_commands] )) ||
+_dkp__subcmd__help__subcmd__graph_commands() {
+    local commands; commands=(
+'stats:Print node and edge counts by type' \
+'validate:Check all edges resolve to known concept IDs (Gate 4)' \
+'list:List all nodes with their type and id' \
+    )
+    _describe -t commands 'dkp help graph commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__graph__subcmd__list_commands] )) ||
+_dkp__subcmd__help__subcmd__graph__subcmd__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help graph list commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__graph__subcmd__stats_commands] )) ||
+_dkp__subcmd__help__subcmd__graph__subcmd__stats_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help graph stats commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__graph__subcmd__validate_commands] )) ||
+_dkp__subcmd__help__subcmd__graph__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help graph validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__help_commands] )) ||
+_dkp__subcmd__help__subcmd__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__info_commands] )) ||
+_dkp__subcmd__help__subcmd__info_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help info commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__init_commands] )) ||
+_dkp__subcmd__help__subcmd__init_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help init commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__inject_commands] )) ||
+_dkp__subcmd__help__subcmd__inject_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help inject commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__install_commands] )) ||
+_dkp__subcmd__help__subcmd__install_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help install commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__keygen_commands] )) ||
+_dkp__subcmd__help__subcmd__keygen_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help keygen commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__l10n_commands] )) ||
+_dkp__subcmd__help__subcmd__l10n_commands() {
+    local commands; commands=(
+'list:List available locales' \
+'validate:Check locale content doesn'\''t contradict the base pack' \
+'export:Export a locale-specific bundle' \
+    )
+    _describe -t commands 'dkp help l10n commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__l10n__subcmd__export_commands] )) ||
+_dkp__subcmd__help__subcmd__l10n__subcmd__export_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help l10n export commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__l10n__subcmd__list_commands] )) ||
+_dkp__subcmd__help__subcmd__l10n__subcmd__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help l10n list commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__l10n__subcmd__validate_commands] )) ||
+_dkp__subcmd__help__subcmd__l10n__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help l10n validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__list_commands] )) ||
+_dkp__subcmd__help__subcmd__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help list commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__mcp-manifest_commands] )) ||
+_dkp__subcmd__help__subcmd__mcp-manifest_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help mcp-manifest commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__new_commands] )) ||
+_dkp__subcmd__help__subcmd__new_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help new commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__okf_commands] )) ||
+_dkp__subcmd__help__subcmd__okf_commands() {
+    local commands; commands=(
+'export:Generate okf/ from machine/' \
+'validate:Check OKF conformance (Gate 8)' \
+'stats:Print concept count by type' \
+'links:Check cross-link integrity' \
+'browse:Interactive terminal browser' \
+    )
+    _describe -t commands 'dkp help okf commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__okf__subcmd__browse_commands] )) ||
+_dkp__subcmd__help__subcmd__okf__subcmd__browse_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help okf browse commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__okf__subcmd__export_commands] )) ||
+_dkp__subcmd__help__subcmd__okf__subcmd__export_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help okf export commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__okf__subcmd__links_commands] )) ||
+_dkp__subcmd__help__subcmd__okf__subcmd__links_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help okf links commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__okf__subcmd__stats_commands] )) ||
+_dkp__subcmd__help__subcmd__okf__subcmd__stats_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help okf stats commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__okf__subcmd__validate_commands] )) ||
+_dkp__subcmd__help__subcmd__okf__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help okf validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__procedures_commands] )) ||
+_dkp__subcmd__help__subcmd__procedures_commands() {
+    local commands; commands=(
+'list:List all procedures defined in machine/procedures/' \
+'validate:Validate procedure file completeness and schema correctness' \
+'new:Scaffold a new Rust WASI procedure project' \
+    )
+    _describe -t commands 'dkp help procedures commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__procedures__subcmd__list_commands] )) ||
+_dkp__subcmd__help__subcmd__procedures__subcmd__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help procedures list commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__procedures__subcmd__new_commands] )) ||
+_dkp__subcmd__help__subcmd__procedures__subcmd__new_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help procedures new commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__procedures__subcmd__validate_commands] )) ||
+_dkp__subcmd__help__subcmd__procedures__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help procedures validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__prompt_commands] )) ||
+_dkp__subcmd__help__subcmd__prompt_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help prompt commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__publish_commands] )) ||
+_dkp__subcmd__help__subcmd__publish_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help publish commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__registry_commands] )) ||
+_dkp__subcmd__help__subcmd__registry_commands() {
+    local commands; commands=(
+'login:Authenticate and save API key to ~/.dkp/credentials' \
+'logout:Remove saved credentials' \
+'token:Rotate your API key' \
+'keys:Register an Ed25519 public key with the registry' \
+'pack:Pack-level management subcommands' \
+    )
+    _describe -t commands 'dkp help registry commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__registry__subcmd__keys_commands] )) ||
+_dkp__subcmd__help__subcmd__registry__subcmd__keys_commands() {
+    local commands; commands=(
+'add:' \
+    )
+    _describe -t commands 'dkp help registry keys commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__registry__subcmd__keys__subcmd__add_commands] )) ||
+_dkp__subcmd__help__subcmd__registry__subcmd__keys__subcmd__add_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help registry keys add commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__registry__subcmd__login_commands] )) ||
+_dkp__subcmd__help__subcmd__registry__subcmd__login_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help registry login commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__registry__subcmd__logout_commands] )) ||
+_dkp__subcmd__help__subcmd__registry__subcmd__logout_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help registry logout commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__registry__subcmd__pack_commands] )) ||
+_dkp__subcmd__help__subcmd__registry__subcmd__pack_commands() {
+    local commands; commands=(
+'versions:List all published versions of a pack' \
+'set-visibility:Set pack visibility' \
+'grant:Grant access to a private pack' \
+'revoke:Revoke access to a private pack' \
+'access:List accounts with access to a private pack' \
+    )
+    _describe -t commands 'dkp help registry pack commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__registry__subcmd__pack__subcmd__access_commands] )) ||
+_dkp__subcmd__help__subcmd__registry__subcmd__pack__subcmd__access_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help registry pack access commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__registry__subcmd__pack__subcmd__grant_commands] )) ||
+_dkp__subcmd__help__subcmd__registry__subcmd__pack__subcmd__grant_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help registry pack grant commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__registry__subcmd__pack__subcmd__revoke_commands] )) ||
+_dkp__subcmd__help__subcmd__registry__subcmd__pack__subcmd__revoke_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help registry pack revoke commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__registry__subcmd__pack__subcmd__set-visibility_commands] )) ||
+_dkp__subcmd__help__subcmd__registry__subcmd__pack__subcmd__set-visibility_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help registry pack set-visibility commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__registry__subcmd__pack__subcmd__versions_commands] )) ||
+_dkp__subcmd__help__subcmd__registry__subcmd__pack__subcmd__versions_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help registry pack versions commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__registry__subcmd__token_commands] )) ||
+_dkp__subcmd__help__subcmd__registry__subcmd__token_commands() {
+    local commands; commands=(
+'rotate:' \
+    )
+    _describe -t commands 'dkp help registry token commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__registry__subcmd__token__subcmd__rotate_commands] )) ||
+_dkp__subcmd__help__subcmd__registry__subcmd__token__subcmd__rotate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help registry token rotate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__release-check_commands] )) ||
+_dkp__subcmd__help__subcmd__release-check_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help release-check commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__review_commands] )) ||
+_dkp__subcmd__help__subcmd__review_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help review commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__rights_commands] )) ||
+_dkp__subcmd__help__subcmd__rights_commands() {
+    local commands; commands=(
+'status:Summary of sources and rights coverage' \
+'check:Flag entries with missing fields or expired rights' \
+'add-source:Interactive prompt to add a source entry' \
+'report:Formatted compliance report for human review' \
+    )
+    _describe -t commands 'dkp help rights commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__rights__subcmd__add-source_commands] )) ||
+_dkp__subcmd__help__subcmd__rights__subcmd__add-source_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help rights add-source commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__rights__subcmd__check_commands] )) ||
+_dkp__subcmd__help__subcmd__rights__subcmd__check_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help rights check commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__rights__subcmd__report_commands] )) ||
+_dkp__subcmd__help__subcmd__rights__subcmd__report_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help rights report commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__rights__subcmd__status_commands] )) ||
+_dkp__subcmd__help__subcmd__rights__subcmd__status_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help rights status commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__run_commands] )) ||
+_dkp__subcmd__help__subcmd__run_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help run commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__search_commands] )) ||
+_dkp__subcmd__help__subcmd__search_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help search commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__serve_commands] )) ||
+_dkp__subcmd__help__subcmd__serve_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help serve commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__sign_commands] )) ||
+_dkp__subcmd__help__subcmd__sign_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help sign commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__skills_commands] )) ||
+_dkp__subcmd__help__subcmd__skills_commands() {
+    local commands; commands=(
+'list:List all skills in skills/' \
+'validate:Check SKILL.md format conformance' \
+'show:Print a specific skill'\''s SKILL.md' \
+    )
+    _describe -t commands 'dkp help skills commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__skills__subcmd__list_commands] )) ||
+_dkp__subcmd__help__subcmd__skills__subcmd__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help skills list commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__skills__subcmd__show_commands] )) ||
+_dkp__subcmd__help__subcmd__skills__subcmd__show_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help skills show commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__skills__subcmd__validate_commands] )) ||
+_dkp__subcmd__help__subcmd__skills__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help skills validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__tui_commands] )) ||
+_dkp__subcmd__help__subcmd__tui_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help tui commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__uninstall_commands] )) ||
+_dkp__subcmd__help__subcmd__uninstall_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help uninstall commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__update_commands] )) ||
+_dkp__subcmd__help__subcmd__update_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help update commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__validate_commands] )) ||
+_dkp__subcmd__help__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__webui_commands] )) ||
+_dkp__subcmd__help__subcmd__webui_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help webui commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__yank_commands] )) ||
+_dkp__subcmd__help__subcmd__yank_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help yank commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__info_commands] )) ||
+_dkp__subcmd__info_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp info commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__init_commands] )) ||
+_dkp__subcmd__init_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp init commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__inject_commands] )) ||
+_dkp__subcmd__inject_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp inject commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__install_commands] )) ||
+_dkp__subcmd__install_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp install commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__keygen_commands] )) ||
+_dkp__subcmd__keygen_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp keygen commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__l10n_commands] )) ||
+_dkp__subcmd__l10n_commands() {
+    local commands; commands=(
+'list:List available locales' \
+'validate:Check locale content doesn'\''t contradict the base pack' \
+'export:Export a locale-specific bundle' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp l10n commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__l10n__subcmd__export_commands] )) ||
+_dkp__subcmd__l10n__subcmd__export_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp l10n export commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__l10n__subcmd__help_commands] )) ||
+_dkp__subcmd__l10n__subcmd__help_commands() {
+    local commands; commands=(
+'list:List available locales' \
+'validate:Check locale content doesn'\''t contradict the base pack' \
+'export:Export a locale-specific bundle' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp l10n help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__l10n__subcmd__help__subcmd__export_commands] )) ||
+_dkp__subcmd__l10n__subcmd__help__subcmd__export_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp l10n help export commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__l10n__subcmd__help__subcmd__help_commands] )) ||
+_dkp__subcmd__l10n__subcmd__help__subcmd__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp l10n help help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__l10n__subcmd__help__subcmd__list_commands] )) ||
+_dkp__subcmd__l10n__subcmd__help__subcmd__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp l10n help list commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__l10n__subcmd__help__subcmd__validate_commands] )) ||
+_dkp__subcmd__l10n__subcmd__help__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp l10n help validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__l10n__subcmd__list_commands] )) ||
+_dkp__subcmd__l10n__subcmd__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp l10n list commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__l10n__subcmd__validate_commands] )) ||
+_dkp__subcmd__l10n__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp l10n validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__list_commands] )) ||
+_dkp__subcmd__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp list commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__mcp-manifest_commands] )) ||
+_dkp__subcmd__mcp-manifest_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp mcp-manifest commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__new_commands] )) ||
+_dkp__subcmd__new_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp new commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__okf_commands] )) ||
+_dkp__subcmd__okf_commands() {
+    local commands; commands=(
+'export:Generate okf/ from machine/' \
+'validate:Check OKF conformance (Gate 8)' \
+'stats:Print concept count by type' \
+'links:Check cross-link integrity' \
+'browse:Interactive terminal browser' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp okf commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__okf__subcmd__browse_commands] )) ||
+_dkp__subcmd__okf__subcmd__browse_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp okf browse commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__okf__subcmd__export_commands] )) ||
+_dkp__subcmd__okf__subcmd__export_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp okf export commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__okf__subcmd__help_commands] )) ||
+_dkp__subcmd__okf__subcmd__help_commands() {
+    local commands; commands=(
+'export:Generate okf/ from machine/' \
+'validate:Check OKF conformance (Gate 8)' \
+'stats:Print concept count by type' \
+'links:Check cross-link integrity' \
+'browse:Interactive terminal browser' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp okf help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__okf__subcmd__help__subcmd__browse_commands] )) ||
+_dkp__subcmd__okf__subcmd__help__subcmd__browse_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp okf help browse commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__okf__subcmd__help__subcmd__export_commands] )) ||
+_dkp__subcmd__okf__subcmd__help__subcmd__export_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp okf help export commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__okf__subcmd__help__subcmd__help_commands] )) ||
+_dkp__subcmd__okf__subcmd__help__subcmd__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp okf help help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__okf__subcmd__help__subcmd__links_commands] )) ||
+_dkp__subcmd__okf__subcmd__help__subcmd__links_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp okf help links commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__okf__subcmd__help__subcmd__stats_commands] )) ||
+_dkp__subcmd__okf__subcmd__help__subcmd__stats_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp okf help stats commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__okf__subcmd__help__subcmd__validate_commands] )) ||
+_dkp__subcmd__okf__subcmd__help__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp okf help validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__okf__subcmd__links_commands] )) ||
+_dkp__subcmd__okf__subcmd__links_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp okf links commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__okf__subcmd__stats_commands] )) ||
+_dkp__subcmd__okf__subcmd__stats_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp okf stats commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__okf__subcmd__validate_commands] )) ||
+_dkp__subcmd__okf__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp okf validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__procedures_commands] )) ||
+_dkp__subcmd__procedures_commands() {
+    local commands; commands=(
+'list:List all procedures defined in machine/procedures/' \
+'validate:Validate procedure file completeness and schema correctness' \
+'new:Scaffold a new Rust WASI procedure project' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp procedures commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__procedures__subcmd__help_commands] )) ||
+_dkp__subcmd__procedures__subcmd__help_commands() {
+    local commands; commands=(
+'list:List all procedures defined in machine/procedures/' \
+'validate:Validate procedure file completeness and schema correctness' \
+'new:Scaffold a new Rust WASI procedure project' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp procedures help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__procedures__subcmd__help__subcmd__help_commands] )) ||
+_dkp__subcmd__procedures__subcmd__help__subcmd__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp procedures help help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__procedures__subcmd__help__subcmd__list_commands] )) ||
+_dkp__subcmd__procedures__subcmd__help__subcmd__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp procedures help list commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__procedures__subcmd__help__subcmd__new_commands] )) ||
+_dkp__subcmd__procedures__subcmd__help__subcmd__new_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp procedures help new commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__procedures__subcmd__help__subcmd__validate_commands] )) ||
+_dkp__subcmd__procedures__subcmd__help__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp procedures help validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__procedures__subcmd__list_commands] )) ||
+_dkp__subcmd__procedures__subcmd__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp procedures list commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__procedures__subcmd__new_commands] )) ||
+_dkp__subcmd__procedures__subcmd__new_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp procedures new commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__procedures__subcmd__validate_commands] )) ||
+_dkp__subcmd__procedures__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp procedures validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__prompt_commands] )) ||
+_dkp__subcmd__prompt_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp prompt commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__publish_commands] )) ||
+_dkp__subcmd__publish_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp publish commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry_commands] )) ||
+_dkp__subcmd__registry_commands() {
+    local commands; commands=(
+'login:Authenticate and save API key to ~/.dkp/credentials' \
+'logout:Remove saved credentials' \
+'token:Rotate your API key' \
+'keys:Register an Ed25519 public key with the registry' \
+'pack:Pack-level management subcommands' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp registry commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__help_commands] )) ||
+_dkp__subcmd__registry__subcmd__help_commands() {
+    local commands; commands=(
+'login:Authenticate and save API key to ~/.dkp/credentials' \
+'logout:Remove saved credentials' \
+'token:Rotate your API key' \
+'keys:Register an Ed25519 public key with the registry' \
+'pack:Pack-level management subcommands' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp registry help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__help__subcmd__help_commands] )) ||
+_dkp__subcmd__registry__subcmd__help__subcmd__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry help help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__help__subcmd__keys_commands] )) ||
+_dkp__subcmd__registry__subcmd__help__subcmd__keys_commands() {
+    local commands; commands=(
+'add:' \
+    )
+    _describe -t commands 'dkp registry help keys commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__help__subcmd__keys__subcmd__add_commands] )) ||
+_dkp__subcmd__registry__subcmd__help__subcmd__keys__subcmd__add_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry help keys add commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__help__subcmd__login_commands] )) ||
+_dkp__subcmd__registry__subcmd__help__subcmd__login_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry help login commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__help__subcmd__logout_commands] )) ||
+_dkp__subcmd__registry__subcmd__help__subcmd__logout_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry help logout commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__help__subcmd__pack_commands] )) ||
+_dkp__subcmd__registry__subcmd__help__subcmd__pack_commands() {
+    local commands; commands=(
+'versions:List all published versions of a pack' \
+'set-visibility:Set pack visibility' \
+'grant:Grant access to a private pack' \
+'revoke:Revoke access to a private pack' \
+'access:List accounts with access to a private pack' \
+    )
+    _describe -t commands 'dkp registry help pack commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__help__subcmd__pack__subcmd__access_commands] )) ||
+_dkp__subcmd__registry__subcmd__help__subcmd__pack__subcmd__access_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry help pack access commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__help__subcmd__pack__subcmd__grant_commands] )) ||
+_dkp__subcmd__registry__subcmd__help__subcmd__pack__subcmd__grant_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry help pack grant commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__help__subcmd__pack__subcmd__revoke_commands] )) ||
+_dkp__subcmd__registry__subcmd__help__subcmd__pack__subcmd__revoke_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry help pack revoke commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__help__subcmd__pack__subcmd__set-visibility_commands] )) ||
+_dkp__subcmd__registry__subcmd__help__subcmd__pack__subcmd__set-visibility_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry help pack set-visibility commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__help__subcmd__pack__subcmd__versions_commands] )) ||
+_dkp__subcmd__registry__subcmd__help__subcmd__pack__subcmd__versions_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry help pack versions commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__help__subcmd__token_commands] )) ||
+_dkp__subcmd__registry__subcmd__help__subcmd__token_commands() {
+    local commands; commands=(
+'rotate:' \
+    )
+    _describe -t commands 'dkp registry help token commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__help__subcmd__token__subcmd__rotate_commands] )) ||
+_dkp__subcmd__registry__subcmd__help__subcmd__token__subcmd__rotate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry help token rotate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__keys_commands] )) ||
+_dkp__subcmd__registry__subcmd__keys_commands() {
+    local commands; commands=(
+'add:' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp registry keys commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__keys__subcmd__add_commands] )) ||
+_dkp__subcmd__registry__subcmd__keys__subcmd__add_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry keys add commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__keys__subcmd__help_commands] )) ||
+_dkp__subcmd__registry__subcmd__keys__subcmd__help_commands() {
+    local commands; commands=(
+'add:' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp registry keys help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__keys__subcmd__help__subcmd__add_commands] )) ||
+_dkp__subcmd__registry__subcmd__keys__subcmd__help__subcmd__add_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry keys help add commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__keys__subcmd__help__subcmd__help_commands] )) ||
+_dkp__subcmd__registry__subcmd__keys__subcmd__help__subcmd__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry keys help help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__login_commands] )) ||
+_dkp__subcmd__registry__subcmd__login_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry login commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__logout_commands] )) ||
+_dkp__subcmd__registry__subcmd__logout_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry logout commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__pack_commands] )) ||
+_dkp__subcmd__registry__subcmd__pack_commands() {
+    local commands; commands=(
+'versions:List all published versions of a pack' \
+'set-visibility:Set pack visibility' \
+'grant:Grant access to a private pack' \
+'revoke:Revoke access to a private pack' \
+'access:List accounts with access to a private pack' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp registry pack commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__pack__subcmd__access_commands] )) ||
+_dkp__subcmd__registry__subcmd__pack__subcmd__access_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry pack access commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__pack__subcmd__grant_commands] )) ||
+_dkp__subcmd__registry__subcmd__pack__subcmd__grant_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry pack grant commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__pack__subcmd__help_commands] )) ||
+_dkp__subcmd__registry__subcmd__pack__subcmd__help_commands() {
+    local commands; commands=(
+'versions:List all published versions of a pack' \
+'set-visibility:Set pack visibility' \
+'grant:Grant access to a private pack' \
+'revoke:Revoke access to a private pack' \
+'access:List accounts with access to a private pack' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp registry pack help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__pack__subcmd__help__subcmd__access_commands] )) ||
+_dkp__subcmd__registry__subcmd__pack__subcmd__help__subcmd__access_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry pack help access commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__pack__subcmd__help__subcmd__grant_commands] )) ||
+_dkp__subcmd__registry__subcmd__pack__subcmd__help__subcmd__grant_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry pack help grant commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__pack__subcmd__help__subcmd__help_commands] )) ||
+_dkp__subcmd__registry__subcmd__pack__subcmd__help__subcmd__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry pack help help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__pack__subcmd__help__subcmd__revoke_commands] )) ||
+_dkp__subcmd__registry__subcmd__pack__subcmd__help__subcmd__revoke_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry pack help revoke commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__pack__subcmd__help__subcmd__set-visibility_commands] )) ||
+_dkp__subcmd__registry__subcmd__pack__subcmd__help__subcmd__set-visibility_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry pack help set-visibility commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__pack__subcmd__help__subcmd__versions_commands] )) ||
+_dkp__subcmd__registry__subcmd__pack__subcmd__help__subcmd__versions_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry pack help versions commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__pack__subcmd__revoke_commands] )) ||
+_dkp__subcmd__registry__subcmd__pack__subcmd__revoke_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry pack revoke commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__pack__subcmd__set-visibility_commands] )) ||
+_dkp__subcmd__registry__subcmd__pack__subcmd__set-visibility_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry pack set-visibility commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__pack__subcmd__versions_commands] )) ||
+_dkp__subcmd__registry__subcmd__pack__subcmd__versions_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry pack versions commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__token_commands] )) ||
+_dkp__subcmd__registry__subcmd__token_commands() {
+    local commands; commands=(
+'rotate:' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp registry token commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__token__subcmd__help_commands] )) ||
+_dkp__subcmd__registry__subcmd__token__subcmd__help_commands() {
+    local commands; commands=(
+'rotate:' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp registry token help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__token__subcmd__help__subcmd__help_commands] )) ||
+_dkp__subcmd__registry__subcmd__token__subcmd__help__subcmd__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry token help help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__token__subcmd__help__subcmd__rotate_commands] )) ||
+_dkp__subcmd__registry__subcmd__token__subcmd__help__subcmd__rotate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry token help rotate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__token__subcmd__rotate_commands] )) ||
+_dkp__subcmd__registry__subcmd__token__subcmd__rotate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry token rotate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__release-check_commands] )) ||
+_dkp__subcmd__release-check_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp release-check commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__review_commands] )) ||
+_dkp__subcmd__review_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp review commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__rights_commands] )) ||
+_dkp__subcmd__rights_commands() {
+    local commands; commands=(
+'status:Summary of sources and rights coverage' \
+'check:Flag entries with missing fields or expired rights' \
+'add-source:Interactive prompt to add a source entry' \
+'report:Formatted compliance report for human review' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp rights commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__rights__subcmd__add-source_commands] )) ||
+_dkp__subcmd__rights__subcmd__add-source_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp rights add-source commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__rights__subcmd__check_commands] )) ||
+_dkp__subcmd__rights__subcmd__check_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp rights check commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__rights__subcmd__help_commands] )) ||
+_dkp__subcmd__rights__subcmd__help_commands() {
+    local commands; commands=(
+'status:Summary of sources and rights coverage' \
+'check:Flag entries with missing fields or expired rights' \
+'add-source:Interactive prompt to add a source entry' \
+'report:Formatted compliance report for human review' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp rights help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__rights__subcmd__help__subcmd__add-source_commands] )) ||
+_dkp__subcmd__rights__subcmd__help__subcmd__add-source_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp rights help add-source commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__rights__subcmd__help__subcmd__check_commands] )) ||
+_dkp__subcmd__rights__subcmd__help__subcmd__check_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp rights help check commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__rights__subcmd__help__subcmd__help_commands] )) ||
+_dkp__subcmd__rights__subcmd__help__subcmd__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp rights help help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__rights__subcmd__help__subcmd__report_commands] )) ||
+_dkp__subcmd__rights__subcmd__help__subcmd__report_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp rights help report commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__rights__subcmd__help__subcmd__status_commands] )) ||
+_dkp__subcmd__rights__subcmd__help__subcmd__status_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp rights help status commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__rights__subcmd__report_commands] )) ||
+_dkp__subcmd__rights__subcmd__report_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp rights report commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__rights__subcmd__status_commands] )) ||
+_dkp__subcmd__rights__subcmd__status_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp rights status commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__run_commands] )) ||
+_dkp__subcmd__run_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp run commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__search_commands] )) ||
+_dkp__subcmd__search_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp search commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__serve_commands] )) ||
+_dkp__subcmd__serve_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp serve commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__sign_commands] )) ||
+_dkp__subcmd__sign_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp sign commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__skills_commands] )) ||
+_dkp__subcmd__skills_commands() {
+    local commands; commands=(
+'list:List all skills in skills/' \
+'validate:Check SKILL.md format conformance' \
+'show:Print a specific skill'\''s SKILL.md' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp skills commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__skills__subcmd__help_commands] )) ||
+_dkp__subcmd__skills__subcmd__help_commands() {
+    local commands; commands=(
+'list:List all skills in skills/' \
+'validate:Check SKILL.md format conformance' \
+'show:Print a specific skill'\''s SKILL.md' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dkp skills help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__skills__subcmd__help__subcmd__help_commands] )) ||
+_dkp__subcmd__skills__subcmd__help__subcmd__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp skills help help commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__skills__subcmd__help__subcmd__list_commands] )) ||
+_dkp__subcmd__skills__subcmd__help__subcmd__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp skills help list commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__skills__subcmd__help__subcmd__show_commands] )) ||
+_dkp__subcmd__skills__subcmd__help__subcmd__show_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp skills help show commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__skills__subcmd__help__subcmd__validate_commands] )) ||
+_dkp__subcmd__skills__subcmd__help__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp skills help validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__skills__subcmd__list_commands] )) ||
+_dkp__subcmd__skills__subcmd__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp skills list commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__skills__subcmd__show_commands] )) ||
+_dkp__subcmd__skills__subcmd__show_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp skills show commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__skills__subcmd__validate_commands] )) ||
+_dkp__subcmd__skills__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp skills validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__tui_commands] )) ||
+_dkp__subcmd__tui_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp tui commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__uninstall_commands] )) ||
+_dkp__subcmd__uninstall_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp uninstall commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__update_commands] )) ||
+_dkp__subcmd__update_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp update commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__validate_commands] )) ||
+_dkp__subcmd__validate_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__webui_commands] )) ||
+_dkp__subcmd__webui_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp webui commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__yank_commands] )) ||
+_dkp__subcmd__yank_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp yank commands' commands "$@"
+}
+
+if [ "$funcstack[1]" = "_dkp" ]; then
+    _dkp "$@"
+else
+    compdef _dkp dkp
+fi
