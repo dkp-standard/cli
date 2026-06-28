@@ -100,8 +100,8 @@ hex = "0.4"
 tempfile = "3"
 
 # Internal crates
-dkp-core = { path = "crates/dkp-core" }
-dkp-gen-core = { path = "crates/dkp-gen-core" }
+dkp-core = { path = "crates/dkp-core", version = "0.1.0" }
+dkp-gen-core = { path = "crates/dkp-gen-core", version = "0.1.0" }
 
 [profile.release]
 opt-level = "z"
