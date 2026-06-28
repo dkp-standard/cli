@@ -41,7 +41,11 @@ pub async fn run(args: BuildArgs, _cli: &CmdCtx) -> Result<()> {
     let pack = Pack::open(&pack_dir)?;
     let manifest = &pack.manifest;
 
-    let slug = manifest.name.to_lowercase().replace(' ', "-");
+    let slug = manifest.name
+        .trim_start_matches('@')
+        .replace('/', "-")
+        .to_lowercase()
+        .replace(' ', "-");
     let version = &manifest.version;
     let base_name = format!("{}-v{}", slug, version);
 

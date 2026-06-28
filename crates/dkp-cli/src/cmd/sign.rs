@@ -8,7 +8,7 @@ use crate::cli::CmdCtx;
 
 #[derive(Args, Debug)]
 pub struct SignArgs {
-    /// Path to the built archive to sign
+    /// Path to the built archive, or to the pack directory (auto-locates archive in build/)
     pub archive: PathBuf,
 
     /// Path to Ed25519 private key (default: ~/.dkp/private.key)
@@ -52,9 +52,30 @@ pub async fn run(args: SignArgs, _cli: &CmdCtx) -> Result<()> {
     let key_array: [u8; 32] = key_bytes.try_into().unwrap();
     let signing_key = SigningKey::from_bytes(&key_array);
 
+    // If a directory is passed, auto-locate the archive in <dir>/build/
+    let archive_path: PathBuf = if args.archive.is_dir() {
+        let build_dir = args.archive.join("build");
+        let entry = fs::read_dir(&build_dir)
+            .with_context(|| format!("no build/ directory found in {}", args.archive.display()))?
+            .flatten()
+            .find(|e| {
+                let name = e.file_name();
+                let n = name.to_string_lossy();
+                n.ends_with(".zip") || n.ends_with(".tar.gz")
+            })
+            .with_context(|| {
+                format!(
+                    "no archive found in {} — run `dkp build` first",
+                    build_dir.display()
+                )
+            })?;
+        entry.path()
+    } else {
+        args.archive.clone()
+    };
+
     // Find checksums.json next to the archive
-    let archive_dir = args
-        .archive
+    let archive_dir = archive_path
         .parent()
         .context("archive path has no parent directory")?;
     let checksums_path = archive_dir.join("checksums.json");
@@ -81,7 +102,7 @@ pub async fn run(args: SignArgs, _cli: &CmdCtx) -> Result<()> {
     println!("Wrote {}", sig_path.display());
     println!(
         "  Signed:   {}",
-        args.archive
+        archive_path
             .file_name()
             .unwrap_or_default()
             .to_string_lossy()

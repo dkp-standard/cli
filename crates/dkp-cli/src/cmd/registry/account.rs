@@ -393,16 +393,21 @@ fn load_public_key(path: &PathBuf) -> Result<String> {
     use base64::Engine;
     let bytes =
         std::fs::read(path).with_context(|| format!("reading key from {}", path.display()))?;
-    // Accept raw 32-byte binary or base64-encoded text
+    // Raw 32-byte binary
     if bytes.len() == 32 {
         return Ok(base64::engine::general_purpose::STANDARD.encode(&bytes));
     }
     let text = String::from_utf8(bytes).context("key file is not UTF-8")?;
     let text = text.trim();
-    // Validate it decodes to 32 bytes
+    // Hex-encoded (keygen writes 64-char hex)
+    if text.len() == 64 && text.chars().all(|c| c.is_ascii_hexdigit()) {
+        let raw = hex::decode(text).context("invalid hex in key file")?;
+        return Ok(base64::engine::general_purpose::STANDARD.encode(&raw));
+    }
+    // Base64-encoded
     let decoded = base64::engine::general_purpose::STANDARD
         .decode(text)
-        .context("key file is not valid base64")?;
+        .context("key file is not hex, raw bytes, or base64")?;
     if decoded.len() != 32 {
         bail!("Ed25519 public key must be 32 bytes; got {}", decoded.len());
     }

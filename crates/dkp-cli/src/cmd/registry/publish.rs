@@ -1,4 +1,7 @@
+use std::path::PathBuf;
+
 use anyhow::{bail, Context, Result};
+use base64::Engine;
 use clap::Args;
 
 use crate::cli::CmdCtx;
@@ -6,9 +9,17 @@ use crate::cmd::registry::account::{load_credentials_from_ctx, resolve_registry_
 
 #[derive(Args, Debug)]
 pub struct PublishArgs {
+    /// Path to the pack directory (defaults to current directory)
+    #[arg(value_name = "PATH")]
+    pub path: Option<PathBuf>,
+
     /// HTTPS URL to the hosted archive (publisher-controlled storage)
     #[arg(long, value_name = "URL")]
     pub url: String,
+
+    /// Directory containing checksums.json and bundle.sig (default: <pack>/build/)
+    #[arg(long, value_name = "DIR")]
+    pub build_dir: Option<PathBuf>,
 
     /// Set pack visibility to private
     #[arg(long)]
@@ -24,23 +35,36 @@ pub struct PublishArgs {
 }
 
 pub async fn run(args: PublishArgs, cli: &CmdCtx) -> Result<()> {
-    let pack = dkp_core::Pack::open(&std::env::current_dir()?)
-        .context("failed to open pack in current directory")?;
+    let pack_dir = match args.path {
+        Some(ref p) => p.clone(),
+        None => std::env::current_dir()?,
+    };
+    let pack = dkp_core::Pack::open(&pack_dir)
+        .context("failed to open pack")?;
     let manifest = pack.manifest.clone();
 
-    let checksums_path = pack.root.join("checksums.json");
+    let artifact_dir = args.build_dir.unwrap_or_else(|| pack.root.join("build"));
+
+    let checksums_path = artifact_dir.join("checksums.json");
     if !checksums_path.exists() {
-        bail!("checksums.json not found — run 'dkp build' first");
+        bail!(
+            "checksums.json not found in {} — run 'dkp build' first (or pass --build-dir)",
+            artifact_dir.display()
+        );
     }
     let checksums: serde_json::Value =
         serde_json::from_str(&std::fs::read_to_string(&checksums_path)?)
             .context("failed to parse checksums.json")?;
 
-    let sig_path = pack.root.join("bundle.sig");
+    let sig_path = artifact_dir.join("bundle.sig");
     if !sig_path.exists() {
-        bail!("bundle.sig not found — run 'dkp sign --key <path>' first");
+        bail!(
+            "bundle.sig not found in {} — run 'dkp sign' first (or pass --build-dir)",
+            artifact_dir.display()
+        );
     }
-    let bundle_sig = std::fs::read_to_string(&sig_path)?.trim().to_owned();
+    let sig_raw = std::fs::read(&sig_path)?;
+    let bundle_sig = base64::engine::general_purpose::STANDARD.encode(&sig_raw);
 
     let visibility = if args.private { "private" } else { "public" }.to_string();
 
