@@ -6,7 +6,7 @@ use crate::cli::CmdCtx;
 
 #[derive(Args, Debug)]
 pub struct UninstallArgs {
-    /// Pack name, e.g. @mathis/nutrition-for-men or @mathis/pack@1.2.0
+    /// Pack name, e.g. @example/nutrition-for-men or @example/pack@1.2.0
     pub name: String,
 
     /// Remove from global store
@@ -15,7 +15,7 @@ pub struct UninstallArgs {
 
     /// Remove from a custom directory
     #[arg(long, value_name = "DIR")]
-    pub dest: Option<PathBuf>,
+    pub out: Option<PathBuf>,
 
     /// Remove all installed versions
     #[arg(long)]

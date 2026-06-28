@@ -1037,7 +1037,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;install' {
-            [CompletionResult]::new('--dest', '--dest', [CompletionResultType]::ParameterName, 'Install to a custom directory')
+            [CompletionResult]::new('--out', '--out', [CompletionResultType]::ParameterName, 'Install to a custom directory')
             [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'Override registry URL')
             [CompletionResult]::new('--token', '--token', [CompletionResultType]::ParameterName, 'Registry API token')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
@@ -1056,7 +1056,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;uninstall' {
-            [CompletionResult]::new('--dest', '--dest', [CompletionResultType]::ParameterName, 'Remove from a custom directory')
+            [CompletionResult]::new('--out', '--out', [CompletionResultType]::ParameterName, 'Remove from a custom directory')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-g', '-g', [CompletionResultType]::ParameterName, 'Remove from global store')
@@ -1089,6 +1089,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
         }
         'dkp;publish' {
             [CompletionResult]::new('--url', '--url', [CompletionResultType]::ParameterName, 'HTTPS URL to the hosted archive (publisher-controlled storage)')
+            [CompletionResult]::new('--build-dir', '--build-dir', [CompletionResultType]::ParameterName, 'Directory containing checksums.json and bundle.sig (default: <pack>/build/)')
             [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'Override registry URL')
             [CompletionResult]::new('--token', '--token', [CompletionResultType]::ParameterName, 'Registry API token')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')

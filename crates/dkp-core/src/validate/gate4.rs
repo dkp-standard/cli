@@ -164,16 +164,16 @@ pub fn run(pack: &Pack) -> GateResult {
         }
     }
 
-    // MCP manifest when mcp.enabled
-    if pack.manifest.mcp.as_ref().is_some_and(|m| m.enabled) {
+    // MCP manifest when mcp block is present
+    if pack.manifest.mcp.is_some() {
         if pack.machine_file("mcp_manifest.json").exists() {
             checks.push(CheckResult::pass(
-                "machine/mcp_manifest.json present (mcp.enabled)",
+                "machine/mcp_manifest.json present (mcp configured)",
             ));
         } else {
             checks.push(CheckResult::fail(
-                "machine/mcp_manifest.json present (mcp.enabled)",
-                "manifest.mcp.enabled is true but machine/mcp_manifest.json is missing",
+                "machine/mcp_manifest.json present (mcp configured)",
+                "manifest.mcp is set but machine/mcp_manifest.json is missing",
             ));
         }
     }

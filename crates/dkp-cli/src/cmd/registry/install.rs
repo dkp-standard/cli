@@ -11,7 +11,7 @@ use dkp_core::registry::types::{LockFile, LockedPack};
 
 #[derive(Args, Debug)]
 pub struct InstallArgs {
-    /// Pack name, e.g. @mathis/nutrition-for-men or @mathis/pack@1.2.0
+    /// Pack name, e.g. @example/nutrition-for-men or @example/pack@1.2.0
     pub name: String,
 
     /// Install to global store (~/.dkp/packs/)
@@ -20,7 +20,7 @@ pub struct InstallArgs {
 
     /// Install to a custom directory
     #[arg(long, value_name = "DIR")]
-    pub dest: Option<PathBuf>,
+    pub out: Option<PathBuf>,
 
     /// Override registry URL
     #[arg(long, value_name = "URL")]
@@ -143,8 +143,8 @@ pub async fn run(args: InstallArgs, cli: &CmdCtx) -> Result<()> {
 
 fn parse_pack_arg(arg: &str) -> (String, String) {
     // Split on the last '@' that is preceded by at least one non-@ character
-    // e.g. "@mathis/pack@1.2.0" -> ("@mathis/pack", "1.2.0")
-    //      "@mathis/pack" -> ("@mathis/pack", "latest")
+    // e.g. "@example/pack@1.2.0" -> ("@example/pack", "1.2.0")
+    //      "@example/pack" -> ("@example/pack", "latest")
     if let Some(pos) = arg.rfind('@').filter(|&p| p > 0) {
         (arg[..pos].to_owned(), arg[pos + 1..].to_owned())
     } else {
@@ -158,8 +158,8 @@ fn resolve_install_dir(
     pack_name: &str,
     version: &str,
 ) -> Result<PathBuf> {
-    if let Some(dest) = &args.dest {
-        return Ok(dest.join(pack_name).join(version));
+    if let Some(out) = &args.out {
+        return Ok(out.join(pack_name).join(version));
     }
     if args.global {
         let global = cli
@@ -180,6 +180,13 @@ fn resolve_install_dir(
         .join(version))
 }
 
+fn strip_top_component(path: &str) -> String {
+    match path.find('/') {
+        Some(i) => path[i + 1..].to_string(),
+        None => String::new(),
+    }
+}
+
 fn hash_archive(bytes: &[u8], format: &str) -> Result<HashMap<String, String>> {
     let mut map = HashMap::new();
     match format {
@@ -190,7 +197,10 @@ fn hash_archive(bytes: &[u8], format: &str) -> Result<HashMap<String, String>> {
                 if file.is_dir() {
                     continue;
                 }
-                let name = file.name().to_string();
+                let name = strip_top_component(file.name());
+                if name.is_empty() {
+                    continue;
+                }
                 let mut hasher = Sha256::new();
                 std::io::copy(&mut file, &mut hasher)?;
                 map.insert(name, hex::encode(hasher.finalize()));
@@ -209,10 +219,14 @@ fn hash_tar<R: std::io::Read>(reader: R, map: &mut HashMap<String, String>) -> R
         if entry.header().entry_type().is_dir() {
             continue;
         }
-        let path = entry.path()?.to_string_lossy().into_owned();
+        let raw = entry.path()?.to_string_lossy().into_owned();
+        let name = strip_top_component(&raw);
+        if name.is_empty() {
+            continue;
+        }
         let mut hasher = Sha256::new();
         std::io::copy(&mut entry, &mut hasher)?;
-        map.insert(path, hex::encode(hasher.finalize()));
+        map.insert(name, hex::encode(hasher.finalize()));
     }
     Ok(())
 }
@@ -230,12 +244,13 @@ fn verify_signature(
         .try_into()
         .context("Ed25519 signature must be 64 bytes")?;
     let sig = Signature::from_bytes(&sig_arr);
-    let canonical = serde_json::to_string(
+    let canonical = serde_json::to_string_pretty(
         &checksums
             .iter()
             .collect::<std::collections::BTreeMap<_, _>>(),
     )?;
-    key.verify(canonical.as_bytes(), &sig)
+    let digest = Sha256::digest(canonical.as_bytes());
+    key.verify(&digest, &sig)
         .context("signature verification failed — pack may have been tampered with")?;
     Ok(())
 }

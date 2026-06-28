@@ -117,11 +117,7 @@ impl Pack {
     }
 
     pub fn mcp_enabled(&self) -> bool {
-        self.manifest
-            .mcp
-            .as_ref()
-            .map(|m| m.enabled)
-            .unwrap_or(false)
+        self.manifest.mcp.is_some()
     }
 
     // ── Asset loaders ────────────────────────────────────────────────────────

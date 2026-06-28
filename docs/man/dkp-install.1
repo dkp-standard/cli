@@ -4,7 +4,7 @@
 .SH NAME
 dkp\-install \- Install a pack from the registry
 .SH SYNOPSIS
-\fBdkp install\fR [\fB\-g\fR|\fB\-\-global\fR] [\fB\-\-output\fR] [\fB\-\-dest\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-registry\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-\-token\fR] [\fB\-\-no\-verify\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fINAME\fR> 
+\fBdkp install\fR [\fB\-g\fR|\fB\-\-global\fR] [\fB\-\-output\fR] [\fB\-\-out\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-registry\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-\-token\fR] [\fB\-\-no\-verify\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fINAME\fR> 
 .SH DESCRIPTION
 Install a pack from the registry
 .SH OPTIONS
@@ -27,7 +27,7 @@ table: Aligned table using comfy\-table
 json: Pretty\-printed JSON
 .RE
 .TP
-\fB\-\-dest\fR \fI<DIR>\fR
+\fB\-\-out\fR \fI<DIR>\fR
 Install to a custom directory
 .TP
 \fB\-q\fR, \fB\-\-quiet\fR
@@ -55,6 +55,6 @@ Print help (see a summary with \*(Aq\-h\*(Aq)
 Print version
 .TP
 <\fINAME\fR>
-Pack name, e.g. @mathis/nutrition\-for\-men or @mathis/pack@1.2.0
+Pack name, e.g. @example/nutrition\-for\-men or @example/pack@1.2.0
 .SH VERSION
 v0.1.2

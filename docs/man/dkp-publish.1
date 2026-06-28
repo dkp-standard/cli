@@ -4,7 +4,7 @@
 .SH NAME
 dkp\-publish \- Publish a built and signed pack to the registry
 .SH SYNOPSIS
-\fBdkp publish\fR [\fB\-\-output\fR] <\fB\-\-url\fR> [\fB\-\-private\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-registry\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-\-token\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] 
+\fBdkp publish\fR [\fB\-\-output\fR] <\fB\-\-url\fR> [\fB\-\-build\-dir\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-private\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-\-registry\fR] [\fB\-\-token\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] [\fIPATH\fR] 
 .SH DESCRIPTION
 Publish a built and signed pack to the registry
 .SH OPTIONS
@@ -27,20 +27,23 @@ json: Pretty\-printed JSON
 \fB\-\-url\fR \fI<URL>\fR
 HTTPS URL to the hosted archive (publisher\-controlled storage)
 .TP
-\fB\-\-private\fR
-Set pack visibility to private
+\fB\-\-build\-dir\fR \fI<DIR>\fR
+Directory containing checksums.json and bundle.sig (default: <pack>/build/)
 .TP
 \fB\-q\fR, \fB\-\-quiet\fR
 Suppress informational output; print only results
 .TP
-\fB\-\-registry\fR \fI<URL>\fR
-Override registry URL
+\fB\-\-private\fR
+Set pack visibility to private
 .TP
 \fB\-v\fR, \fB\-\-verbose\fR
 Print debug info (schema paths, provider calls, etc.)
 .TP
 \fB\-\-audience\fR \fI<ID>\fR
 Filter content to assets tagged for a specific audience profile
+.TP
+\fB\-\-registry\fR \fI<URL>\fR
+Override registry URL
 .TP
 \fB\-\-token\fR \fI<KEY>\fR
 Registry API token
@@ -50,5 +53,8 @@ Print help (see a summary with \*(Aq\-h\*(Aq)
 .TP
 \fB\-V\fR, \fB\-\-version\fR
 Print version
+.TP
+[\fIPATH\fR]
+Path to the pack directory (defaults to current directory)
 .SH VERSION
 v0.1.2

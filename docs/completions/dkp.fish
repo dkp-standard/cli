@@ -649,7 +649,7 @@ complete -c dkp -n "__fish_dkp_using_subcommand sign" -s q -l quiet -d 'Suppress
 complete -c dkp -n "__fish_dkp_using_subcommand sign" -s v -l verbose -d 'Print debug info (schema paths, provider calls, etc.)'
 complete -c dkp -n "__fish_dkp_using_subcommand sign" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c dkp -n "__fish_dkp_using_subcommand sign" -s V -l version -d 'Print version'
-complete -c dkp -n "__fish_dkp_using_subcommand install" -l dest -d 'Install to a custom directory' -r -F
+complete -c dkp -n "__fish_dkp_using_subcommand install" -l out -d 'Install to a custom directory' -r -F
 complete -c dkp -n "__fish_dkp_using_subcommand install" -l registry -d 'Override registry URL' -r
 complete -c dkp -n "__fish_dkp_using_subcommand install" -l token -d 'Registry API token' -r
 complete -c dkp -n "__fish_dkp_using_subcommand install" -l output -d 'Output format' -r -f -a "plain\t'Human-readable plain text (default)'
@@ -662,7 +662,7 @@ complete -c dkp -n "__fish_dkp_using_subcommand install" -s q -l quiet -d 'Suppr
 complete -c dkp -n "__fish_dkp_using_subcommand install" -s v -l verbose -d 'Print debug info (schema paths, provider calls, etc.)'
 complete -c dkp -n "__fish_dkp_using_subcommand install" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c dkp -n "__fish_dkp_using_subcommand install" -s V -l version -d 'Print version'
-complete -c dkp -n "__fish_dkp_using_subcommand uninstall" -l dest -d 'Remove from a custom directory' -r -F
+complete -c dkp -n "__fish_dkp_using_subcommand uninstall" -l out -d 'Remove from a custom directory' -r -F
 complete -c dkp -n "__fish_dkp_using_subcommand uninstall" -l output -d 'Output format' -r -f -a "plain\t'Human-readable plain text (default)'
 table\t'Aligned table using comfy-table'
 json\t'Pretty-printed JSON'"
@@ -684,6 +684,7 @@ complete -c dkp -n "__fish_dkp_using_subcommand update" -s v -l verbose -d 'Prin
 complete -c dkp -n "__fish_dkp_using_subcommand update" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c dkp -n "__fish_dkp_using_subcommand update" -s V -l version -d 'Print version'
 complete -c dkp -n "__fish_dkp_using_subcommand publish" -l url -d 'HTTPS URL to the hosted archive (publisher-controlled storage)' -r
+complete -c dkp -n "__fish_dkp_using_subcommand publish" -l build-dir -d 'Directory containing checksums.json and bundle.sig (default: <pack>/build/)' -r -F
 complete -c dkp -n "__fish_dkp_using_subcommand publish" -l registry -d 'Override registry URL' -r
 complete -c dkp -n "__fish_dkp_using_subcommand publish" -l token -d 'Registry API token' -r
 complete -c dkp -n "__fish_dkp_using_subcommand publish" -l output -d 'Output format' -r -f -a "plain\t'Human-readable plain text (default)'

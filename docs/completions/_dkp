@@ -1352,12 +1352,12 @@ json\:"Pretty-printed JSON"))' \
 '--help[Print help (see more with '\''--help'\'')]' \
 '-V[Print version]' \
 '--version[Print version]' \
-':archive -- Path to the built archive to sign:_files' \
+':archive -- Path to the built archive, or to the pack directory (auto-locates archive in build/):_files' \
 && ret=0
 ;;
 (install)
 _arguments "${_arguments_options[@]}" : \
-'--dest=[Install to a custom directory]:DIR:_files' \
+'--out=[Install to a custom directory]:DIR:_files' \
 '--registry=[Override registry URL]:URL:_default' \
 '--token=[Registry API token]:KEY:_default' \
 '--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
@@ -1375,12 +1375,12 @@ json\:"Pretty-printed JSON"))' \
 '--help[Print help (see more with '\''--help'\'')]' \
 '-V[Print version]' \
 '--version[Print version]' \
-':name -- Pack name, e.g. @mathis/nutrition-for-men or @mathis/pack@1.2.0:_default' \
+':name -- Pack name, e.g. @example/nutrition-for-men or @example/pack@1.2.0:_default' \
 && ret=0
 ;;
 (uninstall)
 _arguments "${_arguments_options[@]}" : \
-'--dest=[Remove from a custom directory]:DIR:_files' \
+'--out=[Remove from a custom directory]:DIR:_files' \
 '--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
 table\:"Aligned table using comfy-table"
 json\:"Pretty-printed JSON"))' \
@@ -1396,7 +1396,7 @@ json\:"Pretty-printed JSON"))' \
 '--help[Print help (see more with '\''--help'\'')]' \
 '-V[Print version]' \
 '--version[Print version]' \
-':name -- Pack name, e.g. @mathis/nutrition-for-men or @mathis/pack@1.2.0:_default' \
+':name -- Pack name, e.g. @example/nutrition-for-men or @example/pack@1.2.0:_default' \
 && ret=0
 ;;
 (update)
@@ -1421,6 +1421,7 @@ json\:"Pretty-printed JSON"))' \
 (publish)
 _arguments "${_arguments_options[@]}" : \
 '--url=[HTTPS URL to the hosted archive (publisher-controlled storage)]:URL:_default' \
+'--build-dir=[Directory containing checksums.json and bundle.sig (default\: <pack>/build/)]:DIR:_files' \
 '--registry=[Override registry URL]:URL:_default' \
 '--token=[Registry API token]:KEY:_default' \
 '--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
@@ -1436,6 +1437,7 @@ json\:"Pretty-printed JSON"))' \
 '--help[Print help (see more with '\''--help'\'')]' \
 '-V[Print version]' \
 '--version[Print version]' \
+'::path -- Path to the pack directory (defaults to current directory):_files' \
 && ret=0
 ;;
 (yank)
@@ -1455,7 +1457,7 @@ json\:"Pretty-printed JSON"))' \
 '--help[Print help (see more with '\''--help'\'')]' \
 '-V[Print version]' \
 '--version[Print version]' \
-':name -- Pack name and version, e.g. @mathis/nutrition-for-men@1.0.0:_default' \
+':name -- Pack name and version, e.g. @example/nutrition-for-men@1.0.0:_default' \
 && ret=0
 ;;
 (registry)

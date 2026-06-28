@@ -4,7 +4,7 @@
 .SH NAME
 dkp\-uninstall \- Remove an installed pack
 .SH SYNOPSIS
-\fBdkp uninstall\fR [\fB\-g\fR|\fB\-\-global\fR] [\fB\-\-output\fR] [\fB\-\-dest\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-all\-versions\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fINAME\fR> 
+\fBdkp uninstall\fR [\fB\-g\fR|\fB\-\-global\fR] [\fB\-\-output\fR] [\fB\-\-out\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-all\-versions\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fINAME\fR> 
 .SH DESCRIPTION
 Remove an installed pack
 .SH OPTIONS
@@ -27,7 +27,7 @@ table: Aligned table using comfy\-table
 json: Pretty\-printed JSON
 .RE
 .TP
-\fB\-\-dest\fR \fI<DIR>\fR
+\fB\-\-out\fR \fI<DIR>\fR
 Remove from a custom directory
 .TP
 \fB\-q\fR, \fB\-\-quiet\fR
@@ -49,6 +49,6 @@ Print help (see a summary with \*(Aq\-h\*(Aq)
 Print version
 .TP
 <\fINAME\fR>
-Pack name, e.g. @mathis/nutrition\-for\-men or @mathis/pack@1.2.0
+Pack name, e.g. @example/nutrition\-for\-men or @example/pack@1.2.0
 .SH VERSION
 v0.1.2

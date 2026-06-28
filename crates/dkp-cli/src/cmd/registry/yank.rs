@@ -6,7 +6,7 @@ use crate::cmd::registry::account::{load_credentials_from_ctx, resolve_registry_
 
 #[derive(Args, Debug)]
 pub struct YankArgs {
-    /// Pack name and version, e.g. @mathis/nutrition-for-men@1.0.0
+    /// Pack name and version, e.g. @example/nutrition-for-men@1.0.0
     pub name: String,
 
     /// Reason shown to consumers who attempt to install this version

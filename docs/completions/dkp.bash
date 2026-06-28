@@ -2372,13 +2372,13 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__install)
-            opts="-g -q -v -h -V --global --dest --registry --token --no-verify --output --quiet --verbose --audience --help --version <NAME>"
+            opts="-g -q -v -h -V --global --out --registry --token --no-verify --output --quiet --verbose --audience --help --version <NAME>"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
-                --dest)
+                --out)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
@@ -3138,13 +3138,17 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__publish)
-            opts="-q -v -h -V --url --private --registry --token --output --quiet --verbose --audience --help --version"
+            opts="-q -v -h -V --url --build-dir --private --registry --token --output --quiet --verbose --audience --help --version [PATH]"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
                 --url)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --build-dir)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
@@ -4482,13 +4486,13 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__uninstall)
-            opts="-g -q -v -h -V --global --dest --all-versions --output --quiet --verbose --audience --help --version <NAME>"
+            opts="-g -q -v -h -V --global --out --all-versions --output --quiet --verbose --audience --help --version <NAME>"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
-                --dest)
+                --out)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;

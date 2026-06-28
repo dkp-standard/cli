@@ -153,7 +153,6 @@ pub struct ProcedureCapabilities {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct McpConfig {
-    pub enabled: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub resource_server: Option<McpResourceServer>,
     #[serde(skip_serializing_if = "Option::is_none")]
