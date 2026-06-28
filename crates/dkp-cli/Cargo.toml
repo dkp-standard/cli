@@ -73,3 +73,12 @@ assets = [
     ["../../docs/completions/dkp.fish", "usr/share/fish/vendor_completions.d/", "644"],
 ]
 
+[package.metadata.generate-rpm]
+assets = [
+    { source = "../../target/release/dkp", dest = "/usr/bin/dkp", mode = "755" },
+    { source = "../../docs/man/dkp.1", dest = "/usr/share/man/man1/dkp.1", mode = "644", doc = true },
+    { source = "../../docs/completions/dkp.bash", dest = "/usr/share/bash-completion/completions/dkp", mode = "644" },
+    { source = "../../docs/completions/_dkp", dest = "/usr/share/zsh/vendor-completions/_dkp", mode = "644" },
+    { source = "../../docs/completions/dkp.fish", dest = "/usr/share/fish/vendor_completions.d/dkp.fish", mode = "644" },
+]
+
