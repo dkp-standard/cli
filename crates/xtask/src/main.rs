@@ -53,11 +53,21 @@ fn generate_docs() -> Result<()> {
 
 fn sync_readme() -> Result<()> {
     let cli_root = workspace_root();
-    let src = cli_root
+
+    // Prefer the monorepo sibling docs/README.md when present (local dev).
+    // Fall back to cli/README.md when checked out standalone (CI).
+    let monorepo_src = cli_root
         .parent()
         .context("cli/ has no parent")?
         .join("docs")
         .join("README.md");
+    let local_src = cli_root.join("README.md");
+
+    let src = if monorepo_src.exists() {
+        monorepo_src
+    } else {
+        local_src
+    };
 
     let content = fs::read(&src).with_context(|| format!("read {}", src.display()))?;
 
@@ -69,6 +79,10 @@ fn sync_readme() -> Result<()> {
     ];
 
     for dest in &targets {
+        // Skip writing the source file back to itself.
+        if dest == &src {
+            continue;
+        }
         fs::write(dest, &content).with_context(|| format!("write {}", dest.display()))?;
         println!("Wrote {}", dest.display());
     }
