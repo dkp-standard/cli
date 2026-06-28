@@ -15,11 +15,9 @@ use crate::{
 
 #[derive(Args, Debug)]
 pub struct SearchArgs {
-    /// Path to the DKP bundle (omit when using --registry)
-    pub pack: Option<PathBuf>,
-
-    /// Search query
-    pub query: Option<String>,
+    /// Pack path (local mode) or search query terms (--registry mode)
+    #[arg(trailing_var_arg = true, allow_hyphen_values = false)]
+    pub args: Vec<String>,
 
     /// Search the registry index instead of a local pack
     #[arg(long)]
@@ -137,9 +135,10 @@ impl Render for RegistrySearchResults {
 
 pub async fn run(args: SearchArgs, cli: &CmdCtx) -> Result<()> {
     if args.registry {
-        let query = args.query.ok_or_else(|| {
-            anyhow::anyhow!("query required (usage: dkp search --registry <query>)")
-        })?;
+        if args.args.is_empty() {
+            anyhow::bail!("query required (usage: dkp search --registry <query>)");
+        }
+        let query = args.args.join(" ");
         let base = resolve_registry_url(&cli.config.registry.url, &None);
         let token = load_credentials_from_ctx(&cli.config.registry.url, &None)
             .ok()
@@ -164,11 +163,12 @@ pub async fn run(args: SearchArgs, cli: &CmdCtx) -> Result<()> {
         return Ok(());
     }
 
-    let pack_path = args.pack.ok_or_else(|| {
+    let mut positional = args.args.into_iter();
+    let pack_path: PathBuf = positional.next().map(PathBuf::from).ok_or_else(|| {
         anyhow::anyhow!("pack path required for local search (usage: dkp search <pack> <query>)")
     })?;
-    let query = args
-        .query
+    let query = positional
+        .next()
         .ok_or_else(|| anyhow::anyhow!("query required (usage: dkp search <pack> <query>)"))?;
     let pack = Pack::open(&pack_path)?;
     let index = SearchIndex::build(&pack)?;

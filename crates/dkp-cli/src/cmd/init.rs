@@ -23,6 +23,10 @@ pub struct InitArgs {
     #[arg(long)]
     pub extras: bool,
 
+    /// Human-readable display name for the pack (defaults to a TODO placeholder)
+    #[arg(long)]
+    pub title: Option<String>,
+
     /// Overwrite if directory already exists
     #[arg(long)]
     pub force: bool,
@@ -47,10 +51,14 @@ pub async fn run(args: InitArgs, ctx: &CmdCtx) -> Result<()> {
     let today = today_iso8601();
     let name = &args.name;
     let domain = &args.domain;
+    let title = args
+        .title
+        .as_deref()
+        .unwrap_or("TODO: human-readable display name");
 
     write_file(
         &out.join("manifest.json"),
-        &manifest_json(name, domain, &today),
+        &manifest_json(name, domain, title, &today),
     )?;
 
     let machine = out.join("machine");
@@ -162,12 +170,12 @@ fn today_iso8601() -> String {
 
 // ── Templates ────────────────────────────────────────────────────────────────
 
-fn manifest_json(name: &str, domain: &str, today: &str) -> String {
+fn manifest_json(name: &str, domain: &str, title: &str, today: &str) -> String {
     format!(
         r#"{{
   "spec": "1.0.0",
   "name": "{name}",
-  "title": "TODO: human-readable display name",
+  "title": "{title}",
   "version": "0.1.0",
   "domain": "{domain}",
   "audience": "TODO: describe the target user or agent type",

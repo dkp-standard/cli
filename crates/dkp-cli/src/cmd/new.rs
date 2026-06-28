@@ -58,6 +58,7 @@ pub async fn run(args: NewArgs, ctx: &CmdCtx) -> Result<()> {
         InitArgs {
             name: args.name.clone(),
             domain: args.domain.clone(),
+            title: None,
             out: Some(pack_dir.clone()),
             extras: true,
             force: args.overwrite,
