@@ -39,8 +39,7 @@ pub async fn run(args: PublishArgs, cli: &CmdCtx) -> Result<()> {
         Some(ref p) => p.clone(),
         None => std::env::current_dir()?,
     };
-    let pack = dkp_core::Pack::open(&pack_dir)
-        .context("failed to open pack")?;
+    let pack = dkp_core::Pack::open(&pack_dir).context("failed to open pack")?;
     let manifest = pack.manifest.clone();
 
     let artifact_dir = args.build_dir.unwrap_or_else(|| pack.root.join("build"));

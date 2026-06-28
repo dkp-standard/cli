@@ -41,7 +41,8 @@ pub async fn run(args: BuildArgs, _cli: &CmdCtx) -> Result<()> {
     let pack = Pack::open(&pack_dir)?;
     let manifest = &pack.manifest;
 
-    let slug = manifest.name
+    let slug = manifest
+        .name
         .trim_start_matches('@')
         .replace('/', "-")
         .to_lowercase()
