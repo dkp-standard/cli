@@ -59,8 +59,7 @@ fn sync_readme() -> Result<()> {
         .join("docs")
         .join("README.md");
 
-    let content = fs::read(&src)
-        .with_context(|| format!("read {}", src.display()))?;
+    let content = fs::read(&src).with_context(|| format!("read {}", src.display()))?;
 
     let targets = [
         cli_root.join("README.md"),
@@ -70,8 +69,7 @@ fn sync_readme() -> Result<()> {
     ];
 
     for dest in &targets {
-        fs::write(dest, &content)
-            .with_context(|| format!("write {}", dest.display()))?;
+        fs::write(dest, &content).with_context(|| format!("write {}", dest.display()))?;
         println!("Wrote {}", dest.display());
     }
 
