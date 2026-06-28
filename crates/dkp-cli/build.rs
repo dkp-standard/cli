@@ -6,7 +6,11 @@ fn main() {
 
     let src_dist = Path::new(&manifest_dir).join("src/cmd/webui/web/dist");
 
-    let embed_dir = if src_dist.exists() && src_dist.read_dir().map_or(false, |mut d| d.next().is_some()) {
+    let embed_dir = if src_dist.exists()
+        && src_dist
+            .read_dir()
+            .is_ok_and(|mut d| d.next().is_some())
+    {
         // Real Svelte build present — embed it.
         src_dist.to_string_lossy().into_owned()
     } else {
@@ -31,8 +35,7 @@ fn main() {
 pub struct Assets;
 "#
     );
-    fs::write(Path::new(&out_dir).join("embed.rs"), embed_rs)
-        .expect("failed to write embed.rs");
+    fs::write(Path::new(&out_dir).join("embed.rs"), embed_rs).expect("failed to write embed.rs");
 
     println!("cargo:rerun-if-changed=src/cmd/webui/web/dist");
 }
