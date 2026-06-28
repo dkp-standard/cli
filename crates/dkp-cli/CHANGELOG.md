@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0](https://github.com/dkp-standard/cli/compare/dkp-v0.1.2...dkp-v0.2.0) - 2026-06-28
+
+### Added
+
+- *(init)* support scoped pack names, add manifest metadata fields
+- improve scoped package slugs, add hex key support, enhance publish
+
+### Other
+
+- *(cli)* improve readability of build and publish command code
+- [**breaking**] rename --dest to --out, update archive hashing and signature
+
 ## [0.1.2](https://github.com/dkp-standard/cli/compare/dkp-v0.1.1...dkp-v0.1.2) - 2026-06-28
 
 ### Added
