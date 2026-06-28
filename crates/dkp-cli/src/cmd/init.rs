@@ -7,7 +7,7 @@ use crate::cli::CmdCtx;
 
 #[derive(Args, Debug)]
 pub struct InitArgs {
-    /// Pack name (e.g. "Nutrition for Men")
+    /// Scoped pack name (e.g. "@scope/my-pack")
     pub name: String,
 
     /// Top-level domain category (e.g. "Health", "Finance")
@@ -167,13 +167,15 @@ fn manifest_json(name: &str, domain: &str, today: &str) -> String {
         r#"{{
   "spec": "1.0.0",
   "name": "{name}",
+  "title": "TODO: human-readable display name",
   "version": "0.1.0",
   "domain": "{domain}",
   "audience": "TODO: describe the target user or agent type",
   "intended_use": "TODO: describe authorized use cases (e.g. LLM context injection, RAG retrieval)",
   "known_limitations": "TODO: describe scope gaps and what this pack does not cover",
   "update_date": "{today}",
-  "compatibility": []
+  "compatibility": [],
+  "audience_profiles": []
 }}
 "#
     )

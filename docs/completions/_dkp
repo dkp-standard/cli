@@ -54,7 +54,7 @@ json\:"Pretty-printed JSON"))' \
 '--help[Print help (see more with '\''--help'\'')]' \
 '-V[Print version]' \
 '--version[Print version]' \
-':name -- Pack name (e.g. "Nutrition for Men"):_default' \
+':name -- Scoped pack name (e.g. "@scope/my-pack"):_default' \
 && ret=0
 ;;
 (info)
