@@ -4,7 +4,7 @@
 .SH NAME
 dkp\-update \- Re\-resolve and update installed packs to satisfy lock\-file constraints
 .SH SYNOPSIS
-\fBdkp update\fR [\fB\-\-output\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] [\fINAME\fR] 
+\fBdkp update\fR [\fB\-\-output\fR] [\fB\-\-registry\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-token\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] [\fINAME\fR] 
 .SH DESCRIPTION
 Re\-resolve and update installed packs to satisfy lock\-file constraints
 .SH OPTIONS
@@ -24,8 +24,14 @@ table: Aligned table using comfy\-table
 json: Pretty\-printed JSON
 .RE
 .TP
+\fB\-\-registry\fR \fI<URL>\fR
+Override registry URL
+.TP
 \fB\-q\fR, \fB\-\-quiet\fR
 Suppress informational output; print only results
+.TP
+\fB\-\-token\fR \fI<KEY>\fR
+Registry API token
 .TP
 \fB\-v\fR, \fB\-\-verbose\fR
 Print debug info (schema paths, provider calls, etc.)

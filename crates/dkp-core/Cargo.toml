@@ -4,6 +4,10 @@ description = "Core DKP bundle parsing, types, validation, and search library"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository = "https://github.com/dkp-standard/cli"
+homepage = "https://dkp-standard.com"
+documentation = "https://docs.rs/dkp-core"
+readme = "README.md"
 
 [features]
 default = []

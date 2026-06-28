@@ -40,8 +40,11 @@ Print help (see a summary with \*(Aq\-h\*(Aq)
 Print version
 .SH SUBCOMMANDS
 .TP
+dkp\-registry\-register(1)
+Create a new publisher account and save the API key to ~/.dkp/credentials
+.TP
 dkp\-registry\-login(1)
-Authenticate and save API key to ~/.dkp/credentials
+Authenticate with an existing account and save API key to ~/.dkp/credentials
 .TP
 dkp\-registry\-logout(1)
 Remove saved credentials
@@ -50,7 +53,7 @@ dkp\-registry\-token(1)
 Rotate your API key
 .TP
 dkp\-registry\-keys(1)
-Register an Ed25519 public key with the registry
+Manage Ed25519 public keys registered with the registry
 .TP
 dkp\-registry\-pack(1)
 Pack\-level management subcommands

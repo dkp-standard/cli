@@ -4,7 +4,7 @@
 .SH NAME
 dkp\-registry\-pack\-versions \- List all published versions of a pack
 .SH SYNOPSIS
-\fBdkp registry pack versions\fR [\fB\-\-output\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fINAME\fR> 
+\fBdkp registry pack versions\fR [\fB\-\-output\fR] [\fB\-\-registry\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fINAME\fR> 
 .SH DESCRIPTION
 List all published versions of a pack
 .SH OPTIONS
@@ -23,6 +23,9 @@ table: Aligned table using comfy\-table
 .IP \(bu 2
 json: Pretty\-printed JSON
 .RE
+.TP
+\fB\-\-registry\fR \fI<URL>\fR
+
 .TP
 \fB\-q\fR, \fB\-\-quiet\fR
 Suppress informational output; print only results

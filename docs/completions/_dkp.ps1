@@ -1073,6 +1073,8 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;update' {
+            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'Override registry URL')
+            [CompletionResult]::new('--token', '--token', [CompletionResultType]::ParameterName, 'Registry API token')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
@@ -1104,6 +1106,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
         }
         'dkp;yank' {
             [CompletionResult]::new('--reason', '--reason', [CompletionResultType]::ParameterName, 'Reason shown to consumers who attempt to install this version')
+            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'Override registry URL')
             [CompletionResult]::new('--token', '--token', [CompletionResultType]::ParameterName, 'Registry API token')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
@@ -1128,16 +1131,33 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
             [CompletionResult]::new('-V', '-V ', [CompletionResultType]::ParameterName, 'Print version')
             [CompletionResult]::new('--version', '--version', [CompletionResultType]::ParameterName, 'Print version')
-            [CompletionResult]::new('login', 'login', [CompletionResultType]::ParameterValue, 'Authenticate and save API key to ~/.dkp/credentials')
+            [CompletionResult]::new('register', 'register', [CompletionResultType]::ParameterValue, 'Create a new publisher account and save the API key to ~/.dkp/credentials')
+            [CompletionResult]::new('login', 'login', [CompletionResultType]::ParameterValue, 'Authenticate with an existing account and save API key to ~/.dkp/credentials')
             [CompletionResult]::new('logout', 'logout', [CompletionResultType]::ParameterValue, 'Remove saved credentials')
             [CompletionResult]::new('token', 'token', [CompletionResultType]::ParameterValue, 'Rotate your API key')
-            [CompletionResult]::new('keys', 'keys', [CompletionResultType]::ParameterValue, 'Register an Ed25519 public key with the registry')
+            [CompletionResult]::new('keys', 'keys', [CompletionResultType]::ParameterValue, 'Manage Ed25519 public keys registered with the registry')
             [CompletionResult]::new('pack', 'pack', [CompletionResultType]::ParameterValue, 'Pack-level management subcommands')
             [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
             break
         }
+        'dkp;registry;register' {
+            [CompletionResult]::new('--email', '--email', [CompletionResultType]::ParameterName, 'email')
+            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'registry')
+            [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
+            [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('-V', '-V ', [CompletionResultType]::ParameterName, 'Print version')
+            [CompletionResult]::new('--version', '--version', [CompletionResultType]::ParameterName, 'Print version')
+            break
+        }
         'dkp;registry;login' {
             [CompletionResult]::new('--email', '--email', [CompletionResultType]::ParameterName, 'email')
+            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'registry')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
@@ -1179,6 +1199,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;registry;token;rotate' {
+            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'registry')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
@@ -1219,6 +1240,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
         }
         'dkp;registry;keys;add' {
             [CompletionResult]::new('--key', '--key', [CompletionResultType]::ParameterName, 'key')
+            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'registry')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
@@ -1254,7 +1276,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             [CompletionResult]::new('-V', '-V ', [CompletionResultType]::ParameterName, 'Print version')
             [CompletionResult]::new('--version', '--version', [CompletionResultType]::ParameterName, 'Print version')
             [CompletionResult]::new('versions', 'versions', [CompletionResultType]::ParameterValue, 'List all published versions of a pack')
-            [CompletionResult]::new('set-visibility', 'set-visibility', [CompletionResultType]::ParameterValue, 'Set pack visibility')
+            [CompletionResult]::new('set-visibility', 'set-visibility', [CompletionResultType]::ParameterValue, 'Set pack visibility (public or private)')
             [CompletionResult]::new('grant', 'grant', [CompletionResultType]::ParameterValue, 'Grant access to a private pack')
             [CompletionResult]::new('revoke', 'revoke', [CompletionResultType]::ParameterValue, 'Revoke access to a private pack')
             [CompletionResult]::new('access', 'access', [CompletionResultType]::ParameterValue, 'List accounts with access to a private pack')
@@ -1262,6 +1284,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;registry;pack;versions' {
+            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'registry')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
@@ -1275,6 +1298,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;registry;pack;set-visibility' {
+            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'registry')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
@@ -1289,6 +1313,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
         }
         'dkp;registry;pack;grant' {
             [CompletionResult]::new('--to', '--to', [CompletionResultType]::ParameterName, 'to')
+            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'registry')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
@@ -1303,6 +1328,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
         }
         'dkp;registry;pack;revoke' {
             [CompletionResult]::new('--from', '--from', [CompletionResultType]::ParameterName, 'from')
+            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'registry')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
@@ -1316,6 +1342,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;registry;pack;access' {
+            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'registry')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
@@ -1330,7 +1357,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
         }
         'dkp;registry;pack;help' {
             [CompletionResult]::new('versions', 'versions', [CompletionResultType]::ParameterValue, 'List all published versions of a pack')
-            [CompletionResult]::new('set-visibility', 'set-visibility', [CompletionResultType]::ParameterValue, 'Set pack visibility')
+            [CompletionResult]::new('set-visibility', 'set-visibility', [CompletionResultType]::ParameterValue, 'Set pack visibility (public or private)')
             [CompletionResult]::new('grant', 'grant', [CompletionResultType]::ParameterValue, 'Grant access to a private pack')
             [CompletionResult]::new('revoke', 'revoke', [CompletionResultType]::ParameterValue, 'Revoke access to a private pack')
             [CompletionResult]::new('access', 'access', [CompletionResultType]::ParameterValue, 'List accounts with access to a private pack')
@@ -1356,12 +1383,16 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;registry;help' {
-            [CompletionResult]::new('login', 'login', [CompletionResultType]::ParameterValue, 'Authenticate and save API key to ~/.dkp/credentials')
+            [CompletionResult]::new('register', 'register', [CompletionResultType]::ParameterValue, 'Create a new publisher account and save the API key to ~/.dkp/credentials')
+            [CompletionResult]::new('login', 'login', [CompletionResultType]::ParameterValue, 'Authenticate with an existing account and save API key to ~/.dkp/credentials')
             [CompletionResult]::new('logout', 'logout', [CompletionResultType]::ParameterValue, 'Remove saved credentials')
             [CompletionResult]::new('token', 'token', [CompletionResultType]::ParameterValue, 'Rotate your API key')
-            [CompletionResult]::new('keys', 'keys', [CompletionResultType]::ParameterValue, 'Register an Ed25519 public key with the registry')
+            [CompletionResult]::new('keys', 'keys', [CompletionResultType]::ParameterValue, 'Manage Ed25519 public keys registered with the registry')
             [CompletionResult]::new('pack', 'pack', [CompletionResultType]::ParameterValue, 'Pack-level management subcommands')
             [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'dkp;registry;help;register' {
             break
         }
         'dkp;registry;help;login' {
@@ -1386,7 +1417,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
         }
         'dkp;registry;help;pack' {
             [CompletionResult]::new('versions', 'versions', [CompletionResultType]::ParameterValue, 'List all published versions of a pack')
-            [CompletionResult]::new('set-visibility', 'set-visibility', [CompletionResultType]::ParameterValue, 'Set pack visibility')
+            [CompletionResult]::new('set-visibility', 'set-visibility', [CompletionResultType]::ParameterValue, 'Set pack visibility (public or private)')
             [CompletionResult]::new('grant', 'grant', [CompletionResultType]::ParameterValue, 'Grant access to a private pack')
             [CompletionResult]::new('revoke', 'revoke', [CompletionResultType]::ParameterValue, 'Revoke access to a private pack')
             [CompletionResult]::new('access', 'access', [CompletionResultType]::ParameterValue, 'List accounts with access to a private pack')
@@ -1656,11 +1687,15 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;help;registry' {
-            [CompletionResult]::new('login', 'login', [CompletionResultType]::ParameterValue, 'Authenticate and save API key to ~/.dkp/credentials')
+            [CompletionResult]::new('register', 'register', [CompletionResultType]::ParameterValue, 'Create a new publisher account and save the API key to ~/.dkp/credentials')
+            [CompletionResult]::new('login', 'login', [CompletionResultType]::ParameterValue, 'Authenticate with an existing account and save API key to ~/.dkp/credentials')
             [CompletionResult]::new('logout', 'logout', [CompletionResultType]::ParameterValue, 'Remove saved credentials')
             [CompletionResult]::new('token', 'token', [CompletionResultType]::ParameterValue, 'Rotate your API key')
-            [CompletionResult]::new('keys', 'keys', [CompletionResultType]::ParameterValue, 'Register an Ed25519 public key with the registry')
+            [CompletionResult]::new('keys', 'keys', [CompletionResultType]::ParameterValue, 'Manage Ed25519 public keys registered with the registry')
             [CompletionResult]::new('pack', 'pack', [CompletionResultType]::ParameterValue, 'Pack-level management subcommands')
+            break
+        }
+        'dkp;help;registry;register' {
             break
         }
         'dkp;help;registry;login' {
@@ -1685,7 +1720,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
         }
         'dkp;help;registry;pack' {
             [CompletionResult]::new('versions', 'versions', [CompletionResultType]::ParameterValue, 'List all published versions of a pack')
-            [CompletionResult]::new('set-visibility', 'set-visibility', [CompletionResultType]::ParameterValue, 'Set pack visibility')
+            [CompletionResult]::new('set-visibility', 'set-visibility', [CompletionResultType]::ParameterValue, 'Set pack visibility (public or private)')
             [CompletionResult]::new('grant', 'grant', [CompletionResultType]::ParameterValue, 'Grant access to a private pack')
             [CompletionResult]::new('revoke', 'revoke', [CompletionResultType]::ParameterValue, 'Revoke access to a private pack')
             [CompletionResult]::new('access', 'access', [CompletionResultType]::ParameterValue, 'List accounts with access to a private pack')

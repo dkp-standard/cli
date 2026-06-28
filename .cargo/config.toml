@@ -2,3 +2,6 @@
 # Generate man pages, shell completions, and Markdown reference into cli/docs/
 # Usage: cargo docs
 docs = "run -p xtask -- docs"
+# Sync docs/README.md into each publishable crate for crates.io
+# Usage: cargo sync-readme
+sync-readme = "run -p xtask -- sync-readme"

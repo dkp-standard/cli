@@ -673,6 +673,8 @@ complete -c dkp -n "__fish_dkp_using_subcommand uninstall" -s q -l quiet -d 'Sup
 complete -c dkp -n "__fish_dkp_using_subcommand uninstall" -s v -l verbose -d 'Print debug info (schema paths, provider calls, etc.)'
 complete -c dkp -n "__fish_dkp_using_subcommand uninstall" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c dkp -n "__fish_dkp_using_subcommand uninstall" -s V -l version -d 'Print version'
+complete -c dkp -n "__fish_dkp_using_subcommand update" -l registry -d 'Override registry URL' -r
+complete -c dkp -n "__fish_dkp_using_subcommand update" -l token -d 'Registry API token' -r
 complete -c dkp -n "__fish_dkp_using_subcommand update" -l output -d 'Output format' -r -f -a "plain\t'Human-readable plain text (default)'
 table\t'Aligned table using comfy-table'
 json\t'Pretty-printed JSON'"
@@ -694,6 +696,7 @@ complete -c dkp -n "__fish_dkp_using_subcommand publish" -s v -l verbose -d 'Pri
 complete -c dkp -n "__fish_dkp_using_subcommand publish" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c dkp -n "__fish_dkp_using_subcommand publish" -s V -l version -d 'Print version'
 complete -c dkp -n "__fish_dkp_using_subcommand yank" -l reason -d 'Reason shown to consumers who attempt to install this version' -r
+complete -c dkp -n "__fish_dkp_using_subcommand yank" -l registry -d 'Override registry URL' -r
 complete -c dkp -n "__fish_dkp_using_subcommand yank" -l token -d 'Registry API token' -r
 complete -c dkp -n "__fish_dkp_using_subcommand yank" -l output -d 'Output format' -r -f -a "plain\t'Human-readable plain text (default)'
 table\t'Aligned table using comfy-table'
@@ -703,21 +706,33 @@ complete -c dkp -n "__fish_dkp_using_subcommand yank" -s q -l quiet -d 'Suppress
 complete -c dkp -n "__fish_dkp_using_subcommand yank" -s v -l verbose -d 'Print debug info (schema paths, provider calls, etc.)'
 complete -c dkp -n "__fish_dkp_using_subcommand yank" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c dkp -n "__fish_dkp_using_subcommand yank" -s V -l version -d 'Print version'
-complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from login logout token keys pack help" -l output -d 'Output format' -r -f -a "plain\t'Human-readable plain text (default)'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from register login logout token keys pack help" -l output -d 'Output format' -r -f -a "plain\t'Human-readable plain text (default)'
 table\t'Aligned table using comfy-table'
 json\t'Pretty-printed JSON'"
-complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from login logout token keys pack help" -l audience -d 'Filter content to assets tagged for a specific audience profile' -r
-complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from login logout token keys pack help" -s q -l quiet -d 'Suppress informational output; print only results'
-complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from login logout token keys pack help" -s v -l verbose -d 'Print debug info (schema paths, provider calls, etc.)'
-complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from login logout token keys pack help" -s h -l help -d 'Print help (see more with \'--help\')'
-complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from login logout token keys pack help" -s V -l version -d 'Print version'
-complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from login logout token keys pack help" -f -a "login" -d 'Authenticate and save API key to ~/.dkp/credentials'
-complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from login logout token keys pack help" -f -a "logout" -d 'Remove saved credentials'
-complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from login logout token keys pack help" -f -a "token" -d 'Rotate your API key'
-complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from login logout token keys pack help" -f -a "keys" -d 'Register an Ed25519 public key with the registry'
-complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from login logout token keys pack help" -f -a "pack" -d 'Pack-level management subcommands'
-complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from login logout token keys pack help" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from register login logout token keys pack help" -l audience -d 'Filter content to assets tagged for a specific audience profile' -r
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from register login logout token keys pack help" -s q -l quiet -d 'Suppress informational output; print only results'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from register login logout token keys pack help" -s v -l verbose -d 'Print debug info (schema paths, provider calls, etc.)'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from register login logout token keys pack help" -s h -l help -d 'Print help (see more with \'--help\')'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from register login logout token keys pack help" -s V -l version -d 'Print version'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from register login logout token keys pack help" -f -a "register" -d 'Create a new publisher account and save the API key to ~/.dkp/credentials'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from register login logout token keys pack help" -f -a "login" -d 'Authenticate with an existing account and save API key to ~/.dkp/credentials'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from register login logout token keys pack help" -f -a "logout" -d 'Remove saved credentials'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from register login logout token keys pack help" -f -a "token" -d 'Rotate your API key'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from register login logout token keys pack help" -f -a "keys" -d 'Manage Ed25519 public keys registered with the registry'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from register login logout token keys pack help" -f -a "pack" -d 'Pack-level management subcommands'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from register login logout token keys pack help" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from register" -l email -r
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from register" -l registry -r
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from register" -l output -d 'Output format' -r -f -a "plain\t'Human-readable plain text (default)'
+table\t'Aligned table using comfy-table'
+json\t'Pretty-printed JSON'"
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from register" -l audience -d 'Filter content to assets tagged for a specific audience profile' -r
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from register" -s q -l quiet -d 'Suppress informational output; print only results'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from register" -s v -l verbose -d 'Print debug info (schema paths, provider calls, etc.)'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from register" -s h -l help -d 'Print help (see more with \'--help\')'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from register" -s V -l version -d 'Print version'
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from login" -l email -r
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from login" -l registry -r
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from login" -l output -d 'Output format' -r -f -a "plain\t'Human-readable plain text (default)'
 table\t'Aligned table using comfy-table'
 json\t'Pretty-printed JSON'"
@@ -763,15 +778,16 @@ complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcom
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from pack" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from pack" -s V -l version -d 'Print version'
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from pack" -f -a "versions" -d 'List all published versions of a pack'
-complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from pack" -f -a "set-visibility" -d 'Set pack visibility'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from pack" -f -a "set-visibility" -d 'Set pack visibility (public or private)'
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from pack" -f -a "grant" -d 'Grant access to a private pack'
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from pack" -f -a "revoke" -d 'Revoke access to a private pack'
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from pack" -f -a "access" -d 'List accounts with access to a private pack'
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from pack" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
-complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from help" -f -a "login" -d 'Authenticate and save API key to ~/.dkp/credentials'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from help" -f -a "register" -d 'Create a new publisher account and save the API key to ~/.dkp/credentials'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from help" -f -a "login" -d 'Authenticate with an existing account and save API key to ~/.dkp/credentials'
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from help" -f -a "logout" -d 'Remove saved credentials'
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from help" -f -a "token" -d 'Rotate your API key'
-complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from help" -f -a "keys" -d 'Register an Ed25519 public key with the registry'
+complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from help" -f -a "keys" -d 'Manage Ed25519 public keys registered with the registry'
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from help" -f -a "pack" -d 'Pack-level management subcommands'
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from help" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
 complete -c dkp -n "__fish_dkp_using_subcommand help; and not __fish_seen_subcommand_from init info list validate search get inject export okf chunk eval prompt diff build release-check rights mcp-manifest serve tui webui run procedures graph cross-refs skills l10n new generate fix review keygen sign install uninstall update publish yank registry help" -f -a "init" -d 'Scaffold a new DKP pack directory with all required files'
@@ -836,8 +852,9 @@ complete -c dkp -n "__fish_dkp_using_subcommand help; and __fish_seen_subcommand
 complete -c dkp -n "__fish_dkp_using_subcommand help; and __fish_seen_subcommand_from l10n" -f -a "list" -d 'List available locales'
 complete -c dkp -n "__fish_dkp_using_subcommand help; and __fish_seen_subcommand_from l10n" -f -a "validate" -d 'Check locale content doesn\'t contradict the base pack'
 complete -c dkp -n "__fish_dkp_using_subcommand help; and __fish_seen_subcommand_from l10n" -f -a "export" -d 'Export a locale-specific bundle'
-complete -c dkp -n "__fish_dkp_using_subcommand help; and __fish_seen_subcommand_from registry" -f -a "login" -d 'Authenticate and save API key to ~/.dkp/credentials'
+complete -c dkp -n "__fish_dkp_using_subcommand help; and __fish_seen_subcommand_from registry" -f -a "register" -d 'Create a new publisher account and save the API key to ~/.dkp/credentials'
+complete -c dkp -n "__fish_dkp_using_subcommand help; and __fish_seen_subcommand_from registry" -f -a "login" -d 'Authenticate with an existing account and save API key to ~/.dkp/credentials'
 complete -c dkp -n "__fish_dkp_using_subcommand help; and __fish_seen_subcommand_from registry" -f -a "logout" -d 'Remove saved credentials'
 complete -c dkp -n "__fish_dkp_using_subcommand help; and __fish_seen_subcommand_from registry" -f -a "token" -d 'Rotate your API key'
-complete -c dkp -n "__fish_dkp_using_subcommand help; and __fish_seen_subcommand_from registry" -f -a "keys" -d 'Register an Ed25519 public key with the registry'
+complete -c dkp -n "__fish_dkp_using_subcommand help; and __fish_seen_subcommand_from registry" -f -a "keys" -d 'Manage Ed25519 public keys registered with the registry'
 complete -c dkp -n "__fish_dkp_using_subcommand help; and __fish_seen_subcommand_from registry" -f -a "pack" -d 'Pack-level management subcommands'

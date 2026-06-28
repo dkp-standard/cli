@@ -4,7 +4,7 @@
 .SH NAME
 dkp\-yank \- Mark a published version as yanked
 .SH SYNOPSIS
-\fBdkp yank\fR [\fB\-\-output\fR] <\fB\-\-reason\fR> [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-token\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fINAME\fR> 
+\fBdkp yank\fR [\fB\-\-output\fR] <\fB\-\-reason\fR> [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-registry\fR] [\fB\-\-token\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fINAME\fR> 
 .SH DESCRIPTION
 Mark a published version as yanked
 .SH OPTIONS
@@ -29,6 +29,9 @@ Reason shown to consumers who attempt to install this version
 .TP
 \fB\-q\fR, \fB\-\-quiet\fR
 Suppress informational output; print only results
+.TP
+\fB\-\-registry\fR \fI<URL>\fR
+Override registry URL
 .TP
 \fB\-\-token\fR \fI<KEY>\fR
 Registry API token

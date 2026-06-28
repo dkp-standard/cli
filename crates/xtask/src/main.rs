@@ -9,7 +9,8 @@ fn main() -> Result<()> {
     let task = env::args().nth(1).unwrap_or_else(|| "docs".to_string());
     match task.as_str() {
         "docs" => generate_docs(),
-        other => anyhow::bail!("unknown xtask: {other}. Available: docs"),
+        "sync-readme" => sync_readme(),
+        other => anyhow::bail!("unknown xtask: {other}. Available: docs, sync-readme"),
     }
 }
 
@@ -45,7 +46,34 @@ fn generate_docs() -> Result<()> {
     let md = clap_markdown::help_markdown::<Cli>();
     fs::write(dist_reference.join("cli-reference.md"), md).context("write cli-reference.md")?;
 
+    sync_readme()?;
     println!("Done. Run `cd docs && mdbook build` for HTML output.");
+    Ok(())
+}
+
+fn sync_readme() -> Result<()> {
+    let cli_root = workspace_root();
+    let src = cli_root
+        .parent()
+        .context("cli/ has no parent")?
+        .join("docs")
+        .join("README.md");
+
+    let content = fs::read(&src)
+        .with_context(|| format!("read {}", src.display()))?;
+
+    let targets = [
+        cli_root.join("crates/dkp-cli/README.md"),
+        cli_root.join("crates/dkp-core/README.md"),
+        cli_root.join("crates/dkp-gen-core/README.md"),
+    ];
+
+    for dest in &targets {
+        fs::write(dest, &content)
+            .with_context(|| format!("write {}", dest.display()))?;
+        println!("Wrote {}", dest.display());
+    }
+
     Ok(())
 }
 

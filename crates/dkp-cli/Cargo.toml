@@ -7,6 +7,7 @@ license.workspace = true
 repository = "https://github.com/dkp-standard/cli"
 homepage = "https://dkp-standard.com"
 documentation = "https://docs.rs/dkp"
+readme = "README.md"
 build = "build.rs"
 
 [lib]

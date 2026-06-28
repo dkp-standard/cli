@@ -1401,6 +1401,8 @@ json\:"Pretty-printed JSON"))' \
 ;;
 (update)
 _arguments "${_arguments_options[@]}" : \
+'--registry=[Override registry URL]:URL:_default' \
+'--token=[Registry API token]:KEY:_default' \
 '--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
 table\:"Aligned table using comfy-table"
 json\:"Pretty-printed JSON"))' \
@@ -1439,6 +1441,7 @@ json\:"Pretty-printed JSON"))' \
 (yank)
 _arguments "${_arguments_options[@]}" : \
 '--reason=[Reason shown to consumers who attempt to install this version]:TEXT:_default' \
+'--registry=[Override registry URL]:URL:_default' \
 '--token=[Registry API token]:KEY:_default' \
 '--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
 table\:"Aligned table using comfy-table"
@@ -1479,9 +1482,28 @@ json\:"Pretty-printed JSON"))' \
         (( CURRENT += 1 ))
         curcontext="${curcontext%:*:*}:dkp-registry-command-$line[1]:"
         case $line[1] in
-            (login)
+            (register)
 _arguments "${_arguments_options[@]}" : \
 '--email=[]:EMAIL:_default' \
+'--registry=[]:URL:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(login)
+_arguments "${_arguments_options[@]}" : \
+'--email=[]:EMAIL:_default' \
+'--registry=[]:URL:_default' \
 '--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
 table\:"Aligned table using comfy-table"
 json\:"Pretty-printed JSON"))' \
@@ -1538,6 +1560,7 @@ json\:"Pretty-printed JSON"))' \
         case $line[1] in
             (rotate)
 _arguments "${_arguments_options[@]}" : \
+'--registry=[]:URL:_default' \
 '--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
 table\:"Aligned table using comfy-table"
 json\:"Pretty-printed JSON"))' \
@@ -1607,6 +1630,7 @@ json\:"Pretty-printed JSON"))' \
             (add)
 _arguments "${_arguments_options[@]}" : \
 '--key=[]:PATH:_files' \
+'--registry=[]:URL:_default' \
 '--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
 table\:"Aligned table using comfy-table"
 json\:"Pretty-printed JSON"))' \
@@ -1675,6 +1699,7 @@ json\:"Pretty-printed JSON"))' \
         case $line[1] in
             (versions)
 _arguments "${_arguments_options[@]}" : \
+'--registry=[]:URL:_default' \
 '--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
 table\:"Aligned table using comfy-table"
 json\:"Pretty-printed JSON"))' \
@@ -1692,6 +1717,7 @@ json\:"Pretty-printed JSON"))' \
 ;;
 (set-visibility)
 _arguments "${_arguments_options[@]}" : \
+'--registry=[]:URL:_default' \
 '--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
 table\:"Aligned table using comfy-table"
 json\:"Pretty-printed JSON"))' \
@@ -1711,6 +1737,7 @@ json\:"Pretty-printed JSON"))' \
 (grant)
 _arguments "${_arguments_options[@]}" : \
 '--to=[]:EMAIL:_default' \
+'--registry=[]:URL:_default' \
 '--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
 table\:"Aligned table using comfy-table"
 json\:"Pretty-printed JSON"))' \
@@ -1729,6 +1756,7 @@ json\:"Pretty-printed JSON"))' \
 (revoke)
 _arguments "${_arguments_options[@]}" : \
 '--from=[]:EMAIL:_default' \
+'--registry=[]:URL:_default' \
 '--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
 table\:"Aligned table using comfy-table"
 json\:"Pretty-printed JSON"))' \
@@ -1746,6 +1774,7 @@ json\:"Pretty-printed JSON"))' \
 ;;
 (access)
 _arguments "${_arguments_options[@]}" : \
+'--registry=[]:URL:_default' \
 '--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
 table\:"Aligned table using comfy-table"
 json\:"Pretty-printed JSON"))' \
@@ -1817,7 +1846,11 @@ _arguments "${_arguments_options[@]}" : \
         (( CURRENT += 1 ))
         curcontext="${curcontext%:*:*}:dkp-registry-help-command-$line[1]:"
         case $line[1] in
-            (login)
+            (register)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(login)
 _arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
@@ -2261,7 +2294,11 @@ _arguments "${_arguments_options[@]}" : \
         (( CURRENT += 1 ))
         curcontext="${curcontext%:*:*}:dkp-help-registry-command-$line[1]:"
         case $line[1] in
-            (login)
+            (register)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(login)
 _arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
@@ -2814,10 +2851,11 @@ _dkp__subcmd__help__subcmd__publish_commands() {
 (( $+functions[_dkp__subcmd__help__subcmd__registry_commands] )) ||
 _dkp__subcmd__help__subcmd__registry_commands() {
     local commands; commands=(
-'login:Authenticate and save API key to ~/.dkp/credentials' \
+'register:Create a new publisher account and save the API key to ~/.dkp/credentials' \
+'login:Authenticate with an existing account and save API key to ~/.dkp/credentials' \
 'logout:Remove saved credentials' \
 'token:Rotate your API key' \
-'keys:Register an Ed25519 public key with the registry' \
+'keys:Manage Ed25519 public keys registered with the registry' \
 'pack:Pack-level management subcommands' \
     )
     _describe -t commands 'dkp help registry commands' commands "$@"
@@ -2848,7 +2886,7 @@ _dkp__subcmd__help__subcmd__registry__subcmd__logout_commands() {
 _dkp__subcmd__help__subcmd__registry__subcmd__pack_commands() {
     local commands; commands=(
 'versions:List all published versions of a pack' \
-'set-visibility:Set pack visibility' \
+'set-visibility:Set pack visibility (public or private)' \
 'grant:Grant access to a private pack' \
 'revoke:Revoke access to a private pack' \
 'access:List accounts with access to a private pack' \
@@ -2879,6 +2917,11 @@ _dkp__subcmd__help__subcmd__registry__subcmd__pack__subcmd__set-visibility_comma
 _dkp__subcmd__help__subcmd__registry__subcmd__pack__subcmd__versions_commands() {
     local commands; commands=()
     _describe -t commands 'dkp help registry pack versions commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__registry__subcmd__register_commands] )) ||
+_dkp__subcmd__help__subcmd__registry__subcmd__register_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help registry register commands' commands "$@"
 }
 (( $+functions[_dkp__subcmd__help__subcmd__registry__subcmd__token_commands] )) ||
 _dkp__subcmd__help__subcmd__registry__subcmd__token_commands() {
@@ -3248,10 +3291,11 @@ _dkp__subcmd__publish_commands() {
 (( $+functions[_dkp__subcmd__registry_commands] )) ||
 _dkp__subcmd__registry_commands() {
     local commands; commands=(
-'login:Authenticate and save API key to ~/.dkp/credentials' \
+'register:Create a new publisher account and save the API key to ~/.dkp/credentials' \
+'login:Authenticate with an existing account and save API key to ~/.dkp/credentials' \
 'logout:Remove saved credentials' \
 'token:Rotate your API key' \
-'keys:Register an Ed25519 public key with the registry' \
+'keys:Manage Ed25519 public keys registered with the registry' \
 'pack:Pack-level management subcommands' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
@@ -3260,10 +3304,11 @@ _dkp__subcmd__registry_commands() {
 (( $+functions[_dkp__subcmd__registry__subcmd__help_commands] )) ||
 _dkp__subcmd__registry__subcmd__help_commands() {
     local commands; commands=(
-'login:Authenticate and save API key to ~/.dkp/credentials' \
+'register:Create a new publisher account and save the API key to ~/.dkp/credentials' \
+'login:Authenticate with an existing account and save API key to ~/.dkp/credentials' \
 'logout:Remove saved credentials' \
 'token:Rotate your API key' \
-'keys:Register an Ed25519 public key with the registry' \
+'keys:Manage Ed25519 public keys registered with the registry' \
 'pack:Pack-level management subcommands' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
@@ -3300,7 +3345,7 @@ _dkp__subcmd__registry__subcmd__help__subcmd__logout_commands() {
 _dkp__subcmd__registry__subcmd__help__subcmd__pack_commands() {
     local commands; commands=(
 'versions:List all published versions of a pack' \
-'set-visibility:Set pack visibility' \
+'set-visibility:Set pack visibility (public or private)' \
 'grant:Grant access to a private pack' \
 'revoke:Revoke access to a private pack' \
 'access:List accounts with access to a private pack' \
@@ -3331,6 +3376,11 @@ _dkp__subcmd__registry__subcmd__help__subcmd__pack__subcmd__set-visibility_comma
 _dkp__subcmd__registry__subcmd__help__subcmd__pack__subcmd__versions_commands() {
     local commands; commands=()
     _describe -t commands 'dkp registry help pack versions commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__help__subcmd__register_commands] )) ||
+_dkp__subcmd__registry__subcmd__help__subcmd__register_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry help register commands' commands "$@"
 }
 (( $+functions[_dkp__subcmd__registry__subcmd__help__subcmd__token_commands] )) ||
 _dkp__subcmd__registry__subcmd__help__subcmd__token_commands() {
@@ -3389,7 +3439,7 @@ _dkp__subcmd__registry__subcmd__logout_commands() {
 _dkp__subcmd__registry__subcmd__pack_commands() {
     local commands; commands=(
 'versions:List all published versions of a pack' \
-'set-visibility:Set pack visibility' \
+'set-visibility:Set pack visibility (public or private)' \
 'grant:Grant access to a private pack' \
 'revoke:Revoke access to a private pack' \
 'access:List accounts with access to a private pack' \
@@ -3411,7 +3461,7 @@ _dkp__subcmd__registry__subcmd__pack__subcmd__grant_commands() {
 _dkp__subcmd__registry__subcmd__pack__subcmd__help_commands() {
     local commands; commands=(
 'versions:List all published versions of a pack' \
-'set-visibility:Set pack visibility' \
+'set-visibility:Set pack visibility (public or private)' \
 'grant:Grant access to a private pack' \
 'revoke:Revoke access to a private pack' \
 'access:List accounts with access to a private pack' \
@@ -3463,6 +3513,11 @@ _dkp__subcmd__registry__subcmd__pack__subcmd__set-visibility_commands() {
 _dkp__subcmd__registry__subcmd__pack__subcmd__versions_commands() {
     local commands; commands=()
     _describe -t commands 'dkp registry pack versions commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__registry__subcmd__register_commands] )) ||
+_dkp__subcmd__registry__subcmd__register_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp registry register commands' commands "$@"
 }
 (( $+functions[_dkp__subcmd__registry__subcmd__token_commands] )) ||
 _dkp__subcmd__registry__subcmd__token_commands() {
