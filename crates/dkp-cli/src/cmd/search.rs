@@ -3,11 +3,15 @@ use clap::Args;
 use serde::Serialize;
 use std::path::PathBuf;
 
-use dkp_core::{search::SearchIndex, Pack};
+use dkp_core::{registry::types::SearchResult as RegistrySearchResult, search::SearchIndex, Pack};
 
 use comfy_table::{presets::UTF8_FULL, Table};
 
-use crate::{cli::CmdCtx, output::Render};
+use crate::{
+    cli::CmdCtx,
+    cmd::registry::account::{load_credentials_from_ctx, resolve_registry_url},
+    output::Render,
+};
 
 #[derive(Args, Debug)]
 pub struct SearchArgs {
@@ -79,10 +83,85 @@ impl Render for SearchResults {
     }
 }
 
+#[derive(Debug, Serialize)]
+struct RegistrySearchResults {
+    query: String,
+    total: u64,
+    results: Vec<RegistrySearchResult>,
+}
+
+impl Render for RegistrySearchResults {
+    fn render_plain(&self) -> String {
+        if self.results.is_empty() {
+            return format!("No registry results for \"{}\"\n", self.query);
+        }
+        let mut out = format!(
+            "{} result(s) for \"{}\" (showing {}):\n\n",
+            self.total,
+            self.query,
+            self.results.len()
+        );
+        for r in &self.results {
+            out.push_str(&format!(
+                "{}@{} [{}]\n  {}\n  Domain: {}  Tags: {}\n\n",
+                r.name,
+                r.version,
+                r.conformance,
+                r.description.as_deref().unwrap_or(""),
+                r.domain,
+                r.tags.join(", "),
+            ));
+        }
+        out
+    }
+
+    fn render_table(&self) -> String {
+        if self.results.is_empty() {
+            return format!("No registry results for \"{}\"\n", self.query);
+        }
+        let mut table = Table::new();
+        table.load_preset(UTF8_FULL);
+        table.set_header(["Name", "Version", "Domain", "Conformance", "Description"]);
+        for r in &self.results {
+            table.add_row([
+                &r.name,
+                &r.version,
+                &r.domain,
+                &r.conformance,
+                r.description.as_deref().unwrap_or(""),
+            ]);
+        }
+        table.to_string()
+    }
+}
+
 pub async fn run(args: SearchArgs, cli: &CmdCtx) -> Result<()> {
     if args.registry {
-        // TODO: query registry search API
-        anyhow::bail!("registry search not yet implemented");
+        let query = args.query.ok_or_else(|| {
+            anyhow::anyhow!("query required (usage: dkp search --registry <query>)")
+        })?;
+        let base = resolve_registry_url(&cli.config.registry.url, &None);
+        let token = load_credentials_from_ctx(&cli.config.registry.url, &None)
+            .ok()
+            .flatten()
+            .map(|(_, t)| t);
+        let client = dkp_core::registry::RegistryClient::new(base, token);
+        let resp = client
+            .search(
+                &query,
+                args.domain.as_deref(),
+                args.conformance.as_deref(),
+                args.limit as u32,
+                0,
+            )
+            .await?;
+        RegistrySearchResults {
+            query,
+            total: resp.total,
+            results: resp.results,
+        }
+        .print(cli.output);
+        return Ok(());
     }
 
     let pack_path = args.pack.ok_or_else(|| {
