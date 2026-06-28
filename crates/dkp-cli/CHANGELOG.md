@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2](https://github.com/dkp-standard/cli/compare/dkp-v0.1.1...dkp-v0.1.2) - 2026-06-28
+
+### Added
+
+- add sync-readme alias and crate readmes for crates.io publishing
+
+### Other
+
+- Merge branch 'main' of github.com:dkp-standard/cli
+
 ## [0.1.1](https://github.com/dkp-standard/cli/compare/dkp-v0.1.0...dkp-v0.1.1) - 2026-06-28
 
 ### Fixed
