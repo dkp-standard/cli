@@ -7,9 +7,7 @@ fn main() {
     let src_dist = Path::new(&manifest_dir).join("src/cmd/webui/web/dist");
 
     let embed_dir = if src_dist.exists()
-        && src_dist
-            .read_dir()
-            .is_ok_and(|mut d| d.next().is_some())
+        && src_dist.read_dir().is_ok_and(|mut d| d.next().is_some())
     {
         // Real Svelte build present — embed it.
         src_dist.to_string_lossy().into_owned()
