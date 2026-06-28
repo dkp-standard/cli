@@ -63,6 +63,7 @@ fn sync_readme() -> Result<()> {
         .with_context(|| format!("read {}", src.display()))?;
 
     let targets = [
+        cli_root.join("README.md"),
         cli_root.join("crates/dkp-cli/README.md"),
         cli_root.join("crates/dkp-core/README.md"),
         cli_root.join("crates/dkp-gen-core/README.md"),
