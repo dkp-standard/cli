@@ -4,6 +4,10 @@ description = "dkp — Domain Knowledge Pack management CLI"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository = "https://github.com/dkp-standard/cli"
+homepage = "https://dkp-standard.com"
+documentation = "https://docs.rs/dkp"
+build = "build.rs"
 
 [lib]
 name = "dkp"
@@ -58,9 +62,9 @@ tower-http = { workspace = true, optional = true }
 open = { workspace = true, optional = true }
 
 [package.metadata.deb]
-maintainer = "DKP Authors <hello@dkp-standard.dev>"
-copyright = "2025, DKP Authors"
-license-file = ["../../LICENSE-MIT", "4"]
+maintainer = "Jay Mathis <code@mathis.network>"
+copyright = "2026, DKP Contributors"
+license-file = ["LICENSE", "0"]
 extended-description = "Domain Knowledge Pack management CLI — build, validate, search, and publish DKP packs."
 depends = "$auto"
 section = "utility"
