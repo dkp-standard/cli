@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0](https://github.com/dkp-standard/cli/compare/dkp-v0.2.0...dkp-v0.3.0) - 2026-06-29
+
+### Added
+
+- add support for tar.xz and .dkp archive formats
+- *(dkp-cli)* remove --registry flag, use presigned uploads for publish
+- *(cli)* add init --title flag, refactor search argument parsing
+- *(cli)* implement registry uninstall and add registry search support
+
+### Other
+
+- *(dkp-cli)* simplify DKP filename version check with is_some_and
+- Merge branch 'main' of github.com:dkp-standard/cli
+
 ## [0.2.0](https://github.com/dkp-standard/cli/compare/dkp-v0.1.2...dkp-v0.2.0) - 2026-06-28
 
 ### Added
