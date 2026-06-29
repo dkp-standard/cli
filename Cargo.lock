@@ -1155,7 +1155,7 @@ dependencies = [
 
 [[package]]
 name = "dkp"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "axum",
@@ -1194,7 +1194,7 @@ dependencies = [
 
 [[package]]
 name = "dkp-core"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "csv",
@@ -1218,7 +1218,7 @@ dependencies = [
 
 [[package]]
 name = "dkp-gen-core"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5345,7 +5345,7 @@ dependencies = [
 
 [[package]]
 name = "xtask"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "clap",

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0](https://github.com/dkp-standard/cli/compare/dkp-core-v0.2.0...dkp-core-v0.3.0) - 2026-06-29
+
+### Added
+
+- *(dkp-core)* enforce WASM-only procedure validation
+- add support for tar.xz and .dkp archive formats
+- *(dkp-cli)* remove --registry flag, use presigned uploads for publish
+
 ## [0.2.0](https://github.com/dkp-standard/cli/compare/dkp-core-v0.1.2...dkp-core-v0.2.0) - 2026-06-28
 
 ### Other
