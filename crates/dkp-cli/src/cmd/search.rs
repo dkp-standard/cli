@@ -139,8 +139,8 @@ pub async fn run(args: SearchArgs, cli: &CmdCtx) -> Result<()> {
             anyhow::bail!("query required (usage: dkp search --registry <query>)");
         }
         let query = args.args.join(" ");
-        let base = resolve_registry_url(&cli.config.registry.url, &None);
-        let token = load_credentials_from_ctx(&cli.config.registry.url, &None)
+        let base = resolve_registry_url(&cli.config.registry.url);
+        let token = load_credentials_from_ctx(&cli.config.registry.url)
             .ok()
             .flatten()
             .map(|(_, t)| t);

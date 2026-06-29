@@ -6,7 +6,6 @@ use crate::types::manifest::Manifest;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PublishRequest {
-    pub tarball_url: String,
     pub manifest: Manifest,
     /// Raw checksums.json contents
     pub checksums: serde_json::Value,
@@ -14,6 +13,8 @@ pub struct PublishRequest {
     pub bundle_sig: String,
     /// "public" or "private"
     pub visibility: String,
+    /// Declared archive size in bytes — used for quota pre-check on the registry side.
+    pub size_bytes: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -23,6 +24,12 @@ pub struct PublishResponse {
     pub conformance: String,
     pub published_at: String,
     pub validation_report: ValidationReport,
+    /// Presigned PUT URL — upload the archive directly to this URL.
+    pub upload_url: String,
+    /// Object key in R2 — pass to the confirm endpoint.
+    pub r2_key: String,
+    /// ISO-8601 expiry of the presigned URL.
+    pub upload_url_expires_at: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -48,7 +55,6 @@ pub struct PackVersionResponse {
     pub manifest: Manifest,
     pub checksums: serde_json::Value,
     pub bundle_sig: String,
-    pub tarball_url: String,
     pub archive_format: String,
     pub publisher_public_key: String,
     pub published_at: String,
@@ -73,6 +79,20 @@ pub struct VersionListResponse {
     pub name: String,
     pub versions: Vec<VersionSummary>,
     pub latest: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ConfirmPublishResponse {
+    pub name: String,
+    pub version: String,
+    pub conformance: String,
+    pub size_bytes: i64,
+    pub validation_report: ValidationReport,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DownloadUrlResponse {
+    pub url: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -103,8 +123,7 @@ pub struct LockFile {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LockedPack {
     pub version: String,
-    pub tarball_url: String,
     pub archive_format: String,
-    /// "sha256-<hex>" integrity string
+    /// "sha256-<hex>" integrity string over checksums.json
     pub integrity: String,
 }

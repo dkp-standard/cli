@@ -11,8 +11,26 @@ use dkp_core::registry::types::{LockFile, LockedPack};
 
 #[derive(Args, Debug)]
 pub struct InstallArgs {
-    /// Pack name, e.g. @example/nutrition-for-men or @example/pack@1.2.0
-    pub name: String,
+    /// Pack name, e.g. @example/nutrition-for-men or @example/pack@1.2.0.
+    /// Omit to install all packs from dkp.lock.
+    pub name: Option<String>,
+
+    /// Install directly from a URL without involving the registry.
+    /// Pass --checksums and/or --sig to verify integrity.
+    #[arg(long, value_name = "URL")]
+    pub url: Option<String>,
+
+    /// Path to a checksums.json for verifying a --url install
+    #[arg(long, value_name = "PATH", requires = "url")]
+    pub checksums: Option<PathBuf>,
+
+    /// Path to a bundle.sig for verifying a --url install
+    #[arg(long, value_name = "PATH", requires = "url")]
+    pub sig: Option<PathBuf>,
+
+    /// Publisher Ed25519 public key for verifying a --url install (hex, base64, or raw 32-byte file)
+    #[arg(long, value_name = "PATH", requires = "sig")]
+    pub pubkey: Option<PathBuf>,
 
     /// Install to global store (~/.dkp/packs/)
     #[arg(long, short = 'g')]
@@ -22,31 +40,42 @@ pub struct InstallArgs {
     #[arg(long, value_name = "DIR")]
     pub out: Option<PathBuf>,
 
-    /// Override registry URL
-    #[arg(long, value_name = "URL")]
-    pub registry: Option<String>,
-
     /// Registry API token
     #[arg(long, value_name = "KEY", env = "DKP_TOKEN")]
     pub token: Option<String>,
 
-    /// Skip signature verification (NOT RECOMMENDED)
+    /// Skip signature verification for registry installs (NOT RECOMMENDED)
     #[arg(long)]
     pub no_verify: bool,
 }
 
 pub async fn run(args: InstallArgs, cli: &CmdCtx) -> Result<()> {
-    // Parse name@version
-    let (pack_name, version) = parse_pack_arg(&args.name);
+    // --- Direct URL install (no registry) ---
+    if let Some(ref url) = args.url {
+        return install_from_url(url, &args, cli).await;
+    }
 
-    let base = resolve_registry_url(&cli.config.registry.url, &args.registry);
+    let base = resolve_registry_url(&cli.config.registry.url);
     let token = args.token.clone().or_else(|| {
-        load_credentials_from_ctx(&cli.config.registry.url, &args.registry)
+        load_credentials_from_ctx(&cli.config.registry.url)
             .ok()?
             .map(|(_, t)| t)
     });
-
     let client = dkp_core::registry::RegistryClient::new(base, token);
+
+    match &args.name {
+        Some(name) => install_one(name, &args, cli, &client).await,
+        None => install_from_lock(&args, cli, &client).await,
+    }
+}
+
+async fn install_one(
+    arg: &str,
+    args: &InstallArgs,
+    cli: &CmdCtx,
+    client: &dkp_core::registry::RegistryClient,
+) -> Result<()> {
+    let (pack_name, version) = parse_pack_arg(arg);
 
     println!("Resolving {pack_name}@{version} ...");
     let meta = client.resolve(&pack_name, &version).await?;
@@ -60,18 +89,19 @@ pub async fn run(args: InstallArgs, cli: &CmdCtx) -> Result<()> {
         );
     }
 
-    // Determine install directory
-    let install_dir = resolve_install_dir(&args, cli, &meta.name, &meta.version)?;
+    let install_dir = resolve_install_dir(args, cli, &meta.name, &meta.version)?;
     if install_dir.exists() {
         println!("Already installed at {}", install_dir.display());
         return Ok(());
     }
 
-    // Download archive
-    println!("Downloading {} ...", meta.tarball_url);
+    // Fetch the CDN download URL from the registry
+    let dl = client.get_download_url(&meta.name, &meta.version).await?;
+
+    println!("Downloading from {} ...", dl.url);
     let http = reqwest::Client::new();
     let resp = http
-        .get(&meta.tarball_url)
+        .get(&dl.url)
         .send()
         .await
         .context("failed to download pack archive")?;
@@ -81,7 +111,6 @@ pub async fn run(args: InstallArgs, cli: &CmdCtx) -> Result<()> {
     let archive_bytes = resp.bytes().await.context("failed to read archive body")?;
 
     if !args.no_verify {
-        // Verify checksums
         let expected: HashMap<String, String> =
             serde_json::from_value(meta.checksums.clone()).context("invalid checksums")?;
         let actual = hash_archive(&archive_bytes, &meta.archive_format)?;
@@ -96,7 +125,6 @@ pub async fn run(args: InstallArgs, cli: &CmdCtx) -> Result<()> {
             }
         }
 
-        // Verify Ed25519 signature
         let sig_bytes = base64::engine::general_purpose::STANDARD
             .decode(&meta.bundle_sig)
             .context("invalid bundle_sig base64")?;
@@ -110,41 +138,155 @@ pub async fn run(args: InstallArgs, cli: &CmdCtx) -> Result<()> {
         eprintln!("Warning: skipping verification (--no-verify)");
     }
 
-    // Extract to a temp dir then move into place
     let tmp = tempfile::tempdir().context("failed to create temp dir")?;
     extract_archive(&archive_bytes, &meta.archive_format, tmp.path())?;
-
-    // Find the pack root inside the extracted tree
     let extracted_root = find_pack_root(tmp.path());
 
     std::fs::create_dir_all(&install_dir)
         .with_context(|| format!("creating install dir {}", install_dir.display()))?;
-
-    // Move contents
     for entry in std::fs::read_dir(&extracted_root)? {
         let entry = entry?;
-        let dest = install_dir.join(entry.file_name());
-        std::fs::rename(entry.path(), dest)?;
+        std::fs::rename(entry.path(), install_dir.join(entry.file_name()))?;
     }
 
     println!("Installed to {}", install_dir.display());
 
-    // Write / update dkp.lock
-    update_lock_file(
-        &meta.name,
-        &meta.version,
-        &meta.tarball_url,
-        &meta.archive_format,
-        &meta.checksums,
-    )?;
+    let integrity = format!(
+        "sha256-{}",
+        hex::encode(Sha256::digest(meta.checksums.to_string().as_bytes()))
+    );
+    update_lock_file(&meta.name, &meta.version, &meta.archive_format, &integrity)?;
 
     Ok(())
 }
 
+async fn install_from_lock(
+    args: &InstallArgs,
+    cli: &CmdCtx,
+    client: &dkp_core::registry::RegistryClient,
+) -> Result<()> {
+    let lock_path = std::env::current_dir()?.join("dkp.lock");
+    if !lock_path.exists() {
+        println!("No dkp.lock found. Specify a pack name to install.");
+        return Ok(());
+    }
+    let lock: LockFile = serde_json::from_str(&std::fs::read_to_string(&lock_path)?)?;
+    for (name, locked) in &lock.resolved {
+        let install_dir = resolve_install_dir(args, cli, name, &locked.version)?;
+        if install_dir.exists() {
+            println!("{name}@{} already installed", locked.version);
+            continue;
+        }
+        // Re-use install_one logic
+        install_one(&format!("{name}@{}", locked.version), args, cli, client).await?;
+    }
+    Ok(())
+}
+
+// --- Direct URL install ---
+
+async fn install_from_url(url: &str, args: &InstallArgs, cli: &CmdCtx) -> Result<()> {
+    println!("Downloading from {url} ...");
+    let http = reqwest::Client::new();
+    let resp = http
+        .get(url)
+        .send()
+        .await
+        .context("failed to download archive")?;
+    if !resp.status().is_success() {
+        bail!("download failed: {}", resp.status());
+    }
+    let archive_bytes = resp.bytes().await.context("failed to read archive body")?;
+
+    // Detect format from bytes
+    let archive_format = detect_format_from_bytes(&archive_bytes);
+
+    // Optional checksums verification
+    let mut verified_checksums = false;
+    if let Some(ref checksums_path) = args.checksums {
+        let expected: HashMap<String, String> =
+            serde_json::from_str(&std::fs::read_to_string(checksums_path)?)
+                .context("failed to parse checksums file")?;
+        let actual = hash_archive(&archive_bytes, &archive_format)?;
+        for (path, expected_hash) in &expected {
+            let actual_hash = actual
+                .get(path)
+                .with_context(|| format!("'{path}' in checksums not found in archive"))?;
+            if actual_hash != expected_hash {
+                bail!(
+                    "checksum mismatch for '{path}': expected {expected_hash}, got {actual_hash}"
+                );
+            }
+        }
+        verified_checksums = true;
+        println!("Checksums verified.");
+
+        // Optional signature verification (requires --sig and --pubkey)
+        if let (Some(ref sig_path), Some(ref pubkey_path)) = (&args.sig, &args.pubkey) {
+            let sig_bytes = std::fs::read(sig_path).context("failed to read .sig file")?;
+            let key_bytes = load_public_key(pubkey_path)?;
+            verify_signature(&sig_bytes, &key_bytes, &expected)?;
+            println!("Signature verified.");
+        } else if args.sig.is_some() {
+            eprintln!("Warning: --sig provided without --pubkey; skipping signature verification.");
+        }
+    } else {
+        eprintln!(
+            "Warning: installing without integrity verification. \
+             Pass --checksums <path> to verify this archive."
+        );
+    }
+
+    // Determine pack name and version from archive filename or prompt
+    let filename = url.rsplit('/').next().unwrap_or("unknown.tar.gz");
+    let (pack_name, version) = parse_dkp_filename(filename);
+
+    let install_dir = resolve_install_dir(args, cli, &pack_name, &version)?;
+
+    let tmp = tempfile::tempdir().context("failed to create temp dir")?;
+    extract_archive(&archive_bytes, &archive_format, tmp.path())?;
+    let extracted_root = find_pack_root(tmp.path());
+
+    std::fs::create_dir_all(&install_dir)
+        .with_context(|| format!("creating install dir {}", install_dir.display()))?;
+    for entry in std::fs::read_dir(&extracted_root)? {
+        let entry = entry?;
+        std::fs::rename(entry.path(), install_dir.join(entry.file_name()))?;
+    }
+
+    println!("Installed to {}", install_dir.display());
+
+    if verified_checksums {
+        // We don't have a registry checksums JSON value; use a placeholder integrity
+        let integrity = format!("sha256-{}", hex::encode(Sha256::digest(&archive_bytes)));
+        update_lock_file(&pack_name, &version, &archive_format, &integrity)?;
+    }
+
+    Ok(())
+}
+
+fn parse_dkp_filename(name: &str) -> (String, String) {
+    // Expected: "{name}-{version}.tar.gz" or "{name}-{version}.zip"
+    let base = name
+        .strip_suffix(".tar.gz")
+        .or_else(|| name.strip_suffix(".zip"))
+        .unwrap_or(name);
+    if let Some(pos) = base.rfind('-') {
+        let maybe_version = &base[pos + 1..];
+        if maybe_version
+            .chars()
+            .next()
+            .map_or(false, |c| c.is_ascii_digit())
+        {
+            return (base[..pos].to_owned(), maybe_version.to_owned());
+        }
+    }
+    (base.to_owned(), "unknown".to_owned())
+}
+
+// --- Shared helpers ---
+
 fn parse_pack_arg(arg: &str) -> (String, String) {
-    // Split on the last '@' that is preceded by at least one non-@ character
-    // e.g. "@example/pack@1.2.0" -> ("@example/pack", "1.2.0")
-    //      "@example/pack" -> ("@example/pack", "latest")
     if let Some(pos) = arg.rfind('@').filter(|&p| p > 0) {
         (arg[..pos].to_owned(), arg[pos + 1..].to_owned())
     } else {
@@ -172,7 +314,6 @@ fn resolve_install_dir(
             .context("cannot determine global install dir")?;
         return Ok(global.join(pack_name).join(version));
     }
-    // Default: local dkps/ directory
     let local_name = cli.config.install.local_dir.as_deref().unwrap_or("dkps");
     Ok(std::env::current_dir()?
         .join(local_name)
@@ -185,6 +326,16 @@ fn strip_top_component(path: &str) -> String {
         Some(i) => path[i + 1..].to_string(),
         None => String::new(),
     }
+}
+
+fn detect_format_from_bytes(bytes: &[u8]) -> String {
+    if bytes.starts_with(b"PK\x03\x04") {
+        return "zip".into();
+    }
+    if bytes.starts_with(&[0x1f, 0x8b]) {
+        return "tar.gz".into();
+    }
+    "tar.gz".into()
 }
 
 fn hash_archive(bytes: &[u8], format: &str) -> Result<HashMap<String, String>> {
@@ -278,12 +429,32 @@ fn find_pack_root(dir: &std::path::Path) -> PathBuf {
     dir.to_path_buf()
 }
 
+fn load_public_key(path: &PathBuf) -> Result<Vec<u8>> {
+    use base64::Engine;
+    let bytes =
+        std::fs::read(path).with_context(|| format!("reading key from {}", path.display()))?;
+    if bytes.len() == 32 {
+        return Ok(bytes);
+    }
+    let text = String::from_utf8(bytes).context("key file is not UTF-8")?;
+    let text = text.trim();
+    if text.len() == 64 && text.chars().all(|c| c.is_ascii_hexdigit()) {
+        return hex::decode(text).context("invalid hex in key file");
+    }
+    let decoded = base64::engine::general_purpose::STANDARD
+        .decode(text)
+        .context("key file is not hex, raw bytes, or base64")?;
+    if decoded.len() != 32 {
+        bail!("Ed25519 public key must be 32 bytes; got {}", decoded.len());
+    }
+    Ok(decoded)
+}
+
 fn update_lock_file(
     name: &str,
     version: &str,
-    tarball_url: &str,
     archive_format: &str,
-    checksums: &serde_json::Value,
+    integrity: &str,
 ) -> Result<()> {
     let lock_path = std::env::current_dir()?.join("dkp.lock");
     let mut lock: LockFile = if lock_path.exists() {
@@ -295,19 +466,12 @@ fn update_lock_file(
         }
     };
 
-    // Compute aggregate integrity string from checksums
-    let integrity = format!(
-        "sha256-{}",
-        hex::encode(Sha256::digest(checksums.to_string().as_bytes()))
-    );
-
     lock.resolved.insert(
         name.to_owned(),
         LockedPack {
             version: version.to_owned(),
-            tarball_url: tarball_url.to_owned(),
             archive_format: archive_format.to_owned(),
-            integrity,
+            integrity: integrity.to_owned(),
         },
     );
 

@@ -11,10 +11,6 @@ pub struct UpdateArgs {
     /// Update only this pack (omit to update all packs in dkp.lock)
     pub name: Option<String>,
 
-    /// Override registry URL
-    #[arg(long, value_name = "URL")]
-    pub registry: Option<String>,
-
     /// Registry API token
     #[arg(long, value_name = "KEY", env = "DKP_REGISTRY_TOKEN")]
     pub token: Option<String>,
@@ -29,9 +25,9 @@ pub async fn run(args: UpdateArgs, cli: &CmdCtx) -> Result<()> {
 
     let mut lock: LockFile = serde_json::from_str(&std::fs::read_to_string(&lock_path)?)?;
 
-    let base = resolve_registry_url(&cli.config.registry.url, &args.registry);
+    let base = resolve_registry_url(&cli.config.registry.url);
     let token = args.token.or_else(|| {
-        load_credentials_from_ctx(&cli.config.registry.url, &args.registry)
+        load_credentials_from_ctx(&cli.config.registry.url)
             .ok()?
             .map(|(_, t)| t)
     });
@@ -74,7 +70,6 @@ pub async fn run(args: UpdateArgs, cli: &CmdCtx) -> Result<()> {
 
         let meta = client.resolve(pack_name, &latest).await?;
 
-        // Compute integrity
         let integrity = format!(
             "sha256-{}",
             hex::encode(sha2::Sha256::digest(meta.checksums.to_string().as_bytes()))
@@ -84,7 +79,6 @@ pub async fn run(args: UpdateArgs, cli: &CmdCtx) -> Result<()> {
             pack_name.clone(),
             dkp_core::registry::types::LockedPack {
                 version: latest,
-                tarball_url: meta.tarball_url,
                 archive_format: meta.archive_format,
                 integrity,
             },

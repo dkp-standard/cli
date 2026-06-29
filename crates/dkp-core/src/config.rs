@@ -58,7 +58,7 @@ impl DkpConfig {
         self.registry
             .url
             .as_deref()
-            .unwrap_or("https://registry.dkp-standard.com")
+            .unwrap_or("https://registry.dkp.directory")
     }
 
     pub fn local_install_dir(&self) -> &str {

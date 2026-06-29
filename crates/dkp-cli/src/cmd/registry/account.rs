@@ -18,15 +18,11 @@ pub enum RegistryCommands {
     Register {
         #[arg(long, value_name = "EMAIL")]
         email: String,
-        #[arg(long, value_name = "URL")]
-        registry: Option<String>,
     },
     /// Authenticate with an existing account and save API key to ~/.dkp/credentials
     Login {
         #[arg(long, value_name = "EMAIL")]
         email: String,
-        #[arg(long, value_name = "URL")]
-        registry: Option<String>,
     },
     /// Remove saved credentials
     Logout,
@@ -49,10 +45,7 @@ pub enum RegistryCommands {
 
 #[derive(Subcommand, Debug)]
 pub enum TokenAction {
-    Rotate {
-        #[arg(long, value_name = "URL")]
-        registry: Option<String>,
-    },
+    Rotate,
 }
 
 #[derive(Subcommand, Debug)]
@@ -60,54 +53,35 @@ pub enum KeysAction {
     Add {
         #[arg(long, value_name = "PATH")]
         key: PathBuf,
-        #[arg(long, value_name = "URL")]
-        registry: Option<String>,
     },
 }
 
 #[derive(Subcommand, Debug)]
 pub enum PackAction {
     /// List all published versions of a pack
-    Versions {
-        name: String,
-        #[arg(long, value_name = "URL")]
-        registry: Option<String>,
-    },
+    Versions { name: String },
     /// Set pack visibility (public or private)
-    SetVisibility {
-        name: String,
-        visibility: String,
-        #[arg(long, value_name = "URL")]
-        registry: Option<String>,
-    },
+    SetVisibility { name: String, visibility: String },
     /// Grant access to a private pack
     Grant {
         name: String,
         #[arg(long, value_name = "EMAIL")]
         to: String,
-        #[arg(long, value_name = "URL")]
-        registry: Option<String>,
     },
     /// Revoke access to a private pack
     Revoke {
         name: String,
         #[arg(long, value_name = "EMAIL")]
         from: String,
-        #[arg(long, value_name = "URL")]
-        registry: Option<String>,
     },
     /// List accounts with access to a private pack
-    Access {
-        name: String,
-        #[arg(long, value_name = "URL")]
-        registry: Option<String>,
-    },
+    Access { name: String },
 }
 
 pub async fn run(args: RegistryArgs, cli: &CmdCtx) -> Result<()> {
     match args.command {
-        RegistryCommands::Register { email, registry } => {
-            let base = resolve_registry_url(&cli.config.registry.url, &registry);
+        RegistryCommands::Register { email } => {
+            let base = resolve_registry_url(&cli.config.registry.url);
             let password = prompt_password("Choose a password: ")?;
             let http = reqwest::Client::new();
             let resp = http
@@ -126,8 +100,8 @@ pub async fn run(args: RegistryArgs, cli: &CmdCtx) -> Result<()> {
             println!("Account created for {email}. API key saved to ~/{CREDENTIALS_FILE}");
         }
 
-        RegistryCommands::Login { email, registry } => {
-            let base = resolve_registry_url(&cli.config.registry.url, &registry);
+        RegistryCommands::Login { email } => {
+            let base = resolve_registry_url(&cli.config.registry.url);
             let password = prompt_password("Password: ")?;
             let http = reqwest::Client::new();
             let resp = http
@@ -157,9 +131,9 @@ pub async fn run(args: RegistryArgs, cli: &CmdCtx) -> Result<()> {
         }
 
         RegistryCommands::Token {
-            action: TokenAction::Rotate { registry },
+            action: TokenAction::Rotate,
         } => {
-            let (base, token) = load_credentials_or_fail(&cli.config.registry.url, &registry)?;
+            let (base, token) = load_credentials_or_fail(&cli.config.registry.url)?;
             let http = reqwest::Client::new();
             let resp = http
                 .post(format!("{base}/api/v1/account/login"))
@@ -179,9 +153,9 @@ pub async fn run(args: RegistryArgs, cli: &CmdCtx) -> Result<()> {
         }
 
         RegistryCommands::Keys {
-            action: KeysAction::Add { key, registry },
+            action: KeysAction::Add { key },
         } => {
-            let (base, token) = load_credentials_or_fail(&cli.config.registry.url, &registry)?;
+            let (base, token) = load_credentials_or_fail(&cli.config.registry.url)?;
             let key_b64 = load_public_key(&key)?;
             let http = reqwest::Client::new();
             let resp = http
@@ -205,8 +179,8 @@ pub async fn run(args: RegistryArgs, cli: &CmdCtx) -> Result<()> {
 
 async fn run_pack_action(action: PackAction, cli: &CmdCtx) -> Result<()> {
     match action {
-        PackAction::Versions { name, registry } => {
-            let (base, token) = load_credentials_or_fail(&cli.config.registry.url, &registry)?;
+        PackAction::Versions { name } => {
+            let (base, token) = load_credentials_or_fail(&cli.config.registry.url)?;
             let client = dkp_core::registry::RegistryClient::new(base, Some(token));
             let resp = client.list_versions(&name).await?;
             println!("Versions for {}:", resp.name);
@@ -223,12 +197,8 @@ async fn run_pack_action(action: PackAction, cli: &CmdCtx) -> Result<()> {
             }
         }
 
-        PackAction::SetVisibility {
-            name,
-            visibility,
-            registry,
-        } => {
-            let (base, token) = load_credentials_or_fail(&cli.config.registry.url, &registry)?;
+        PackAction::SetVisibility { name, visibility } => {
+            let (base, token) = load_credentials_or_fail(&cli.config.registry.url)?;
             let http = reqwest::Client::new();
             let resp = http
                 .patch(format!("{base}/api/v1/packages/{name}/visibility"))
@@ -245,8 +215,8 @@ async fn run_pack_action(action: PackAction, cli: &CmdCtx) -> Result<()> {
             println!("{name} visibility set to {visibility}.");
         }
 
-        PackAction::Grant { name, to, registry } => {
-            let (base, token) = load_credentials_or_fail(&cli.config.registry.url, &registry)?;
+        PackAction::Grant { name, to } => {
+            let (base, token) = load_credentials_or_fail(&cli.config.registry.url)?;
             let http = reqwest::Client::new();
             let resp = http
                 .post(format!("{base}/api/v1/packages/{name}/access"))
@@ -260,12 +230,8 @@ async fn run_pack_action(action: PackAction, cli: &CmdCtx) -> Result<()> {
             println!("Access granted to {to} for {name}.");
         }
 
-        PackAction::Revoke {
-            name,
-            from,
-            registry,
-        } => {
-            let (base, token) = load_credentials_or_fail(&cli.config.registry.url, &registry)?;
+        PackAction::Revoke { name, from } => {
+            let (base, token) = load_credentials_or_fail(&cli.config.registry.url)?;
             let http = reqwest::Client::new();
             let resp = http
                 .delete(format!("{base}/api/v1/packages/{name}/access/{from}"))
@@ -278,8 +244,8 @@ async fn run_pack_action(action: PackAction, cli: &CmdCtx) -> Result<()> {
             println!("Access revoked from {from} for {name}.");
         }
 
-        PackAction::Access { name, registry } => {
-            let (base, token) = load_credentials_or_fail(&cli.config.registry.url, &registry)?;
+        PackAction::Access { name } => {
+            let (base, token) = load_credentials_or_fail(&cli.config.registry.url)?;
             let http = reqwest::Client::new();
             let resp = http
                 .get(format!("{base}/api/v1/packages/{name}/access"))
@@ -353,36 +319,27 @@ fn load_credentials(registry_url_override: &Option<String>) -> Result<Option<(St
                 Some(registry)
             }
         })
-        .unwrap_or_else(|| "https://registry.dkp-standard.com".into());
+        .unwrap_or_else(|| "https://registry.dkp.directory".into());
     if token.is_empty() {
         return Ok(None);
     }
     Ok(Some((base, token)))
 }
 
-fn load_credentials_or_fail(
-    config_url: &Option<String>,
-    cli_url: &Option<String>,
-) -> Result<(String, String)> {
-    let override_url = cli_url.clone().or_else(|| config_url.clone());
-    load_credentials(&override_url)?
+pub fn load_credentials_or_fail(config_url: &Option<String>) -> Result<(String, String)> {
+    load_credentials(config_url)?
         .ok_or_else(|| anyhow::anyhow!("not logged in — run 'dkp registry login --email <email>'"))
 }
 
-/// Convenience for other registry commands: load (base, token) from saved creds + overrides.
-pub fn load_credentials_from_ctx(
-    config_url: &Option<String>,
-    cli_url: &Option<String>,
-) -> Result<Option<(String, String)>> {
-    let override_url = cli_url.clone().or_else(|| config_url.clone());
-    load_credentials(&override_url)
+/// Convenience for other registry commands: load (base, token) from saved creds.
+pub fn load_credentials_from_ctx(config_url: &Option<String>) -> Result<Option<(String, String)>> {
+    load_credentials(config_url)
 }
 
-pub fn resolve_registry_url(config_url: &Option<String>, cli_url: &Option<String>) -> String {
-    cli_url
+pub fn resolve_registry_url(config_url: &Option<String>) -> String {
+    config_url
         .clone()
-        .or_else(|| config_url.clone())
-        .unwrap_or_else(|| "https://registry.dkp-standard.com".into())
+        .unwrap_or_else(|| "https://registry.dkp.directory".into())
 }
 
 fn prompt_password(prompt: &str) -> Result<String> {
@@ -393,18 +350,15 @@ fn load_public_key(path: &PathBuf) -> Result<String> {
     use base64::Engine;
     let bytes =
         std::fs::read(path).with_context(|| format!("reading key from {}", path.display()))?;
-    // Raw 32-byte binary
     if bytes.len() == 32 {
         return Ok(base64::engine::general_purpose::STANDARD.encode(&bytes));
     }
     let text = String::from_utf8(bytes).context("key file is not UTF-8")?;
     let text = text.trim();
-    // Hex-encoded (keygen writes 64-char hex)
     if text.len() == 64 && text.chars().all(|c| c.is_ascii_hexdigit()) {
         let raw = hex::decode(text).context("invalid hex in key file")?;
         return Ok(base64::engine::general_purpose::STANDARD.encode(&raw));
     }
-    // Base64-encoded
     let decoded = base64::engine::general_purpose::STANDARD
         .decode(text)
         .context("key file is not hex, raw bytes, or base64")?;

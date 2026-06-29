@@ -2,7 +2,7 @@ use anyhow::{bail, Context, Result};
 use clap::Args;
 
 use crate::cli::CmdCtx;
-use crate::cmd::registry::account::{load_credentials_from_ctx, resolve_registry_url};
+use crate::cmd::registry::account::load_credentials_or_fail;
 
 #[derive(Args, Debug)]
 pub struct YankArgs {
@@ -13,17 +13,12 @@ pub struct YankArgs {
     #[arg(long, value_name = "TEXT")]
     pub reason: String,
 
-    /// Override registry URL
-    #[arg(long, value_name = "URL")]
-    pub registry: Option<String>,
-
     /// Registry API token
     #[arg(long, value_name = "KEY", env = "DKP_REGISTRY_TOKEN")]
     pub token: Option<String>,
 }
 
 pub async fn run(args: YankArgs, cli: &CmdCtx) -> Result<()> {
-    // Parse name@version
     let pos = args
         .name
         .rfind('@')
@@ -36,15 +31,18 @@ pub async fn run(args: YankArgs, cli: &CmdCtx) -> Result<()> {
         bail!("version required — use @scope/name@version");
     }
 
-    let base = resolve_registry_url(&cli.config.registry.url, &args.registry);
-    let token = args
-        .token
-        .or_else(|| {
-            load_credentials_from_ctx(&cli.config.registry.url, &args.registry)
-                .ok()?
-                .map(|(_, t)| t)
-        })
-        .context("no registry token — run 'dkp registry login' or set DKP_REGISTRY_TOKEN")?;
+    let (base, token) = if let Some(t) = args.token {
+        (
+            cli.config
+                .registry
+                .url
+                .clone()
+                .unwrap_or_else(|| "https://registry.dkp.directory".into()),
+            t,
+        )
+    } else {
+        load_credentials_or_fail(&cli.config.registry.url)?
+    };
 
     let client = dkp_core::registry::RegistryClient::new(base, Some(token));
     client.yank(&pack_name, &version, &args.reason).await?;

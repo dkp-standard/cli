@@ -3,7 +3,8 @@ use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
 use crate::error::{DkpError, DkpResult};
 
 use super::types::{
-    PackVersionResponse, PublishRequest, PublishResponse, SearchResponse, VersionListResponse,
+    ConfirmPublishResponse, DownloadUrlResponse, PackVersionResponse, PublishRequest,
+    PublishResponse, SearchResponse, VersionListResponse,
 };
 
 pub struct RegistryClient {
@@ -112,6 +113,71 @@ impl RegistryClient {
             let body = resp.text().await.unwrap_or_default();
             return Err(DkpError::Registry(format!(
                 "publish failed {status}: {body}"
+            )));
+        }
+        resp.json()
+            .await
+            .map_err(|e| DkpError::Registry(e.to_string()))
+    }
+
+    pub async fn confirm_publish(
+        &self,
+        name: &str,
+        version: &str,
+    ) -> DkpResult<ConfirmPublishResponse> {
+        let encoded = urlencoding::encode(name);
+        let url = self.url(&format!("/packages/{encoded}/{version}/confirm"));
+        let auth = self
+            .auth_header()
+            .ok_or_else(|| DkpError::Registry("registry token required for confirm".into()))?;
+        let resp = self
+            .http
+            .post(&url)
+            .header(AUTHORIZATION, auth)
+            .send()
+            .await
+            .map_err(|e| DkpError::Registry(e.to_string()))?;
+        if !resp.status().is_success() {
+            let status = resp.status();
+            let body = resp.text().await.unwrap_or_default();
+            return Err(DkpError::Registry(format!(
+                "confirm failed {status}: {body}"
+            )));
+        }
+        resp.json()
+            .await
+            .map_err(|e| DkpError::Registry(e.to_string()))
+    }
+
+    pub async fn get_download_url(
+        &self,
+        name: &str,
+        version: &str,
+    ) -> DkpResult<DownloadUrlResponse> {
+        let encoded = urlencoding::encode(name);
+        let url = self.url(&format!("/packages/{encoded}/{version}/download-url"));
+        let mut req = self.http.get(&url);
+        if let Some(auth) = self.auth_header() {
+            req = req.header(AUTHORIZATION, auth);
+        }
+        let resp = req
+            .send()
+            .await
+            .map_err(|e| DkpError::Registry(e.to_string()))?;
+        if resp.status() == 401 {
+            return Err(DkpError::Registry("authentication required".into()));
+        }
+        if resp.status() == 403 {
+            return Err(DkpError::Registry("not authorized".into()));
+        }
+        if resp.status() == 404 {
+            return Err(DkpError::Registry(format!("{name}@{version} not found")));
+        }
+        if !resp.status().is_success() {
+            let status = resp.status();
+            let body = resp.text().await.unwrap_or_default();
+            return Err(DkpError::Registry(format!(
+                "registry error {status}: {body}"
             )));
         }
         resp.json()
