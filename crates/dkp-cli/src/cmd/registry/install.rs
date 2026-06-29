@@ -276,7 +276,7 @@ fn parse_dkp_filename(name: &str) -> (String, String) {
         if maybe_version
             .chars()
             .next()
-            .map_or(false, |c| c.is_ascii_digit())
+            .is_some_and(|c| c.is_ascii_digit())
         {
             return (base[..pos].to_owned(), maybe_version.to_owned());
         }
