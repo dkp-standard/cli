@@ -1,13 +1,16 @@
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
-.TH dkp-publish 1  "publish 0.1.2" 
+.TH dkp-publish 1  "publish 0.2.0" 
 .SH NAME
 dkp\-publish \- Publish a built and signed pack to the registry
 .SH SYNOPSIS
-\fBdkp publish\fR [\fB\-\-output\fR] <\fB\-\-url\fR> [\fB\-\-build\-dir\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-private\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-\-registry\fR] [\fB\-\-token\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] [\fIPATH\fR] 
+\fBdkp publish\fR [\fB\-\-build\-dir\fR] [\fB\-\-output\fR] [\fB\-\-private\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-token\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] [\fIPATH\fR] 
 .SH DESCRIPTION
 Publish a built and signed pack to the registry
 .SH OPTIONS
+.TP
+\fB\-\-build\-dir\fR \fI<DIR>\fR
+Directory containing the archive (.tar.gz or .zip), checksums.json, and bundle.sig (default: <pack>/build/)
 .TP
 \fB\-\-output\fR \fI<OUTPUT>\fR [default: plain]
 Output format
@@ -24,29 +27,20 @@ table: Aligned table using comfy\-table
 json: Pretty\-printed JSON
 .RE
 .TP
-\fB\-\-url\fR \fI<URL>\fR
-HTTPS URL to the hosted archive (publisher\-controlled storage)
-.TP
-\fB\-\-build\-dir\fR \fI<DIR>\fR
-Directory containing checksums.json and bundle.sig (default: <pack>/build/)
+\fB\-\-private\fR
+Set pack visibility to private
 .TP
 \fB\-q\fR, \fB\-\-quiet\fR
 Suppress informational output; print only results
 .TP
-\fB\-\-private\fR
-Set pack visibility to private
+\fB\-\-token\fR \fI<KEY>\fR
+Registry API token
 .TP
 \fB\-v\fR, \fB\-\-verbose\fR
 Print debug info (schema paths, provider calls, etc.)
 .TP
 \fB\-\-audience\fR \fI<ID>\fR
 Filter content to assets tagged for a specific audience profile
-.TP
-\fB\-\-registry\fR \fI<URL>\fR
-Override registry URL
-.TP
-\fB\-\-token\fR \fI<KEY>\fR
-Registry API token
 .TP
 \fB\-h\fR, \fB\-\-help\fR
 Print help (see a summary with \*(Aq\-h\*(Aq)
@@ -57,4 +51,4 @@ Print version
 [\fIPATH\fR]
 Path to the pack directory (defaults to current directory)
 .SH VERSION
-v0.1.2
+v0.2.0

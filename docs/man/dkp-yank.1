@@ -1,10 +1,10 @@
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
-.TH dkp-yank 1  "yank 0.1.2" 
+.TH dkp-yank 1  "yank 0.2.0" 
 .SH NAME
 dkp\-yank \- Mark a published version as yanked
 .SH SYNOPSIS
-\fBdkp yank\fR [\fB\-\-output\fR] <\fB\-\-reason\fR> [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-registry\fR] [\fB\-\-token\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fINAME\fR> 
+\fBdkp yank\fR [\fB\-\-output\fR] <\fB\-\-reason\fR> [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-token\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fINAME\fR> 
 .SH DESCRIPTION
 Mark a published version as yanked
 .SH OPTIONS
@@ -30,9 +30,6 @@ Reason shown to consumers who attempt to install this version
 \fB\-q\fR, \fB\-\-quiet\fR
 Suppress informational output; print only results
 .TP
-\fB\-\-registry\fR \fI<URL>\fR
-Override registry URL
-.TP
 \fB\-\-token\fR \fI<KEY>\fR
 Registry API token
 .TP
@@ -51,4 +48,4 @@ Print version
 <\fINAME\fR>
 Pack name and version, e.g. @example/nutrition\-for\-men@1.0.0
 .SH VERSION
-v0.1.2
+v0.2.0

@@ -75,6 +75,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
         'dkp;init' {
             [CompletionResult]::new('--domain', '--domain', [CompletionResultType]::ParameterName, 'Top-level domain category (e.g. "Health", "Finance")')
             [CompletionResult]::new('--out', '--out', [CompletionResultType]::ParameterName, 'Output directory (default: ./<name-slug>/)')
+            [CompletionResult]::new('--title', '--title', [CompletionResultType]::ParameterName, 'Human-readable display name for the pack (defaults to a TODO placeholder)')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('--extras', '--extras', [CompletionResultType]::ParameterName, 'Also scaffold optional recommended assets: eval_set.jsonl, knowledge_graph.json, human/handbook.md, README.md, CHANGELOG.md')
@@ -376,7 +377,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;build' {
-            [CompletionResult]::new('--format', '--format', [CompletionResultType]::ParameterName, 'Archive format: zip | tar.gz')
+            [CompletionResult]::new('--format', '--format', [CompletionResultType]::ParameterName, 'Archive format: zip | tar.gz | tar.xz | dkp')
             [CompletionResult]::new('--out', '--out', [CompletionResultType]::ParameterName, 'Output directory (default: build/)')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
@@ -1037,14 +1038,17 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;install' {
+            [CompletionResult]::new('--url', '--url', [CompletionResultType]::ParameterName, 'Install directly from a URL without involving the registry. Pass --checksums and/or --sig to verify integrity')
+            [CompletionResult]::new('--checksums', '--checksums', [CompletionResultType]::ParameterName, 'Path to a checksums.json for verifying a --url install')
+            [CompletionResult]::new('--sig', '--sig', [CompletionResultType]::ParameterName, 'Path to a bundle.sig for verifying a --url install')
+            [CompletionResult]::new('--pubkey', '--pubkey', [CompletionResultType]::ParameterName, 'Publisher Ed25519 public key for verifying a --url install (hex, base64, or raw 32-byte file)')
             [CompletionResult]::new('--out', '--out', [CompletionResultType]::ParameterName, 'Install to a custom directory')
-            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'Override registry URL')
             [CompletionResult]::new('--token', '--token', [CompletionResultType]::ParameterName, 'Registry API token')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-g', '-g', [CompletionResultType]::ParameterName, 'Install to global store (~/.dkp/packs/)')
             [CompletionResult]::new('--global', '--global', [CompletionResultType]::ParameterName, 'Install to global store (~/.dkp/packs/)')
-            [CompletionResult]::new('--no-verify', '--no-verify', [CompletionResultType]::ParameterName, 'Skip signature verification (NOT RECOMMENDED)')
+            [CompletionResult]::new('--no-verify', '--no-verify', [CompletionResultType]::ParameterName, 'Skip signature verification for registry installs (NOT RECOMMENDED)')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
@@ -1073,7 +1077,6 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;update' {
-            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'Override registry URL')
             [CompletionResult]::new('--token', '--token', [CompletionResultType]::ParameterName, 'Registry API token')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
@@ -1088,9 +1091,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;publish' {
-            [CompletionResult]::new('--url', '--url', [CompletionResultType]::ParameterName, 'HTTPS URL to the hosted archive (publisher-controlled storage)')
-            [CompletionResult]::new('--build-dir', '--build-dir', [CompletionResultType]::ParameterName, 'Directory containing checksums.json and bundle.sig (default: <pack>/build/)')
-            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'Override registry URL')
+            [CompletionResult]::new('--build-dir', '--build-dir', [CompletionResultType]::ParameterName, 'Directory containing the archive (.tar.gz or .zip), checksums.json, and bundle.sig (default: <pack>/build/)')
             [CompletionResult]::new('--token', '--token', [CompletionResultType]::ParameterName, 'Registry API token')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
@@ -1107,7 +1108,6 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
         }
         'dkp;yank' {
             [CompletionResult]::new('--reason', '--reason', [CompletionResultType]::ParameterName, 'Reason shown to consumers who attempt to install this version')
-            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'Override registry URL')
             [CompletionResult]::new('--token', '--token', [CompletionResultType]::ParameterName, 'Registry API token')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
@@ -1143,7 +1143,6 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
         }
         'dkp;registry;register' {
             [CompletionResult]::new('--email', '--email', [CompletionResultType]::ParameterName, 'email')
-            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'registry')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
@@ -1158,7 +1157,6 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
         }
         'dkp;registry;login' {
             [CompletionResult]::new('--email', '--email', [CompletionResultType]::ParameterName, 'email')
-            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'registry')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
@@ -1200,7 +1198,6 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;registry;token;rotate' {
-            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'registry')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
@@ -1241,7 +1238,6 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
         }
         'dkp;registry;keys;add' {
             [CompletionResult]::new('--key', '--key', [CompletionResultType]::ParameterName, 'key')
-            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'registry')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
@@ -1285,7 +1281,6 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;registry;pack;versions' {
-            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'registry')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
@@ -1299,7 +1294,6 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;registry;pack;set-visibility' {
-            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'registry')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
@@ -1314,7 +1308,6 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
         }
         'dkp;registry;pack;grant' {
             [CompletionResult]::new('--to', '--to', [CompletionResultType]::ParameterName, 'to')
-            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'registry')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
@@ -1329,7 +1322,6 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
         }
         'dkp;registry;pack;revoke' {
             [CompletionResult]::new('--from', '--from', [CompletionResultType]::ParameterName, 'from')
-            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'registry')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
@@ -1343,7 +1335,6 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;registry;pack;access' {
-            [CompletionResult]::new('--registry', '--registry', [CompletionResultType]::ParameterName, 'registry')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')

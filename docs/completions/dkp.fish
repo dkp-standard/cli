@@ -73,6 +73,7 @@ complete -c dkp -n "__fish_dkp_needs_command" -f -a "registry" -d 'Registry acco
 complete -c dkp -n "__fish_dkp_needs_command" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
 complete -c dkp -n "__fish_dkp_using_subcommand init" -l domain -d 'Top-level domain category (e.g. "Health", "Finance")' -r
 complete -c dkp -n "__fish_dkp_using_subcommand init" -l out -d 'Output directory (default: ./<name-slug>/)' -r -F
+complete -c dkp -n "__fish_dkp_using_subcommand init" -l title -d 'Human-readable display name for the pack (defaults to a TODO placeholder)' -r
 complete -c dkp -n "__fish_dkp_using_subcommand init" -l output -d 'Output format' -r -f -a "plain\t'Human-readable plain text (default)'
 table\t'Aligned table using comfy-table'
 json\t'Pretty-printed JSON'"
@@ -263,7 +264,7 @@ complete -c dkp -n "__fish_dkp_using_subcommand diff" -s q -l quiet -d 'Suppress
 complete -c dkp -n "__fish_dkp_using_subcommand diff" -s v -l verbose -d 'Print debug info (schema paths, provider calls, etc.)'
 complete -c dkp -n "__fish_dkp_using_subcommand diff" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c dkp -n "__fish_dkp_using_subcommand diff" -s V -l version -d 'Print version'
-complete -c dkp -n "__fish_dkp_using_subcommand build" -l format -d 'Archive format: zip | tar.gz' -r
+complete -c dkp -n "__fish_dkp_using_subcommand build" -l format -d 'Archive format: zip | tar.gz | tar.xz | dkp' -r
 complete -c dkp -n "__fish_dkp_using_subcommand build" -l out -d 'Output directory (default: build/)' -r -F
 complete -c dkp -n "__fish_dkp_using_subcommand build" -l output -d 'Output format' -r -f -a "plain\t'Human-readable plain text (default)'
 table\t'Aligned table using comfy-table'
@@ -649,15 +650,18 @@ complete -c dkp -n "__fish_dkp_using_subcommand sign" -s q -l quiet -d 'Suppress
 complete -c dkp -n "__fish_dkp_using_subcommand sign" -s v -l verbose -d 'Print debug info (schema paths, provider calls, etc.)'
 complete -c dkp -n "__fish_dkp_using_subcommand sign" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c dkp -n "__fish_dkp_using_subcommand sign" -s V -l version -d 'Print version'
+complete -c dkp -n "__fish_dkp_using_subcommand install" -l url -d 'Install directly from a URL without involving the registry. Pass --checksums and/or --sig to verify integrity' -r
+complete -c dkp -n "__fish_dkp_using_subcommand install" -l checksums -d 'Path to a checksums.json for verifying a --url install' -r -F
+complete -c dkp -n "__fish_dkp_using_subcommand install" -l sig -d 'Path to a bundle.sig for verifying a --url install' -r -F
+complete -c dkp -n "__fish_dkp_using_subcommand install" -l pubkey -d 'Publisher Ed25519 public key for verifying a --url install (hex, base64, or raw 32-byte file)' -r -F
 complete -c dkp -n "__fish_dkp_using_subcommand install" -l out -d 'Install to a custom directory' -r -F
-complete -c dkp -n "__fish_dkp_using_subcommand install" -l registry -d 'Override registry URL' -r
 complete -c dkp -n "__fish_dkp_using_subcommand install" -l token -d 'Registry API token' -r
 complete -c dkp -n "__fish_dkp_using_subcommand install" -l output -d 'Output format' -r -f -a "plain\t'Human-readable plain text (default)'
 table\t'Aligned table using comfy-table'
 json\t'Pretty-printed JSON'"
 complete -c dkp -n "__fish_dkp_using_subcommand install" -l audience -d 'Filter content to assets tagged for a specific audience profile' -r
 complete -c dkp -n "__fish_dkp_using_subcommand install" -s g -l global -d 'Install to global store (~/.dkp/packs/)'
-complete -c dkp -n "__fish_dkp_using_subcommand install" -l no-verify -d 'Skip signature verification (NOT RECOMMENDED)'
+complete -c dkp -n "__fish_dkp_using_subcommand install" -l no-verify -d 'Skip signature verification for registry installs (NOT RECOMMENDED)'
 complete -c dkp -n "__fish_dkp_using_subcommand install" -s q -l quiet -d 'Suppress informational output; print only results'
 complete -c dkp -n "__fish_dkp_using_subcommand install" -s v -l verbose -d 'Print debug info (schema paths, provider calls, etc.)'
 complete -c dkp -n "__fish_dkp_using_subcommand install" -s h -l help -d 'Print help (see more with \'--help\')'
@@ -673,7 +677,6 @@ complete -c dkp -n "__fish_dkp_using_subcommand uninstall" -s q -l quiet -d 'Sup
 complete -c dkp -n "__fish_dkp_using_subcommand uninstall" -s v -l verbose -d 'Print debug info (schema paths, provider calls, etc.)'
 complete -c dkp -n "__fish_dkp_using_subcommand uninstall" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c dkp -n "__fish_dkp_using_subcommand uninstall" -s V -l version -d 'Print version'
-complete -c dkp -n "__fish_dkp_using_subcommand update" -l registry -d 'Override registry URL' -r
 complete -c dkp -n "__fish_dkp_using_subcommand update" -l token -d 'Registry API token' -r
 complete -c dkp -n "__fish_dkp_using_subcommand update" -l output -d 'Output format' -r -f -a "plain\t'Human-readable plain text (default)'
 table\t'Aligned table using comfy-table'
@@ -683,9 +686,7 @@ complete -c dkp -n "__fish_dkp_using_subcommand update" -s q -l quiet -d 'Suppre
 complete -c dkp -n "__fish_dkp_using_subcommand update" -s v -l verbose -d 'Print debug info (schema paths, provider calls, etc.)'
 complete -c dkp -n "__fish_dkp_using_subcommand update" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c dkp -n "__fish_dkp_using_subcommand update" -s V -l version -d 'Print version'
-complete -c dkp -n "__fish_dkp_using_subcommand publish" -l url -d 'HTTPS URL to the hosted archive (publisher-controlled storage)' -r
-complete -c dkp -n "__fish_dkp_using_subcommand publish" -l build-dir -d 'Directory containing checksums.json and bundle.sig (default: <pack>/build/)' -r -F
-complete -c dkp -n "__fish_dkp_using_subcommand publish" -l registry -d 'Override registry URL' -r
+complete -c dkp -n "__fish_dkp_using_subcommand publish" -l build-dir -d 'Directory containing the archive (.tar.gz or .zip), checksums.json, and bundle.sig (default: <pack>/build/)' -r -F
 complete -c dkp -n "__fish_dkp_using_subcommand publish" -l token -d 'Registry API token' -r
 complete -c dkp -n "__fish_dkp_using_subcommand publish" -l output -d 'Output format' -r -f -a "plain\t'Human-readable plain text (default)'
 table\t'Aligned table using comfy-table'
@@ -697,7 +698,6 @@ complete -c dkp -n "__fish_dkp_using_subcommand publish" -s v -l verbose -d 'Pri
 complete -c dkp -n "__fish_dkp_using_subcommand publish" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c dkp -n "__fish_dkp_using_subcommand publish" -s V -l version -d 'Print version'
 complete -c dkp -n "__fish_dkp_using_subcommand yank" -l reason -d 'Reason shown to consumers who attempt to install this version' -r
-complete -c dkp -n "__fish_dkp_using_subcommand yank" -l registry -d 'Override registry URL' -r
 complete -c dkp -n "__fish_dkp_using_subcommand yank" -l token -d 'Registry API token' -r
 complete -c dkp -n "__fish_dkp_using_subcommand yank" -l output -d 'Output format' -r -f -a "plain\t'Human-readable plain text (default)'
 table\t'Aligned table using comfy-table'
@@ -723,7 +723,6 @@ complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_su
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from register login logout token keys pack help" -f -a "pack" -d 'Pack-level management subcommands'
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and not __fish_seen_subcommand_from register login logout token keys pack help" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from register" -l email -r
-complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from register" -l registry -r
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from register" -l output -d 'Output format' -r -f -a "plain\t'Human-readable plain text (default)'
 table\t'Aligned table using comfy-table'
 json\t'Pretty-printed JSON'"
@@ -733,7 +732,6 @@ complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcom
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from register" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from register" -s V -l version -d 'Print version'
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from login" -l email -r
-complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from login" -l registry -r
 complete -c dkp -n "__fish_dkp_using_subcommand registry; and __fish_seen_subcommand_from login" -l output -d 'Output format' -r -f -a "plain\t'Human-readable plain text (default)'
 table\t'Aligned table using comfy-table'
 json\t'Pretty-printed JSON'"

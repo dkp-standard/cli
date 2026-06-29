@@ -2308,7 +2308,7 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__init)
-            opts="-q -v -h -V --domain --out --extras --force --output --quiet --verbose --audience --help --version <NAME>"
+            opts="-q -v -h -V --domain --out --extras --title --force --output --quiet --verbose --audience --help --version <NAME>"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -2319,6 +2319,10 @@ _dkp() {
                     return 0
                     ;;
                 --out)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --title)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
@@ -2372,17 +2376,29 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__install)
-            opts="-g -q -v -h -V --global --out --registry --token --no-verify --output --quiet --verbose --audience --help --version <NAME>"
+            opts="-g -q -v -h -V --url --checksums --sig --pubkey --global --out --token --no-verify --output --quiet --verbose --audience --help --version [NAME]"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
-                --out)
+                --url)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
-                --registry)
+                --checksums)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --sig)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --pubkey)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --out)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
@@ -3138,21 +3154,13 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__publish)
-            opts="-q -v -h -V --url --build-dir --private --registry --token --output --quiet --verbose --audience --help --version [PATH]"
+            opts="-q -v -h -V --build-dir --private --token --output --quiet --verbose --audience --help --version [PATH]"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
-                --url)
-                    COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
                 --build-dir)
-                    COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
-                --registry)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
@@ -3430,17 +3438,13 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__registry__subcmd__keys__subcmd__add)
-            opts="-q -v -h -V --key --registry --output --quiet --verbose --audience --help --version"
+            opts="-q -v -h -V --key --output --quiet --verbose --audience --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
                 --key)
-                    COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
-                --registry)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
@@ -3502,17 +3506,13 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__registry__subcmd__login)
-            opts="-q -v -h -V --email --registry --output --quiet --verbose --audience --help --version"
+            opts="-q -v -h -V --email --output --quiet --verbose --audience --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
                 --email)
-                    COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
-                --registry)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
@@ -3576,16 +3576,12 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__registry__subcmd__pack__subcmd__access)
-            opts="-q -v -h -V --registry --output --quiet --verbose --audience --help --version <NAME>"
+            opts="-q -v -h -V --output --quiet --verbose --audience --help --version <NAME>"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
-                --registry)
-                    COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
                 --output)
                     COMPREPLY=($(compgen -W "plain table json" -- "${cur}"))
                     return 0
@@ -3602,17 +3598,13 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__registry__subcmd__pack__subcmd__grant)
-            opts="-q -v -h -V --to --registry --output --quiet --verbose --audience --help --version <NAME>"
+            opts="-q -v -h -V --to --output --quiet --verbose --audience --help --version <NAME>"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
                 --to)
-                    COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
-                --registry)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
@@ -3730,17 +3722,13 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__registry__subcmd__pack__subcmd__revoke)
-            opts="-q -v -h -V --from --registry --output --quiet --verbose --audience --help --version <NAME>"
+            opts="-q -v -h -V --from --output --quiet --verbose --audience --help --version <NAME>"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
                 --from)
-                    COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
-                --registry)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
@@ -3760,16 +3748,12 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__registry__subcmd__pack__subcmd__set__subcmd__visibility)
-            opts="-q -v -h -V --registry --output --quiet --verbose --audience --help --version <NAME> <VISIBILITY>"
+            opts="-q -v -h -V --output --quiet --verbose --audience --help --version <NAME> <VISIBILITY>"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
-                --registry)
-                    COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
                 --output)
                     COMPREPLY=($(compgen -W "plain table json" -- "${cur}"))
                     return 0
@@ -3786,16 +3770,12 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__registry__subcmd__pack__subcmd__versions)
-            opts="-q -v -h -V --registry --output --quiet --verbose --audience --help --version <NAME>"
+            opts="-q -v -h -V --output --quiet --verbose --audience --help --version <NAME>"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
-                --registry)
-                    COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
                 --output)
                     COMPREPLY=($(compgen -W "plain table json" -- "${cur}"))
                     return 0
@@ -3812,17 +3792,13 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__registry__subcmd__register)
-            opts="-q -v -h -V --email --registry --output --quiet --verbose --audience --help --version"
+            opts="-q -v -h -V --email --output --quiet --verbose --audience --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
                 --email)
-                    COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
-                --registry)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
@@ -3906,16 +3882,12 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__registry__subcmd__token__subcmd__rotate)
-            opts="-q -v -h -V --registry --output --quiet --verbose --audience --help --version"
+            opts="-q -v -h -V --output --quiet --verbose --audience --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
-                --registry)
-                    COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
                 --output)
                     COMPREPLY=($(compgen -W "plain table json" -- "${cur}"))
                     return 0
@@ -4200,7 +4172,7 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__search)
-            opts="-q -v -h -V --registry --type --limit --domain --conformance --output --quiet --verbose --audience --help --version [PACK] [QUERY]"
+            opts="-q -v -h -V --registry --type --limit --domain --conformance --output --quiet --verbose --audience --help --version [ARGS]..."
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -4512,16 +4484,12 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__update)
-            opts="-q -v -h -V --registry --token --output --quiet --verbose --audience --help --version [NAME]"
+            opts="-q -v -h -V --token --output --quiet --verbose --audience --help --version [NAME]"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
-                --registry)
-                    COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
                 --token)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
@@ -4594,17 +4562,13 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__yank)
-            opts="-q -v -h -V --reason --registry --token --output --quiet --verbose --audience --help --version <NAME>"
+            opts="-q -v -h -V --reason --token --output --quiet --verbose --audience --help --version <NAME>"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
                 --reason)
-                    COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
-                --registry)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;

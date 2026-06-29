@@ -1,10 +1,10 @@
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
-.TH dkp-init 1  "init 0.1.2" 
+.TH dkp-init 1  "init 0.2.0" 
 .SH NAME
 dkp\-init \- Scaffold a new DKP pack directory with all required files
 .SH SYNOPSIS
-\fBdkp init\fR <\fB\-\-domain\fR> [\fB\-\-output\fR] [\fB\-\-out\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-extras\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-\-force\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fINAME\fR> 
+\fBdkp init\fR <\fB\-\-domain\fR> [\fB\-\-output\fR] [\fB\-\-out\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-extras\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-\-title\fR] [\fB\-\-force\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fINAME\fR> 
 .SH DESCRIPTION
 Scaffold a new DKP pack directory with all required files
 .SH OPTIONS
@@ -42,6 +42,9 @@ Print debug info (schema paths, provider calls, etc.)
 \fB\-\-audience\fR \fI<ID>\fR
 Filter content to assets tagged for a specific audience profile
 .TP
+\fB\-\-title\fR \fI<TITLE>\fR
+Human\-readable display name for the pack (defaults to a TODO placeholder)
+.TP
 \fB\-\-force\fR
 Overwrite if directory already exists
 .TP
@@ -54,4 +57,4 @@ Print version
 <\fINAME\fR>
 Scoped pack name (e.g. "@scope/my\-pack")
 .SH VERSION
-v0.1.2
+v0.2.0

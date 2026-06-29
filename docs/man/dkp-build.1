@@ -1,6 +1,6 @@
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
-.TH dkp-build 1  "build 0.1.2" 
+.TH dkp-build 1  "build 0.2.0" 
 .SH NAME
 dkp\-build \- Package a pack into a versioned archive with checksums.json
 .SH SYNOPSIS
@@ -9,8 +9,8 @@ dkp\-build \- Package a pack into a versioned archive with checksums.json
 Package a pack into a versioned archive with checksums.json
 .SH OPTIONS
 .TP
-\fB\-\-format\fR \fI<FMT>\fR [default: zip]
-Archive format: zip | tar.gz
+\fB\-\-format\fR \fI<FMT>\fR [default: dkp]
+Archive format: zip | tar.gz | tar.xz | dkp
 .TP
 \fB\-\-output\fR \fI<OUTPUT>\fR [default: plain]
 Output format
@@ -54,4 +54,4 @@ Print version
 <\fIPACK\fR>
 Path to the DKP bundle directory
 .SH VERSION
-v0.1.2
+v0.2.0
