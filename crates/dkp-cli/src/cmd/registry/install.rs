@@ -4,6 +4,7 @@ use clap::Args;
 use ed25519_dalek::{Signature, Verifier, VerifyingKey};
 use sha2::{Digest, Sha256};
 use std::{collections::HashMap, io::Cursor, path::PathBuf};
+use xz2::read::XzDecoder;
 
 use crate::cli::CmdCtx;
 use crate::cmd::registry::account::{load_credentials_from_ctx, resolve_registry_url};
@@ -269,6 +270,8 @@ fn parse_dkp_filename(name: &str) -> (String, String) {
     // Expected: "{name}-{version}.tar.gz" or "{name}-{version}.zip"
     let base = name
         .strip_suffix(".tar.gz")
+        .or_else(|| name.strip_suffix(".tar.xz"))
+        .or_else(|| name.strip_suffix(".dkp"))
         .or_else(|| name.strip_suffix(".zip"))
         .unwrap_or(name);
     if let Some(pos) = base.rfind('-') {
@@ -335,6 +338,9 @@ fn detect_format_from_bytes(bytes: &[u8]) -> String {
     if bytes.starts_with(&[0x1f, 0x8b]) {
         return "tar.gz".into();
     }
+    if bytes.starts_with(b"\xfd7zXZ\x00") {
+        return "tar.xz".into();
+    }
     "tar.gz".into()
 }
 
@@ -358,6 +364,7 @@ fn hash_archive(bytes: &[u8], format: &str) -> Result<HashMap<String, String>> {
             }
         }
         "tar.gz" => hash_tar(flate2::read::GzDecoder::new(Cursor::new(bytes)), &mut map)?,
+        "tar.xz" | "dkp" => hash_tar(XzDecoder::new(Cursor::new(bytes)), &mut map)?,
         _ => bail!("unsupported archive format: {format}"),
     }
     Ok(map)
@@ -413,6 +420,9 @@ fn extract_archive(bytes: &[u8], format: &str, dest: &std::path::Path) -> Result
         }
         "tar.gz" => {
             tar::Archive::new(flate2::read::GzDecoder::new(Cursor::new(bytes))).unpack(dest)?;
+        }
+        "tar.xz" | "dkp" => {
+            tar::Archive::new(XzDecoder::new(Cursor::new(bytes))).unpack(dest)?;
         }
         _ => bail!("unsupported format: {format}"),
     }

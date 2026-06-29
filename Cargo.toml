@@ -52,6 +52,7 @@ indicatif = "0.17"
 zip = "2"
 tar = "0.4"
 flate2 = "1"
+xz2 = { version = "0.1.7", features = ["static"] }
 
 # Cryptography
 ed25519-dalek = { version = "2", features = ["rand_core"] }

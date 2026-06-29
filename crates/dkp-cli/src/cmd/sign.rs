@@ -61,7 +61,10 @@ pub async fn run(args: SignArgs, _cli: &CmdCtx) -> Result<()> {
             .find(|e| {
                 let name = e.file_name();
                 let n = name.to_string_lossy();
-                n.ends_with(".zip") || n.ends_with(".tar.gz")
+                n.ends_with(".zip")
+                    || n.ends_with(".tar.gz")
+                    || n.ends_with(".tar.xz")
+                    || n.ends_with(".dkp")
             })
             .with_context(|| {
                 format!(

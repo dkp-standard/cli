@@ -1188,6 +1188,7 @@ dependencies = [
  "thiserror 2.0.18",
  "tokio",
  "tower-http",
+ "xz2",
  "zip",
 ]
 

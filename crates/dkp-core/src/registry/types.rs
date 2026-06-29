@@ -15,6 +15,8 @@ pub struct PublishRequest {
     pub visibility: String,
     /// Declared archive size in bytes — used for quota pre-check on the registry side.
     pub size_bytes: i64,
+    /// Archive format: "zip", "tar.gz", or "tar.xz". .dkp files are sent as "tar.xz".
+    pub archive_format: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

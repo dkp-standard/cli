@@ -63,6 +63,16 @@ pub async fn run(args: PublishArgs, cli: &CmdCtx) -> Result<()> {
         .with_context(|| format!("failed to read archive {}", archive_path.display()))?;
     let size_bytes = archive_bytes.len() as i64;
 
+    let archive_name = archive_path.to_string_lossy();
+    let archive_format = if archive_name.ends_with(".dkp") || archive_name.ends_with(".tar.xz") {
+        "tar.xz"
+    } else if archive_name.ends_with(".tar.gz") {
+        "tar.gz"
+    } else {
+        "zip"
+    }
+    .to_string();
+
     let visibility = if args.private { "private" } else { "public" }.to_string();
 
     let (base, token) = if let Some(t) = args.token {
@@ -90,6 +100,7 @@ pub async fn run(args: PublishArgs, cli: &CmdCtx) -> Result<()> {
             bundle_sig,
             visibility,
             size_bytes,
+            archive_format,
         })
         .await
         .context("publish failed")?;
@@ -142,12 +153,16 @@ fn find_archive(dir: &std::path::Path) -> Result<PathBuf> {
     for entry in entries.flatten() {
         let p = entry.path();
         let name = p.file_name().unwrap_or_default().to_string_lossy();
-        if name.ends_with(".tar.gz") || name.ends_with(".zip") {
+        if name.ends_with(".tar.gz")
+            || name.ends_with(".zip")
+            || name.ends_with(".tar.xz")
+            || name.ends_with(".dkp")
+        {
             return Ok(p);
         }
     }
     bail!(
-        "no .tar.gz or .zip archive found in {} — run 'dkp build' first (or pass --build-dir)",
+        "no .dkp, .tar.xz, .tar.gz, or .zip archive found in {} — run 'dkp build' first (or pass --build-dir)",
         dir.display()
     )
 }
