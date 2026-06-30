@@ -82,11 +82,10 @@ pub async fn run(args: RegistryArgs, cli: &CmdCtx) -> Result<()> {
     match args.command {
         RegistryCommands::Register { email } => {
             let base = resolve_registry_url(&cli.config.registry.url);
-            let password = prompt_password("Choose a password: ")?;
             let http = reqwest::Client::new();
             let resp = http
                 .post(format!("{base}/api/v1/account/register"))
-                .json(&serde_json::json!({ "email": email, "password": password }))
+                .json(&serde_json::json!({ "email": email }))
                 .send()
                 .await
                 .context("failed to contact registry")?;
@@ -94,19 +93,15 @@ pub async fn run(args: RegistryArgs, cli: &CmdCtx) -> Result<()> {
                 let body = resp.text().await.unwrap_or_default();
                 bail!("registration failed: {body}");
             }
-            let data: serde_json::Value = resp.json().await?;
-            let key = data["api_key"].as_str().context("no api_key in response")?;
-            save_credentials(&base, key)?;
-            println!("Account created for {email}. API key saved to ~/{CREDENTIALS_FILE}");
+            println!("Check your email for a verification link to activate your account.");
         }
 
         RegistryCommands::Login { email } => {
             let base = resolve_registry_url(&cli.config.registry.url);
-            let password = prompt_password("Password: ")?;
             let http = reqwest::Client::new();
             let resp = http
                 .post(format!("{base}/api/v1/account/login"))
-                .json(&serde_json::json!({ "email": email, "password": password }))
+                .json(&serde_json::json!({ "email": email }))
                 .send()
                 .await
                 .context("failed to contact registry")?;
@@ -114,10 +109,7 @@ pub async fn run(args: RegistryArgs, cli: &CmdCtx) -> Result<()> {
                 let body = resp.text().await.unwrap_or_default();
                 bail!("login failed: {body}");
             }
-            let data: serde_json::Value = resp.json().await?;
-            let key = data["api_key"].as_str().context("no api_key in response")?;
-            save_credentials(&base, key)?;
-            println!("Logged in as {email}. API key saved to ~/{CREDENTIALS_FILE}");
+            println!("Check your email for a sign-in link.");
         }
 
         RegistryCommands::Logout => {
@@ -136,9 +128,8 @@ pub async fn run(args: RegistryArgs, cli: &CmdCtx) -> Result<()> {
             let (base, token) = load_credentials_or_fail(&cli.config.registry.url)?;
             let http = reqwest::Client::new();
             let resp = http
-                .post(format!("{base}/api/v1/account/login"))
+                .post(format!("{base}/api/v1/account/token/rotate"))
                 .bearer_auth(&token)
-                .json(&serde_json::json!({}))
                 .send()
                 .await
                 .context("failed to contact registry")?;
@@ -340,10 +331,6 @@ pub fn resolve_registry_url(config_url: &Option<String>) -> String {
     config_url
         .clone()
         .unwrap_or_else(|| "https://registry.dkp.directory".into())
-}
-
-fn prompt_password(prompt: &str) -> Result<String> {
-    rpassword::prompt_password(prompt).context("failed to read password")
 }
 
 fn load_public_key(path: &PathBuf) -> Result<String> {
