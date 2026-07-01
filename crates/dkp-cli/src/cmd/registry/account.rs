@@ -93,7 +93,7 @@ pub async fn run(args: RegistryArgs, cli: &CmdCtx) -> Result<()> {
                 let body = resp.text().await.unwrap_or_default();
                 bail!("registration failed: {body}");
             }
-            println!("Check your email for a verification link to activate your account.");
+            await_verification(&base, &email, &http).await?;
         }
 
         RegistryCommands::Login { email } => {
@@ -109,7 +109,7 @@ pub async fn run(args: RegistryArgs, cli: &CmdCtx) -> Result<()> {
                 let body = resp.text().await.unwrap_or_default();
                 bail!("login failed: {body}");
             }
-            println!("Check your email for a sign-in link.");
+            await_verification(&base, &email, &http).await?;
         }
 
         RegistryCommands::Logout => {
@@ -267,6 +267,66 @@ async fn run_pack_action(action: PackAction, cli: &CmdCtx) -> Result<()> {
         }
     }
     Ok(())
+}
+
+// --- Pending session polling ---
+
+async fn await_verification(base: &str, email: &str, http: &reqwest::Client) -> Result<()> {
+    // Create a pending session so the registry can deliver the api_key to us
+    let resp = http
+        .post(format!("{base}/api/v1/account/session"))
+        .json(&serde_json::json!({ "email": email }))
+        .send()
+        .await
+        .context("failed to create pending session")?;
+    if !resp.status().is_success() {
+        // Non-fatal: fall back to instructions-only mode
+        println!("Check your email and click the verification link to complete sign-in.");
+        return Ok(());
+    }
+    let data: serde_json::Value = resp.json().await?;
+    let session_id = data["session_id"]
+        .as_str()
+        .context("no session_id in response")?
+        .to_owned();
+
+    println!("Check your email and click the verification link. Waiting...");
+
+    // Poll every 3 seconds for up to 5 minutes (100 attempts)
+    for _ in 0..100 {
+        tokio::time::sleep(std::time::Duration::from_secs(3)).await;
+
+        let poll = http
+            .get(format!("{base}/api/v1/account/session/{session_id}"))
+            .send()
+            .await;
+
+        let Ok(poll_resp) = poll else { continue };
+
+        if poll_resp.status() == reqwest::StatusCode::NOT_FOUND {
+            bail!("Session expired. Run 'dkp registry login' again.");
+        }
+
+        if !poll_resp.status().is_success() {
+            continue;
+        }
+
+        let poll_data: serde_json::Value = poll_resp.json().await.unwrap_or_default();
+        if poll_data["status"] == "complete" {
+            let api_key = poll_data["api_key"]
+                .as_str()
+                .context("no api_key in session response")?;
+            save_credentials(base, api_key)?;
+            println!("Logged in successfully. Credentials saved to ~/.dkp/credentials");
+            return Ok(());
+        }
+        // status == "pending" — keep waiting, print a dot
+        print!(".");
+        use std::io::Write;
+        let _ = std::io::stdout().flush();
+    }
+
+    bail!("Timed out waiting for verification. Run 'dkp registry login' again once you've clicked the link.");
 }
 
 // --- Credential storage helpers ---

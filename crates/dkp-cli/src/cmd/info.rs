@@ -95,11 +95,11 @@ impl Render for PackInfo {
         let c = &self.asset_counts;
         if c.procedures_total > 0 {
             out.push_str(&format!(
-                "  {:<12}{} ({} with WASM binary)\n",
+                "  {:<16}{} ({} with WASM binary)\n",
                 "Procedures", c.procedures_total, c.procedures_with_wasm
             ));
         } else {
-            out.push_str(&format!("  {:<12}none\n", "Procedures"));
+            out.push_str(&format!("  {:<16}none\n", "Procedures"));
         }
         out.push('\n');
         out.push_str("Compliance\n");
@@ -217,12 +217,12 @@ impl Render for PackInfo {
 
 fn fmt_asset(out: &mut String, label: &str, value: Option<String>) {
     let v = value.as_deref().unwrap_or("not present");
-    out.push_str(&format!("  {label:<12}{v}\n"));
+    out.push_str(&format!("  {label:<16}{v}\n"));
 }
 
 fn fmt_flag(out: &mut String, label: &str, present: bool) {
     let v = if present { "present" } else { "not present" };
-    out.push_str(&format!("  {label:<12}{v}\n"));
+    out.push_str(&format!("  {label:<16}{v}\n"));
 }
 
 pub async fn run(args: InfoArgs, cli: &CmdCtx) -> Result<()> {
