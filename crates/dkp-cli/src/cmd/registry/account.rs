@@ -150,7 +150,7 @@ pub async fn run(args: RegistryArgs, cli: &CmdCtx) -> Result<()> {
             let key_b64 = load_public_key(&key)?;
             let http = reqwest::Client::new();
             let resp = http
-                .post(format!("{base}/api/v1/account/keys"))
+                .post(format!("{base}/api/v1/account/signing-key"))
                 .bearer_auth(&token)
                 .json(&serde_json::json!({ "public_key": key_b64 }))
                 .send()

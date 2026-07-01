@@ -66,6 +66,8 @@ pub struct PackVersionResponse {
     pub yanked: bool,
     pub yank_reason: Option<String>,
     pub eval_summary: Option<serde_json::Value>,
+    pub readme: Option<String>,
+    pub download_count: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -78,6 +80,7 @@ pub struct VersionSummary {
     pub yank_reason: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub eval_summary: Option<serde_json::Value>,
+    pub download_count: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -112,6 +115,7 @@ pub struct SearchResult {
     pub conformance: String,
     pub published_at: String,
     pub score: f64,
+    pub total_downloads: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
