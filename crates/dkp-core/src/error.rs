@@ -16,6 +16,9 @@ pub enum DkpError {
     #[error("required field '{field}' missing or empty in manifest.json")]
     ManifestFieldMissing { field: &'static str },
 
+    #[error("manifest.json domain '{domain}' is invalid: {reason}")]
+    ManifestDomainInvalid { domain: String, reason: String },
+
     // Asset parsing
     #[error("failed to parse {asset}: {source}")]
     AssetParse {

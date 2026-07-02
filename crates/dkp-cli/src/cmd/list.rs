@@ -3,7 +3,7 @@ use clap::Args;
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 
-use dkp_core::Pack;
+use dkp_core::{slugify_domain, Pack};
 
 use crate::{cli::CmdCtx, output::Render};
 
@@ -120,7 +120,7 @@ fn pack_to_summary(pack: &Pack, path: &Path) -> PackSummary {
 
 fn passes_filters(pack: &Pack, domain: &Option<String>, tier: &Option<String>) -> bool {
     if let Some(ref d) = domain {
-        if !pack.manifest.domain.eq_ignore_ascii_case(d) {
+        if slugify_domain(&pack.manifest.domain) != slugify_domain(d) {
             return false;
         }
     }
@@ -176,7 +176,12 @@ pub async fn run(args: ListArgs, cli: &CmdCtx) -> Result<()> {
         anyhow::bail!("{} is not a valid pack or directory", args.root.display());
     }
 
-    packs.sort_by(|a, b| a.domain.cmp(&b.domain).then(a.name.cmp(&b.name)));
+    packs.sort_by(|a, b| {
+        slugify_domain(&a.domain)
+            .cmp(&slugify_domain(&b.domain))
+            .then(a.domain.cmp(&b.domain))
+            .then(a.name.cmp(&b.name))
+    });
     PackList { packs }.print(cli.output);
     Ok(())
 }

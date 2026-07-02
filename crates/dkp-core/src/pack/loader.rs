@@ -181,6 +181,14 @@ fn validate_required_fields(m: &Manifest) -> DkpResult<()> {
     require!(m.intended_use, "intended_use");
     require!(m.known_limitations, "known_limitations");
     require!(m.update_date, "update_date");
+
+    if let Err(e) = crate::domain::derive_and_validate_domain_slug(&m.domain) {
+        return Err(DkpError::ManifestDomainInvalid {
+            domain: m.domain.clone(),
+            reason: e.to_string(),
+        });
+    }
+
     Ok(())
 }
 
