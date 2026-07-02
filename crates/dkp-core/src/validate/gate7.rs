@@ -3,14 +3,21 @@ use crate::{
     validate::gates::{CheckResult, GateResult, GateStatus},
 };
 
-/// Gate 7: Evaluation — eval_set.jsonl present and eval_report.json shows no failures.
+/// Gate 7: Evaluation — eval_set.jsonl present and evidence/eval_results/eval_summary.json
+/// reports gate7_pass=true (SPEC.md §12.4, §16).
 pub fn run(pack: &Pack) -> GateResult {
-    if !pack.has_eval_set() {
+    let has_cases = pack.has_eval_set()
+        && pack
+            .load_eval_set()
+            .map(|cases| !cases.is_empty())
+            .unwrap_or(false);
+
+    if !has_cases {
         return GateResult {
             gate: 7,
             status: GateStatus::Skipped,
-            checks: vec![CheckResult::skip("eval_set.jsonl (optional)")],
-            message: Some("eval_set.jsonl not present; gate 7 skipped".to_string()),
+            checks: vec![CheckResult::skip("eval_set.jsonl (optional, or empty)")],
+            message: Some("eval_set.jsonl not present or empty; gate 7 skipped".to_string()),
         };
     }
 
@@ -25,35 +32,40 @@ pub fn run(pack: &Pack) -> GateResult {
         Err(e) => checks.push(CheckResult::fail("eval_set.jsonl parses", e.to_string())),
     }
 
-    // Check eval_report.json in build/
-    let report_path = pack.root.join("build").join("eval_report.json");
-    if report_path.exists() {
-        match std::fs::read_to_string(&report_path)
+    // Check evidence/eval_results/eval_summary.json (SPEC.md §12.4, Appendix B §B.13)
+    let summary_path = pack
+        .evidence_dir()
+        .join("eval_results")
+        .join("eval_summary.json");
+    if summary_path.exists() {
+        match std::fs::read_to_string(&summary_path)
             .ok()
             .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
         {
             Some(v) => {
-                let total = v["summary"]["total"].as_u64().unwrap_or(0);
-                let failed = v["summary"]["failed"].as_u64().unwrap_or(0);
-                if failed == 0 {
+                let gate7_pass = v["gate7_pass"].as_bool().unwrap_or(false);
+                let mean_delta = v["mean_delta"].as_f64().unwrap_or(0.0);
+                if gate7_pass {
                     checks.push(CheckResult::pass(format!(
-                        "eval_report.json: all {total} cases passed"
+                        "eval_summary.json: gate7_pass=true (mean_delta={mean_delta:.3})"
                     )));
                 } else {
+                    let min_delta = pack.manifest.min_eval_delta.unwrap_or(0.0);
                     checks.push(CheckResult::fail(
-                        "eval_report.json",
-                        format!("{failed}/{total} cases failed"),
+                        "eval_summary.json",
+                        format!("gate7_pass=false (mean_delta={mean_delta:.3}, required >= {min_delta:.3})"),
                     ));
                 }
             }
             None => checks.push(CheckResult::fail(
-                "eval_report.json parses",
-                "could not parse eval_report.json",
+                "eval_summary.json parses",
+                "could not parse evidence/eval_results/eval_summary.json",
             )),
         }
     } else {
-        checks.push(CheckResult::skip(
-            "eval_report.json (run `dkp eval` to generate)",
+        checks.push(CheckResult::fail(
+            "evidence/eval_results/eval_summary.json",
+            "not found; run `dkp eval` to generate before publishing",
         ));
     }
 

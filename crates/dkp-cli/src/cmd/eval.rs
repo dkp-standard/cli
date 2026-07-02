@@ -42,6 +42,8 @@ pub async fn run(args: EvalArgs, ctx: &CmdCtx) -> Result<()> {
     let pack = dkp_core::Pack::open(&args.pack)?;
     let domain = pack.manifest.domain.clone();
     let pack_name = pack.manifest.name.clone();
+    let pack_version = pack.manifest.version.clone();
+    let min_eval_delta = pack.manifest.min_eval_delta.unwrap_or(0.0);
 
     let config = GenConfig::load(CliOverrides {
         base_url: args.base_url,
@@ -78,7 +80,14 @@ pub async fn run(args: EvalArgs, ctx: &CmdCtx) -> Result<()> {
         );
     }
 
-    let report = dkp_gen_core::eval::run(gen_ctx, args.pairs, args.baseline_only).await?;
+    let report = dkp_gen_core::eval::run(
+        gen_ctx,
+        &pack_version,
+        min_eval_delta,
+        args.pairs,
+        args.baseline_only,
+    )
+    .await?;
 
     let pct = (report.summary.passed * 100)
         .checked_div(report.summary.total)

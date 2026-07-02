@@ -128,6 +128,8 @@ pub struct SearchResult {
 pub struct SearchResponse {
     pub total: u64,
     pub results: Vec<SearchResult>,
+    pub page: u64,
+    pub per_page: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

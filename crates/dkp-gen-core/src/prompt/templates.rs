@@ -189,8 +189,8 @@ pub fn prompt_eval_score(
     rubric: &str,
     must_include: &[String],
 ) -> (String, String) {
-    let system = "You are an objective evaluator assessing whether an answer meets a scoring rubric. \
-                  Respond with ONLY a JSON object with keys: \"pass\" (bool) and \"reason\" (one sentence).".to_string();
+    let system = "You are an objective evaluator scoring how well an answer meets a scoring rubric. \
+                  Respond with ONLY a JSON object with keys: \"score\" (float 0.0-1.0), \"pass\" (bool) and \"reason\" (one sentence).".to_string();
     let must_list = must_include
         .iter()
         .map(|s| format!("- {s}"))
@@ -201,7 +201,8 @@ pub fn prompt_eval_score(
          Answer: {answer}\n\n\
          Scoring rubric: {rubric}\n\n\
          The answer MUST include references to ALL of these concepts:\n{must_list}\n\n\
-         Does the answer pass? Respond with ONLY JSON: {{\"pass\": true/false, \"reason\": \"one sentence\"}}"
+         Score the answer from 0.0 (completely fails the rubric) to 1.0 (fully meets the rubric). \
+         Respond with ONLY JSON: {{\"score\": 0.0-1.0, \"pass\": true/false, \"reason\": \"one sentence\"}}"
     );
     (system, user)
 }
