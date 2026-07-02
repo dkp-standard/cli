@@ -90,6 +90,15 @@ async fn install_one(
         );
     }
 
+    if meta.deprecated {
+        eprintln!(
+            "Warning: {}@{} is deprecated: {}",
+            meta.name,
+            meta.version,
+            meta.deprecation_message.as_deref().unwrap_or("no message provided")
+        );
+    }
+
     let install_dir = resolve_install_dir(args, cli, &meta.name, &meta.version)?;
     if install_dir.exists() {
         println!("Already installed at {}", install_dir.display());

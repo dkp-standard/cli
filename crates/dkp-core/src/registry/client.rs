@@ -208,6 +208,42 @@ impl RegistryClient {
         Ok(())
     }
 
+    pub async fn deprecate(
+        &self,
+        name: &str,
+        version: &str,
+        deprecated: bool,
+        message: Option<&str>,
+    ) -> DkpResult<()> {
+        let url = self.url("/deprecate");
+        let auth = self
+            .auth_header()
+            .ok_or_else(|| DkpError::Registry("registry token required for deprecate".into()))?;
+        let body = serde_json::json!({
+            "name": name,
+            "version": version,
+            "deprecated": deprecated,
+            "message": message,
+        });
+        let resp = self
+            .http
+            .post(&url)
+            .header(AUTHORIZATION, auth)
+            .header(CONTENT_TYPE, "application/json")
+            .json(&body)
+            .send()
+            .await
+            .map_err(|e| DkpError::Registry(e.to_string()))?;
+        if !resp.status().is_success() {
+            let status = resp.status();
+            let body = resp.text().await.unwrap_or_default();
+            return Err(DkpError::Registry(format!(
+                "deprecate failed {status}: {body}"
+            )));
+        }
+        Ok(())
+    }
+
     pub async fn search(
         &self,
         q: &str,

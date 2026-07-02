@@ -185,6 +185,9 @@ pub enum Commands {
     /// Mark a published version as yanked
     Yank(crate::cmd::registry::yank::YankArgs),
 
+    /// Mark a published version as deprecated (or clear a prior deprecation with --undo)
+    Deprecate(crate::cmd::registry::deprecate::DeprecateArgs),
+
     /// Registry account and pack management (login, logout, keys, access)
     Registry(crate::cmd::registry::account::RegistryArgs),
 }

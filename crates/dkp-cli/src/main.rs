@@ -63,6 +63,7 @@ async fn run(cli: Cli) -> Result<()> {
         Commands::Update(args) => cmd::registry::update::run(args, &ctx).await,
         Commands::Publish(args) => cmd::registry::publish::run(args, &ctx).await,
         Commands::Yank(args) => cmd::registry::yank::run(args, &ctx).await,
+        Commands::Deprecate(args) => cmd::registry::deprecate::run(args, &ctx).await,
         Commands::Registry(args) => cmd::registry::account::run(args, &ctx).await,
     }
 }

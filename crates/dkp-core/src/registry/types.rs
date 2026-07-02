@@ -65,6 +65,8 @@ pub struct PackVersionResponse {
     pub visibility: String,
     pub yanked: bool,
     pub yank_reason: Option<String>,
+    pub deprecated: bool,
+    pub deprecation_message: Option<String>,
     pub eval_summary: Option<serde_json::Value>,
     pub readme: Option<String>,
     pub download_count: i64,
@@ -78,6 +80,9 @@ pub struct VersionSummary {
     pub yanked: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub yank_reason: Option<String>,
+    pub deprecated: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub deprecation_message: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub eval_summary: Option<serde_json::Value>,
     pub download_count: i64,
@@ -116,6 +121,7 @@ pub struct SearchResult {
     pub published_at: String,
     pub score: f64,
     pub total_downloads: i64,
+    pub deprecated: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
