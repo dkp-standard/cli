@@ -47,3 +47,47 @@ pub enum Stability {
     Volatile,
     Experimental,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn minimal_chunk_round_trips() {
+        let chunk = RetrievalChunk {
+            id: "c1".to_string(),
+            title: "Title".to_string(),
+            chunk_text: "Body text".to_string(),
+            tags: vec![],
+            source_ref: "generated".to_string(),
+            confidence: None,
+            summary: None,
+            embedding_model: None,
+            token_count: None,
+            retrieval_priority: None,
+            asset_refs: vec![],
+            ttl_days: None,
+            review_date: None,
+            stability: None,
+            audience: vec![],
+        };
+        let json = serde_json::to_string(&chunk).unwrap();
+        let back: RetrievalChunk = serde_json::from_str(&json).unwrap();
+        assert_eq!(back.id, chunk.id);
+        assert_eq!(back.chunk_text, chunk.chunk_text);
+    }
+
+    #[test]
+    fn retrieval_priority_lowercase_serde() {
+        let json = serde_json::to_string(&RetrievalPriority::Critical).unwrap();
+        assert_eq!(json, "\"critical\"");
+        let back: RetrievalPriority = serde_json::from_str("\"high\"").unwrap();
+        assert!(matches!(back, RetrievalPriority::High));
+    }
+
+    #[test]
+    fn stability_lowercase_serde() {
+        let json = serde_json::to_string(&Stability::Experimental).unwrap();
+        assert_eq!(json, "\"experimental\"");
+    }
+}

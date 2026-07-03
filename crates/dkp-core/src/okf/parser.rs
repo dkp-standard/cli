@@ -55,3 +55,67 @@ pub fn parse_okf_dir(okf_dir: &Path) -> DkpResult<Vec<OkfConcept>> {
     walk(okf_dir, &mut concepts)?;
     Ok(concepts)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::TempDir;
+
+    #[test]
+    fn parse_concept_valid_frontmatter() {
+        let tmp = TempDir::new().unwrap();
+        let path = tmp.path().join("concept.md");
+        std::fs::write(
+            &path,
+            "---\ntype: concept\nname: Test\n---\nBody content.\n",
+        )
+        .unwrap();
+
+        let concept = parse_concept(&path).unwrap();
+        assert_eq!(
+            concept.frontmatter.get("type").and_then(|v| v.as_str()),
+            Some("concept")
+        );
+        assert_eq!(concept.body, "Body content.\n");
+    }
+
+    #[test]
+    fn parse_concept_missing_delimiters_errors() {
+        let tmp = TempDir::new().unwrap();
+        let path = tmp.path().join("concept.md");
+        std::fs::write(&path, "No frontmatter here.\n").unwrap();
+
+        let err = parse_concept(&path).unwrap_err();
+        assert!(matches!(err, crate::error::DkpError::OkfFrontmatter { .. }));
+    }
+
+    #[test]
+    fn parse_concept_invalid_yaml_errors() {
+        let tmp = TempDir::new().unwrap();
+        let path = tmp.path().join("concept.md");
+        std::fs::write(&path, "---\n[unclosed\n---\nBody.\n").unwrap();
+
+        let err = parse_concept(&path).unwrap_err();
+        assert!(matches!(err, crate::error::DkpError::OkfFrontmatter { .. }));
+    }
+
+    #[test]
+    fn parse_okf_dir_walks_nested_directories() {
+        let tmp = TempDir::new().unwrap();
+        let sub = tmp.path().join("nested");
+        std::fs::create_dir_all(&sub).unwrap();
+        std::fs::write(tmp.path().join("top.md"), "---\ntype: concept\n---\nTop.\n").unwrap();
+        std::fs::write(sub.join("child.md"), "---\ntype: concept\n---\nChild.\n").unwrap();
+        std::fs::write(tmp.path().join("not-markdown.txt"), "ignored").unwrap();
+
+        let concepts = parse_okf_dir(tmp.path()).unwrap();
+        assert_eq!(concepts.len(), 2);
+    }
+
+    #[test]
+    fn parse_okf_dir_empty_returns_empty_vec() {
+        let tmp = TempDir::new().unwrap();
+        let concepts = parse_okf_dir(tmp.path()).unwrap();
+        assert!(concepts.is_empty());
+    }
+}

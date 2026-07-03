@@ -63,6 +63,11 @@ rust-embed = { workspace = true, optional = true }
 tower-http = { workspace = true, optional = true }
 open = { workspace = true, optional = true }
 
+[dev-dependencies]
+assert_cmd = { workspace = true }
+predicates = { workspace = true }
+wiremock = { workspace = true }
+
 [package.metadata.deb]
 maintainer = "Jay Mathis <code@mathis.network>"
 copyright = "2026, DKP Contributors"

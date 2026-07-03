@@ -219,7 +219,10 @@ pub async fn run(
         pass_rate: eval_pass_rate,
         gate7_pass,
     };
-    let summary_path = ctx.evidence_path().join("eval_results").join("eval_summary.json");
+    let summary_path = ctx
+        .evidence_path()
+        .join("eval_results")
+        .join("eval_summary.json");
     // Best-effort: bundle directory may be read-only (SPEC.md §12.4).
     let _ = ctx.write_json(&summary_path, &summary_doc);
 
@@ -280,7 +283,11 @@ fn now_iso8601() -> String {
         .unwrap_or(0);
     let days = (secs / 86400) as i64;
     let time_of_day = secs % 86400;
-    let (hh, mm, ss) = (time_of_day / 3600, (time_of_day % 3600) / 60, time_of_day % 60);
+    let (hh, mm, ss) = (
+        time_of_day / 3600,
+        (time_of_day % 3600) / 60,
+        time_of_day % 60,
+    );
 
     let z = days + 719468;
     let era = if z >= 0 { z } else { z - 146096 } / 146097;
@@ -323,4 +330,67 @@ fn parse_score(raw: &str) -> (bool, String, f64) {
         raw.chars().take(200).collect(),
         if pass { 1.0 } else { 0.0 },
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_score_valid_json() {
+        let (pass, reason, score) =
+            parse_score(r#"{"pass": true, "reason": "good answer", "score": 0.9}"#);
+        assert!(pass);
+        assert_eq!(reason, "good answer");
+        assert_eq!(score, 0.9);
+    }
+
+    #[test]
+    fn parse_score_clamps_out_of_range_score() {
+        let (_, _, score) = parse_score(r#"{"pass": true, "score": 5.0}"#);
+        assert_eq!(score, 1.0);
+        let (_, _, score) = parse_score(r#"{"pass": false, "score": -3.0}"#);
+        assert_eq!(score, 0.0);
+    }
+
+    #[test]
+    fn parse_score_defaults_score_from_pass_when_absent() {
+        let (pass, _, score) = parse_score(r#"{"pass": true, "reason": "ok"}"#);
+        assert!(pass);
+        assert_eq!(score, 1.0);
+        let (pass, _, score) = parse_score(r#"{"pass": false, "reason": "no"}"#);
+        assert!(!pass);
+        assert_eq!(score, 0.0);
+    }
+
+    #[test]
+    fn parse_score_extracts_json_from_surrounding_text() {
+        let (pass, reason, _) =
+            parse_score("Here is my evaluation:\n{\"pass\": true, \"reason\": \"ok\"}\nDone.");
+        assert!(pass);
+        assert_eq!(reason, "ok");
+    }
+
+    #[test]
+    fn parse_score_falls_back_to_keyword_search_on_unparseable_json() {
+        let (pass, _, score) = parse_score("The result was \"pass\": true overall.");
+        assert!(pass);
+        assert_eq!(score, 1.0);
+    }
+
+    #[test]
+    fn parse_score_fallback_defaults_to_fail() {
+        let (pass, _, score) = parse_score("completely unstructured text with no verdict");
+        assert!(!pass);
+        assert_eq!(score, 0.0);
+    }
+
+    #[test]
+    fn now_iso8601_produces_rfc3339_shape() {
+        let ts = now_iso8601();
+        assert_eq!(ts.len(), 20);
+        assert!(ts.ends_with('Z'));
+        assert_eq!(ts.chars().nth(4), Some('-'));
+        assert_eq!(ts.chars().nth(10), Some('T'));
+    }
 }

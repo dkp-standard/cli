@@ -174,3 +174,109 @@ impl SearchIndex {
         Ok(results)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::TempDir;
+
+    fn pack_with_glossary_and_chunks(tmp: &TempDir) -> Pack {
+        std::fs::write(
+            tmp.path().join("manifest.json"),
+            r#"{
+                "spec": "dkp/0.2",
+                "name": "test-pack",
+                "version": "1.0.0",
+                "domain": "testing",
+                "audience": "internal",
+                "intended_use": "unit tests",
+                "known_limitations": "none",
+                "update_date": "2026-01-01"
+            }"#,
+        )
+        .unwrap();
+        let pack = Pack::open(tmp.path()).unwrap();
+        std::fs::create_dir_all(pack.machine_dir()).unwrap();
+        std::fs::write(
+            pack.machine_file("glossary.json"),
+            r#"{"terms": [{"id": "t1", "term": "Widget", "definition": "A mechanical device used in manufacturing."}]}"#,
+        )
+        .unwrap();
+        let jsonl = concat!(
+            r#"{"id":"c1","title":"Onboarding","chunk_text":"How to onboard a new employee","source_ref":"generated"}"#,
+            "\n",
+            r#"{"id":"c2","title":"Offboarding","chunk_text":"How to offboard a departing employee","source_ref":"generated"}"#,
+            "\n",
+        );
+        std::fs::write(pack.machine_file("retrieval_chunks.jsonl"), jsonl).unwrap();
+        pack
+    }
+
+    #[test]
+    fn query_matches_only_relevant_chunk() {
+        let tmp = TempDir::new().unwrap();
+        let pack = pack_with_glossary_and_chunks(&tmp);
+        let index = SearchIndex::build(&pack).unwrap();
+
+        let results = index.search("onboard", 10).unwrap();
+        assert!(!results.is_empty());
+        assert!(results.iter().any(|r| r.id == "c1"));
+        assert!(!results.iter().any(|r| r.id == "c2"));
+    }
+
+    #[test]
+    fn query_matches_glossary_term() {
+        let tmp = TempDir::new().unwrap();
+        let pack = pack_with_glossary_and_chunks(&tmp);
+        let index = SearchIndex::build(&pack).unwrap();
+
+        let results = index.search("widget", 10).unwrap();
+        assert!(results
+            .iter()
+            .any(|r| r.id == "t1" && r.asset_type == "term"));
+    }
+
+    #[test]
+    fn no_match_query_returns_empty_without_panicking() {
+        let tmp = TempDir::new().unwrap();
+        let pack = pack_with_glossary_and_chunks(&tmp);
+        let index = SearchIndex::build(&pack).unwrap();
+
+        let results = index.search("zzznonexistentzzz", 10).unwrap();
+        assert!(results.is_empty());
+    }
+
+    #[test]
+    fn empty_pack_index_builds_and_returns_no_results() {
+        let tmp = TempDir::new().unwrap();
+        std::fs::write(
+            tmp.path().join("manifest.json"),
+            r#"{
+                "spec": "dkp/0.2",
+                "name": "empty-pack",
+                "version": "1.0.0",
+                "domain": "testing",
+                "audience": "internal",
+                "intended_use": "unit tests",
+                "known_limitations": "none",
+                "update_date": "2026-01-01"
+            }"#,
+        )
+        .unwrap();
+        let pack = Pack::open(tmp.path()).unwrap();
+        let index = SearchIndex::build(&pack).unwrap();
+
+        let results = index.search("anything", 10).unwrap();
+        assert!(results.is_empty());
+    }
+
+    #[test]
+    fn search_limit_is_respected() {
+        let tmp = TempDir::new().unwrap();
+        let pack = pack_with_glossary_and_chunks(&tmp);
+        let index = SearchIndex::build(&pack).unwrap();
+
+        let results = index.search("employee", 1).unwrap();
+        assert!(results.len() <= 1);
+    }
+}

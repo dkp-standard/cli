@@ -305,3 +305,134 @@ fn relation_from_name(name: &str) -> KgRelation {
         KgRelation::SeeAlso
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::config::GenConfig;
+    use crate::llm::mock::MockClient;
+    use std::collections::HashMap;
+    use std::sync::Arc;
+    use tempfile::TempDir;
+
+    fn test_ctx(tmp: &TempDir, fixtures: HashMap<String, String>) -> PipelineContext {
+        PipelineContext {
+            pack_dir: tmp.path().to_path_buf(),
+            domain: "testing".to_string(),
+            pack_name: "test-pack".to_string(),
+            config: GenConfig::default(),
+            client: Arc::new(MockClient::new(fixtures, "")),
+            progress: None,
+            verbose: false,
+        }
+    }
+
+    fn happy_path_fixtures() -> HashMap<String, String> {
+        let mut m = HashMap::new();
+        m.insert(
+            "Write a concise LLM system prompt".to_string(),
+            "You are a testing expert.".to_string(),
+        );
+        m.insert(
+            "core operational rules".to_string(),
+            r#"{"rules": [{"id": "r1", "title": "Rule 1", "description": "Do X", "polarity": "affirmative", "stability": "stable", "source_ref": "generated"}]}"#.to_string(),
+        );
+        m.insert(
+            "domain ontology".to_string(),
+            r#"{"entity_types": [{"id": "e1", "name": "Entity One", "description": "desc", "attributes": [], "relationships": [{"name": "requires", "target_type": "e2", "cardinality": "one-to-many"}]}]}"#.to_string(),
+        );
+        m.insert(
+            "domain glossary".to_string(),
+            r#"{"terms": [{"id": "t1", "term": "Term One", "definition": "def", "stability": "stable", "source_ref": "generated"}]}"#.to_string(),
+        );
+        m.insert(
+            "domain constraints".to_string(),
+            r#"{"edge_cases": [], "anti_patterns": [], "hard_limits": []}"#.to_string(),
+        );
+        m.insert(
+            "decision trees for common".to_string(),
+            r#"{"trees": []}"#.to_string(),
+        );
+        m.insert(
+            "comprehensive domain knowledge".to_string(),
+            "## Chunk One\nSome useful content for chunk one.\n".to_string(),
+        );
+        m.insert(
+            "evaluation entries".to_string(),
+            r#"{"query": "q1", "expected_dimensions": [], "critical_must_include": [], "scoring_rubric": "r"}"#.to_string(),
+        );
+        m
+    }
+
+    #[tokio::test]
+    async fn full_pipeline_run_writes_expected_machine_files() {
+        let tmp = TempDir::new().unwrap();
+        std::fs::write(tmp.path().join("manifest.json"), r#"{"version": "1.0.0"}"#).unwrap();
+        let ctx = test_ctx(&tmp, happy_path_fixtures());
+
+        run(&ctx).await.unwrap();
+
+        assert!(ctx.machine_path().join("system_prompt.md").exists());
+        assert!(ctx.machine_path().join("rules.json").exists());
+        assert!(ctx.machine_path().join("ontology.json").exists());
+        assert!(ctx.machine_path().join("glossary.json").exists());
+        assert!(ctx.machine_path().join("constraints.json").exists());
+        assert!(ctx.machine_path().join("decision_trees.json").exists());
+        assert!(ctx.machine_path().join("retrieval_chunks.jsonl").exists());
+        assert!(ctx.machine_path().join("knowledge_graph.json").exists());
+    }
+
+    #[tokio::test]
+    async fn knowledge_graph_derived_from_ontology_relationships() {
+        let tmp = TempDir::new().unwrap();
+        std::fs::write(tmp.path().join("manifest.json"), r#"{"version": "1.0.0"}"#).unwrap();
+        let ctx = test_ctx(&tmp, happy_path_fixtures());
+
+        run(&ctx).await.unwrap();
+
+        let graph_json =
+            std::fs::read_to_string(ctx.machine_path().join("knowledge_graph.json")).unwrap();
+        let graph: KnowledgeGraph = serde_json::from_str(&graph_json).unwrap();
+        assert_eq!(graph.nodes.len(), 1);
+        assert_eq!(graph.nodes[0].id, "e1");
+        assert_eq!(graph.edges.len(), 1);
+        assert_eq!(graph.edges[0].source, "e1");
+        assert_eq!(graph.edges[0].target, "e2");
+        assert!(matches!(graph.edges[0].relation, KgRelation::Requires));
+    }
+
+    #[tokio::test]
+    async fn malformed_json_response_errors_instead_of_writing() {
+        let tmp = TempDir::new().unwrap();
+        let mut fixtures = HashMap::new();
+        fixtures.insert(
+            "core operational rules".to_string(),
+            "not valid json at all".to_string(),
+        );
+        let ctx = test_ctx(&tmp, fixtures);
+
+        let result = generate_rules(&ctx).await;
+        assert!(result.is_err());
+        assert!(!ctx.machine_path().join("rules.json").exists());
+    }
+
+    #[test]
+    fn relation_from_name_maps_keywords_to_relations() {
+        assert!(matches!(
+            relation_from_name("requires funding"),
+            KgRelation::Requires
+        ));
+        assert!(matches!(
+            relation_from_name("is part of"),
+            KgRelation::PartOf
+        ));
+        assert!(matches!(
+            relation_from_name("depends on"),
+            KgRelation::DependsOn
+        ));
+        assert!(matches!(
+            relation_from_name("some unrelated phrase"),
+            KgRelation::SeeAlso
+        ));
+    }
+}

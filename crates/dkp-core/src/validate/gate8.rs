@@ -72,3 +72,116 @@ pub fn run(pack: &Pack) -> GateResult {
         message: None,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::TempDir;
+
+    fn minimal_manifest_json() -> &'static str {
+        r#"{
+            "spec": "dkp/0.2",
+            "name": "test-pack",
+            "version": "1.0.0",
+            "domain": "testing",
+            "audience": "internal",
+            "intended_use": "unit tests",
+            "known_limitations": "none",
+            "update_date": "2026-01-01"
+        }"#
+    }
+
+    fn open_pack(tmp: &TempDir) -> Pack {
+        std::fs::write(tmp.path().join("manifest.json"), minimal_manifest_json()).unwrap();
+        Pack::open(tmp.path()).unwrap()
+    }
+
+    #[test]
+    fn okf_absent_is_not_applicable() {
+        let tmp = TempDir::new().unwrap();
+        let pack = open_pack(&tmp);
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::NotApplicable);
+        assert_eq!(result.gate, 8);
+    }
+
+    #[test]
+    fn okf_valid_frontmatter_passes() {
+        let tmp = TempDir::new().unwrap();
+        let pack = open_pack(&tmp);
+        std::fs::create_dir_all(pack.okf_dir()).unwrap();
+        std::fs::write(
+            pack.okf_dir().join("concept.md"),
+            "---\ntype: concept\n---\nBody text.\n",
+        )
+        .unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Pass);
+    }
+
+    #[test]
+    fn okf_missing_type_field_fails() {
+        let tmp = TempDir::new().unwrap();
+        let pack = open_pack(&tmp);
+        std::fs::create_dir_all(pack.okf_dir()).unwrap();
+        std::fs::write(
+            pack.okf_dir().join("concept.md"),
+            "---\nname: concept\n---\nBody text.\n",
+        )
+        .unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Fail);
+    }
+
+    #[test]
+    fn okf_unparseable_file_fails() {
+        let tmp = TempDir::new().unwrap();
+        let pack = open_pack(&tmp);
+        std::fs::create_dir_all(pack.okf_dir()).unwrap();
+        std::fs::write(pack.okf_dir().join("concept.md"), "no frontmatter here").unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Fail);
+    }
+
+    #[test]
+    fn bundle_sig_absent_is_skipped_not_failed() {
+        let tmp = TempDir::new().unwrap();
+        let pack = open_pack(&tmp);
+        std::fs::create_dir_all(pack.okf_dir()).unwrap();
+        std::fs::write(
+            pack.okf_dir().join("concept.md"),
+            "---\ntype: concept\n---\nBody.\n",
+        )
+        .unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Pass);
+        assert!(result
+            .checks
+            .iter()
+            .any(|c| c.description.contains("bundle.sig") && c.status == GateStatus::Skipped));
+    }
+
+    #[test]
+    fn bundle_sig_present_passes_that_check() {
+        let tmp = TempDir::new().unwrap();
+        let pack = open_pack(&tmp);
+        std::fs::create_dir_all(pack.okf_dir()).unwrap();
+        std::fs::write(
+            pack.okf_dir().join("concept.md"),
+            "---\ntype: concept\n---\nBody.\n",
+        )
+        .unwrap();
+        std::fs::write(pack.okf_dir().join("bundle.sig"), "signature-bytes").unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Pass);
+        assert!(result
+            .checks
+            .iter()
+            .any(|c| c.description == "bundle.sig present" && c.status == GateStatus::Pass));
+    }
+}

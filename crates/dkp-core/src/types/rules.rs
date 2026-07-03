@@ -33,3 +33,39 @@ pub enum RulePolarity {
     Affirmative,
     Prohibitive,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn rules_file_round_trips() {
+        let file = RulesFile {
+            rules: vec![Rule {
+                id: "r1".to_string(),
+                title: "Rule Title".to_string(),
+                description: "Do this".to_string(),
+                polarity: RulePolarity::Affirmative,
+                tags: vec![],
+                source_ref: None,
+                confidence: Some(0.9),
+                audience: vec![],
+                ttl_days: None,
+                review_date: None,
+                stability: None,
+            }],
+        };
+        let json = serde_json::to_string(&file).unwrap();
+        let back: RulesFile = serde_json::from_str(&json).unwrap();
+        assert_eq!(back.rules[0].id, "r1");
+        assert!(matches!(back.rules[0].polarity, RulePolarity::Affirmative));
+    }
+
+    #[test]
+    fn rule_polarity_snake_case_serde() {
+        assert_eq!(
+            serde_json::to_string(&RulePolarity::Prohibitive).unwrap(),
+            "\"prohibitive\""
+        );
+    }
+}

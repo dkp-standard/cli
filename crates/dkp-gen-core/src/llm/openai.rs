@@ -112,3 +112,65 @@ impl LlmClient for OpenAiClient {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use wiremock::matchers::{method, path};
+    use wiremock::{Mock, MockServer, ResponseTemplate};
+
+    fn test_config(base_url: String) -> GenConfig {
+        GenConfig {
+            base_url,
+            api_key: "test-key".to_string(),
+            model: "test-model".to_string(),
+            overwrite: false,
+            timeout_secs: 30,
+        }
+    }
+
+    /// Single retry-then-success: first call gets a 429, second succeeds.
+    /// Deliberately the only retry scenario tested here — the client's real
+    /// exponential backoff means each additional retry adds real wall-clock
+    /// delay, so we keep this to exactly one retry to stay fast in CI.
+    #[tokio::test]
+    async fn complete_retries_once_on_429_then_succeeds() {
+        let server = MockServer::start().await;
+        Mock::given(method("POST"))
+            .and(path("/chat/completions"))
+            .respond_with(ResponseTemplate::new(429))
+            .up_to_n_times(1)
+            .mount(&server)
+            .await;
+        Mock::given(method("POST"))
+            .and(path("/chat/completions"))
+            .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+                "choices": [{"message": {"content": "Hello from the mock."}}]
+            })))
+            .mount(&server)
+            .await;
+
+        let config = test_config(server.uri());
+        let client = OpenAiClient::new(&config).unwrap();
+        let result = client
+            .complete("system prompt", "user prompt")
+            .await
+            .unwrap();
+        assert_eq!(result, "Hello from the mock.");
+    }
+
+    #[tokio::test]
+    async fn complete_non_retryable_error_fails_immediately() {
+        let server = MockServer::start().await;
+        Mock::given(method("POST"))
+            .and(path("/chat/completions"))
+            .respond_with(ResponseTemplate::new(400).set_body_string("bad request"))
+            .mount(&server)
+            .await;
+
+        let config = test_config(server.uri());
+        let client = OpenAiClient::new(&config).unwrap();
+        let err = client.complete("system", "user").await.unwrap_err();
+        assert!(matches!(err, GenError::Http { status: 400, .. }));
+    }
+}

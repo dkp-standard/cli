@@ -40,3 +40,43 @@ pub enum KgRelation {
     DefinedBy,
     Specializes,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn knowledge_graph_round_trips() {
+        let graph = KnowledgeGraph {
+            nodes: vec![KgNode {
+                id: "n1".to_string(),
+                node_type: "concept".to_string(),
+                label: "Node One".to_string(),
+                description: None,
+            }],
+            edges: vec![KgEdge {
+                source: "n1".to_string(),
+                relation: KgRelation::SeeAlso,
+                target: "n1".to_string(),
+                weight: Some(0.5),
+                description: None,
+            }],
+        };
+        let json = serde_json::to_string(&graph).unwrap();
+        let back: KnowledgeGraph = serde_json::from_str(&json).unwrap();
+        assert_eq!(back.nodes[0].id, "n1");
+        assert!(matches!(back.edges[0].relation, KgRelation::SeeAlso));
+    }
+
+    #[test]
+    fn kg_relation_kebab_case_serde() {
+        assert_eq!(
+            serde_json::to_string(&KgRelation::PartOf).unwrap(),
+            "\"part-of\""
+        );
+        assert_eq!(
+            serde_json::to_string(&KgRelation::DependsOn).unwrap(),
+            "\"depends-on\""
+        );
+    }
+}

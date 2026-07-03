@@ -33,3 +33,34 @@ pub struct GlossaryTerm {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub schema_org_type: Option<String>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn glossary_file_round_trips() {
+        let file = GlossaryFile {
+            terms: vec![GlossaryTerm {
+                id: "t1".to_string(),
+                term: "Term".to_string(),
+                definition: "A definition".to_string(),
+                aliases: vec!["alias".to_string()],
+                related: vec![],
+                tags: vec![],
+                source_ref: Some("generated".to_string()),
+                audience: vec![],
+                stability: None,
+                ttl_days: None,
+                review_date: None,
+                skos_broader: None,
+                skos_narrower: None,
+                schema_org_type: None,
+            }],
+        };
+        let json = serde_json::to_string(&file).unwrap();
+        let back: GlossaryFile = serde_json::from_str(&json).unwrap();
+        assert_eq!(back.terms[0].id, "t1");
+        assert_eq!(back.terms[0].aliases, vec!["alias".to_string()]);
+    }
+}

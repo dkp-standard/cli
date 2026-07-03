@@ -1,0 +1,10 @@
+{
+    "spec": "dkp/0.2",
+    "name": "broken-pack",
+    "version": "1.0.0",
+    "domain": "testing",
+    "audience": "internal",
+    "intended_use": "fixture for integration tests",
+    "known_limitations": "none",
+    "update_date": "2026-01-01"
+}

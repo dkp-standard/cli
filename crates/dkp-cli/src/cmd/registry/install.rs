@@ -95,7 +95,9 @@ async fn install_one(
             "Warning: {}@{} is deprecated: {}",
             meta.name,
             meta.version,
-            meta.deprecation_message.as_deref().unwrap_or("no message provided")
+            meta.deprecation_message
+                .as_deref()
+                .unwrap_or("no message provided")
         );
     }
 

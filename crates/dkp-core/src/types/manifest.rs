@@ -181,3 +181,78 @@ pub struct McpToolProvider {
 pub struct McpAuth {
     pub scheme: String,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn minimal_manifest() -> Manifest {
+        serde_json::from_str(
+            r#"{
+                "spec": "dkp/0.2",
+                "name": "test-pack",
+                "version": "1.0.0",
+                "domain": "testing",
+                "audience": "internal",
+                "intended_use": "unit tests",
+                "known_limitations": "none",
+                "update_date": "2026-01-01"
+            }"#,
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn minimal_manifest_round_trips() {
+        let m = minimal_manifest();
+        let json = serde_json::to_string(&m).unwrap();
+        let back: Manifest = serde_json::from_str(&json).unwrap();
+        assert_eq!(back.name, m.name);
+        assert_eq!(back.domain, m.domain);
+        assert_eq!(back.version, m.version);
+    }
+
+    #[test]
+    fn minimal_manifest_omits_optional_fields() {
+        let m = minimal_manifest();
+        let json = serde_json::to_string(&m).unwrap();
+        assert!(!json.contains("\"description\""));
+        assert!(!json.contains("\"license\""));
+        assert!(!json.contains("\"mcp\""));
+    }
+
+    #[test]
+    fn full_manifest_round_trips() {
+        let mut m = minimal_manifest();
+        m.description = Some("A test pack".to_string());
+        m.tags = vec!["a".to_string(), "b".to_string()];
+        m.license = Some("MIT".to_string());
+        m.min_eval_delta = Some(0.1);
+        m.author = Some(Author {
+            name: "Jane".to_string(),
+            email: Some("jane@example.com".to_string()),
+            url: None,
+        });
+        m.mcp = Some(McpConfig {
+            resource_server: None,
+            tool_provider: Some(McpToolProvider {
+                tools: vec!["tool1".to_string()],
+                auth: Some(McpAuth {
+                    scheme: "bearer".to_string(),
+                }),
+            }),
+            transport: Some("stdio".to_string()),
+        });
+
+        let json = serde_json::to_string(&m).unwrap();
+        let back: Manifest = serde_json::from_str(&json).unwrap();
+        assert_eq!(back.description, m.description);
+        assert_eq!(back.tags, m.tags);
+        assert_eq!(back.min_eval_delta, m.min_eval_delta);
+        assert_eq!(back.author.unwrap().name, "Jane");
+        assert_eq!(
+            back.mcp.unwrap().tool_provider.unwrap().tools,
+            vec!["tool1".to_string()]
+        );
+    }
+}

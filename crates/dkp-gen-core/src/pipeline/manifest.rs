@@ -61,3 +61,85 @@ fn today_iso8601() -> String {
     let y = if m <= 2 { y + 1 } else { y };
     format!("{y:04}-{m:02}-{d:02}")
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::config::GenConfig;
+    use crate::llm::mock::MockClient;
+    use std::collections::HashMap;
+    use std::sync::Arc;
+    use tempfile::TempDir;
+
+    fn test_ctx(tmp: &TempDir, fixtures: HashMap<String, String>) -> PipelineContext {
+        PipelineContext {
+            pack_dir: tmp.path().to_path_buf(),
+            domain: "testing".to_string(),
+            pack_name: "test-pack".to_string(),
+            config: GenConfig::default(),
+            client: Arc::new(MockClient::new(fixtures, "")),
+            progress: None,
+            verbose: false,
+        }
+    }
+
+    #[tokio::test]
+    async fn update_meta_no_manifest_is_noop() {
+        let tmp = TempDir::new().unwrap();
+        let ctx = test_ctx(&tmp, HashMap::new());
+        // No manifest.json exists; should return Ok without erroring.
+        update_meta(&ctx).await.unwrap();
+        assert!(!tmp.path().join("manifest.json").exists());
+    }
+
+    #[tokio::test]
+    async fn update_meta_skips_llm_when_fields_already_filled() {
+        let tmp = TempDir::new().unwrap();
+        std::fs::write(
+            tmp.path().join("manifest.json"),
+            r#"{"audience": "engineers", "intended_use": "support", "known_limitations": "none", "update_date": "2020-01-01"}"#,
+        )
+        .unwrap();
+        // No fixtures registered; if the LLM were called this would error out.
+        let ctx = test_ctx(&tmp, HashMap::new());
+
+        update_meta(&ctx).await.unwrap();
+
+        let content = std::fs::read_to_string(tmp.path().join("manifest.json")).unwrap();
+        let manifest: Value = serde_json::from_str(&content).unwrap();
+        assert_eq!(manifest["audience"], "engineers");
+        assert_ne!(manifest["update_date"], "2020-01-01");
+    }
+
+    #[tokio::test]
+    async fn update_meta_fills_empty_fields_via_llm() {
+        let tmp = TempDir::new().unwrap();
+        std::fs::write(
+            tmp.path().join("manifest.json"),
+            r#"{"audience": "", "intended_use": "TODO", "known_limitations": "", "update_date": "2020-01-01"}"#,
+        )
+        .unwrap();
+        let mut fixtures = HashMap::new();
+        fixtures.insert(
+            "manifest".to_string(),
+            r#"{"audience": "filled audience", "intended_use": "filled use", "known_limitations": "filled limits"}"#.to_string(),
+        );
+        let ctx = test_ctx(&tmp, fixtures);
+
+        update_meta(&ctx).await.unwrap();
+
+        let content = std::fs::read_to_string(tmp.path().join("manifest.json")).unwrap();
+        let manifest: Value = serde_json::from_str(&content).unwrap();
+        assert_eq!(manifest["audience"], "filled audience");
+        assert_eq!(manifest["intended_use"], "filled use");
+        assert_eq!(manifest["known_limitations"], "filled limits");
+    }
+
+    #[test]
+    fn today_iso8601_produces_well_formed_date() {
+        let date = today_iso8601();
+        assert_eq!(date.len(), 10);
+        assert_eq!(date.chars().nth(4), Some('-'));
+        assert_eq!(date.chars().nth(7), Some('-'));
+    }
+}

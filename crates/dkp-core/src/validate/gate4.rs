@@ -190,3 +190,177 @@ pub fn run(pack: &Pack) -> GateResult {
         message: None,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::TempDir;
+
+    fn minimal_manifest_json() -> &'static str {
+        r#"{
+            "spec": "dkp/0.2",
+            "name": "test-pack",
+            "version": "1.0.0",
+            "domain": "testing",
+            "audience": "internal",
+            "intended_use": "unit tests",
+            "known_limitations": "none",
+            "update_date": "2026-01-01"
+        }"#
+    }
+
+    /// Builds a pack directory with all gate 4 required machine files present
+    /// and valid, returning the opened `Pack`.
+    fn complete_pack(tmp: &TempDir) -> Pack {
+        std::fs::write(tmp.path().join("manifest.json"), minimal_manifest_json()).unwrap();
+        let machine = tmp.path().join("machine");
+        std::fs::create_dir_all(&machine).unwrap();
+        std::fs::write(machine.join("system_prompt.md"), "Be helpful.").unwrap();
+        std::fs::write(machine.join("glossary.json"), r#"{"terms": []}"#).unwrap();
+        std::fs::write(machine.join("ontology.json"), r#"{"entity_types": []}"#).unwrap();
+        std::fs::write(machine.join("rules.json"), r#"{"rules": []}"#).unwrap();
+        std::fs::write(
+            machine.join("constraints.json"),
+            r#"{"edge_cases": [], "anti_patterns": [], "hard_limits": []}"#,
+        )
+        .unwrap();
+        std::fs::write(machine.join("retrieval_chunks.jsonl"), "").unwrap();
+        Pack::open(tmp.path()).unwrap()
+    }
+
+    #[test]
+    fn all_required_files_present_and_valid_passes() {
+        let tmp = TempDir::new().unwrap();
+        let pack = complete_pack(&tmp);
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Pass);
+        assert_eq!(result.gate, 4);
+    }
+
+    #[test]
+    fn missing_required_file_fails() {
+        let tmp = TempDir::new().unwrap();
+        let pack = complete_pack(&tmp);
+        std::fs::remove_file(pack.machine_file("glossary.json")).unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Fail);
+        assert!(result
+            .checks
+            .iter()
+            .any(|c| c.description.contains("glossary.json") && c.status == GateStatus::Fail));
+    }
+
+    #[test]
+    fn invalid_json_in_machine_file_fails() {
+        let tmp = TempDir::new().unwrap();
+        let pack = complete_pack(&tmp);
+        std::fs::write(pack.machine_file("rules.json"), "{ not valid").unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Fail);
+        assert!(result
+            .checks
+            .iter()
+            .any(|c| c.description.contains("rules.json") && c.status == GateStatus::Fail));
+    }
+
+    #[test]
+    fn sources_csv_absent_skips_source_ref_check() {
+        let tmp = TempDir::new().unwrap();
+        let pack = complete_pack(&tmp);
+        let result = run(&pack);
+        assert!(!result
+            .checks
+            .iter()
+            .any(|c| c.description == "source_ref resolution"));
+    }
+
+    #[test]
+    fn unresolved_source_ref_fails() {
+        let tmp = TempDir::new().unwrap();
+        let pack = complete_pack(&tmp);
+        std::fs::write(
+            pack.machine_file("glossary.json"),
+            r#"{"terms": [{"id": "t1", "term": "Term", "definition": "def", "source_ref": "src-1"}]}"#,
+        )
+        .unwrap();
+        std::fs::create_dir_all(pack.evidence_dir()).unwrap();
+        std::fs::write(pack.evidence_file("sources.csv"), "id,title\n").unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Fail);
+        assert!(result
+            .checks
+            .iter()
+            .any(|c| c.description == "source_ref resolution" && c.status == GateStatus::Fail));
+    }
+
+    #[test]
+    fn source_ref_generated_is_always_allowed() {
+        let tmp = TempDir::new().unwrap();
+        let pack = complete_pack(&tmp);
+        std::fs::write(
+            pack.machine_file("glossary.json"),
+            r#"{"terms": [{"id": "t1", "term": "Term", "definition": "def", "source_ref": "generated"}]}"#,
+        )
+        .unwrap();
+        std::fs::create_dir_all(pack.evidence_dir()).unwrap();
+        std::fs::write(pack.evidence_file("sources.csv"), "id,title\n").unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Pass);
+    }
+
+    #[test]
+    fn resolved_source_ref_passes() {
+        let tmp = TempDir::new().unwrap();
+        let pack = complete_pack(&tmp);
+        std::fs::write(
+            pack.machine_file("glossary.json"),
+            r#"{"terms": [{"id": "t1", "term": "Term", "definition": "def", "source_ref": "src-1"}]}"#,
+        )
+        .unwrap();
+        std::fs::create_dir_all(pack.evidence_dir()).unwrap();
+        std::fs::write(
+            pack.evidence_file("sources.csv"),
+            "id,title\nsrc-1,Some Source\n",
+        )
+        .unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Pass);
+    }
+
+    #[test]
+    fn knowledge_graph_broken_edge_fails() {
+        let tmp = TempDir::new().unwrap();
+        let pack = complete_pack(&tmp);
+        std::fs::write(
+            pack.machine_file("knowledge_graph.json"),
+            r#"{"nodes": [{"id": "n1", "node_type": "concept", "label": "N1"}], "edges": [{"source": "n1", "relation": "see-also", "target": "missing"}]}"#,
+        )
+        .unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Fail);
+        assert!(result.checks.iter().any(|c| c
+            .description
+            .contains("knowledge_graph edge resolution")
+            && c.status == GateStatus::Fail));
+    }
+
+    #[test]
+    fn knowledge_graph_resolved_edges_pass() {
+        let tmp = TempDir::new().unwrap();
+        let pack = complete_pack(&tmp);
+        std::fs::write(
+            pack.machine_file("knowledge_graph.json"),
+            r#"{"nodes": [{"id": "n1", "node_type": "concept", "label": "N1"}, {"id": "n2", "node_type": "concept", "label": "N2"}], "edges": [{"source": "n1", "relation": "see-also", "target": "n2"}]}"#,
+        )
+        .unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Pass);
+    }
+}

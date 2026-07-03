@@ -13,6 +13,7 @@ use crate::{
 ///
 /// `Pack::open()` reads only `manifest.json`. All other assets are loaded
 /// lazily by the commands that need them.
+#[derive(Debug)]
 pub struct Pack {
     pub root: PathBuf,
     pub manifest: Manifest,
@@ -238,4 +239,245 @@ fn load_jsonl<T: serde::de::DeserializeOwned>(pack: &Pack, filename: &str) -> Dk
     }
 
     Ok(items)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::TempDir;
+
+    fn minimal_manifest_json() -> &'static str {
+        r#"{
+            "spec": "dkp/0.2",
+            "name": "test-pack",
+            "version": "1.0.0",
+            "domain": "testing",
+            "audience": "internal",
+            "intended_use": "unit tests",
+            "known_limitations": "none",
+            "update_date": "2026-01-01"
+        }"#
+    }
+
+    fn write_manifest(dir: &std::path::Path, contents: &str) {
+        std::fs::write(dir.join("manifest.json"), contents).unwrap();
+    }
+
+    #[test]
+    fn open_nonexistent_dir_errors() {
+        let tmp = TempDir::new().unwrap();
+        let missing = tmp.path().join("does-not-exist");
+        let err = Pack::open(&missing).unwrap_err();
+        assert!(matches!(err, DkpError::PackNotFound(_)));
+    }
+
+    #[test]
+    fn open_missing_manifest_errors() {
+        let tmp = TempDir::new().unwrap();
+        let err = Pack::open(tmp.path()).unwrap_err();
+        assert!(matches!(err, DkpError::ManifestMissing(_)));
+    }
+
+    #[test]
+    fn open_invalid_manifest_json_errors() {
+        let tmp = TempDir::new().unwrap();
+        write_manifest(tmp.path(), "{ not valid json");
+        let err = Pack::open(tmp.path()).unwrap_err();
+        assert!(matches!(err, DkpError::ManifestInvalid { .. }));
+    }
+
+    #[test]
+    fn open_manifest_missing_required_field_errors() {
+        let tmp = TempDir::new().unwrap();
+        write_manifest(
+            tmp.path(),
+            r#"{
+                "spec": "dkp/0.2",
+                "name": "",
+                "version": "1.0.0",
+                "domain": "testing",
+                "audience": "internal",
+                "intended_use": "unit tests",
+                "known_limitations": "none",
+                "update_date": "2026-01-01"
+            }"#,
+        );
+        let err = Pack::open(tmp.path()).unwrap_err();
+        assert!(matches!(
+            err,
+            DkpError::ManifestFieldMissing { field: "name" }
+        ));
+    }
+
+    #[test]
+    fn open_manifest_invalid_domain_errors() {
+        let tmp = TempDir::new().unwrap();
+        write_manifest(
+            tmp.path(),
+            r#"{
+                "spec": "dkp/0.2",
+                "name": "test-pack",
+                "version": "1.0.0",
+                "domain": "Admin",
+                "audience": "internal",
+                "intended_use": "unit tests",
+                "known_limitations": "none",
+                "update_date": "2026-01-01"
+            }"#,
+        );
+        let err = Pack::open(tmp.path()).unwrap_err();
+        assert!(matches!(err, DkpError::ManifestDomainInvalid { .. }));
+    }
+
+    #[test]
+    fn open_valid_minimal_manifest_succeeds() {
+        let tmp = TempDir::new().unwrap();
+        write_manifest(tmp.path(), minimal_manifest_json());
+        let pack = Pack::open(tmp.path()).unwrap();
+        assert_eq!(pack.manifest.name, "test-pack");
+        assert_eq!(pack.manifest.domain, "testing");
+        assert_eq!(pack.root, tmp.path());
+    }
+
+    #[test]
+    fn has_helpers_reflect_filesystem_state() {
+        let tmp = TempDir::new().unwrap();
+        write_manifest(tmp.path(), minimal_manifest_json());
+        let pack = Pack::open(tmp.path()).unwrap();
+
+        assert!(!pack.has_okf());
+        assert!(!pack.has_procedures());
+        assert!(!pack.has_bundle_sig());
+        assert!(!pack.has_eval_set());
+        assert!(!pack.has_knowledge_graph());
+        assert!(!pack.has_mcp_manifest());
+        assert!(!pack.has_skills());
+        assert!(!pack.has_l10n());
+        assert!(!pack.has_cross_refs());
+        assert!(!pack.has_assets());
+        assert!(!pack.has_checksums());
+        assert!(!pack.mcp_enabled());
+
+        std::fs::create_dir_all(pack.okf_dir()).unwrap();
+        std::fs::create_dir_all(pack.procedures_dir()).unwrap();
+        std::fs::write(pack.root.join("bundle.sig"), "sig").unwrap();
+        std::fs::write(pack.machine_file("eval_set.jsonl"), "").unwrap();
+        std::fs::write(pack.machine_file("knowledge_graph.json"), "{}").unwrap();
+        std::fs::write(pack.machine_file("mcp_manifest.json"), "{}").unwrap();
+        std::fs::create_dir_all(pack.skills_dir()).unwrap();
+        std::fs::create_dir_all(pack.l10n_dir()).unwrap();
+        std::fs::write(pack.machine_file("cross_refs.json"), "{}").unwrap();
+        std::fs::write(pack.machine_file("assets.json"), "{}").unwrap();
+        std::fs::write(pack.root.join("checksums.json"), "{}").unwrap();
+
+        assert!(pack.has_okf());
+        assert!(pack.has_procedures());
+        assert!(pack.has_bundle_sig());
+        assert!(pack.has_eval_set());
+        assert!(pack.has_knowledge_graph());
+        assert!(pack.has_mcp_manifest());
+        assert!(pack.has_skills());
+        assert!(pack.has_l10n());
+        assert!(pack.has_cross_refs());
+        assert!(pack.has_assets());
+        assert!(pack.has_checksums());
+    }
+
+    #[test]
+    fn load_json_optional_wrappers_absent_return_none() {
+        let tmp = TempDir::new().unwrap();
+        write_manifest(tmp.path(), minimal_manifest_json());
+        let pack = Pack::open(tmp.path()).unwrap();
+
+        assert!(pack.load_glossary().unwrap().is_none());
+        assert!(pack.load_rules().unwrap().is_none());
+        assert!(pack.load_ontology().unwrap().is_none());
+        assert!(pack.load_constraints().unwrap().is_none());
+        assert!(pack.load_decision_trees().unwrap().is_none());
+        assert!(pack.load_graph().unwrap().is_none());
+        assert!(pack.load_system_prompt().unwrap().is_none());
+    }
+
+    #[test]
+    fn load_glossary_valid_returns_some() {
+        let tmp = TempDir::new().unwrap();
+        write_manifest(tmp.path(), minimal_manifest_json());
+        let pack = Pack::open(tmp.path()).unwrap();
+        std::fs::create_dir_all(pack.machine_dir()).unwrap();
+        std::fs::write(
+            pack.machine_file("glossary.json"),
+            r#"{"terms": [{"id": "t1", "term": "Term", "definition": "def"}]}"#,
+        )
+        .unwrap();
+
+        let glossary = pack.load_glossary().unwrap().unwrap();
+        assert_eq!(glossary.terms.len(), 1);
+        assert_eq!(glossary.terms[0].id, "t1");
+    }
+
+    #[test]
+    fn load_glossary_invalid_json_errors() {
+        let tmp = TempDir::new().unwrap();
+        write_manifest(tmp.path(), minimal_manifest_json());
+        let pack = Pack::open(tmp.path()).unwrap();
+        std::fs::create_dir_all(pack.machine_dir()).unwrap();
+        std::fs::write(pack.machine_file("glossary.json"), "{ bad json").unwrap();
+
+        let err = pack.load_glossary().unwrap_err();
+        assert!(matches!(err, DkpError::AssetParse { .. }));
+    }
+
+    #[test]
+    fn load_chunks_absent_returns_empty_vec() {
+        let tmp = TempDir::new().unwrap();
+        write_manifest(tmp.path(), minimal_manifest_json());
+        let pack = Pack::open(tmp.path()).unwrap();
+        assert!(pack.load_chunks().unwrap().is_empty());
+    }
+
+    #[test]
+    fn load_chunks_valid_jsonl() {
+        let tmp = TempDir::new().unwrap();
+        write_manifest(tmp.path(), minimal_manifest_json());
+        let pack = Pack::open(tmp.path()).unwrap();
+        std::fs::create_dir_all(pack.machine_dir()).unwrap();
+        let jsonl = concat!(
+            r#"{"id":"c1","title":"T1","chunk_text":"body one","source_ref":"generated"}"#,
+            "\n",
+            r#"{"id":"c2","title":"T2","chunk_text":"body two","source_ref":"generated"}"#,
+            "\n",
+        );
+        std::fs::write(pack.machine_file("retrieval_chunks.jsonl"), jsonl).unwrap();
+
+        let chunks = pack.load_chunks().unwrap();
+        assert_eq!(chunks.len(), 2);
+        assert_eq!(chunks[0].id, "c1");
+        assert_eq!(chunks[1].id, "c2");
+    }
+
+    #[test]
+    fn load_chunks_invalid_line_errors() {
+        let tmp = TempDir::new().unwrap();
+        write_manifest(tmp.path(), minimal_manifest_json());
+        let pack = Pack::open(tmp.path()).unwrap();
+        std::fs::create_dir_all(pack.machine_dir()).unwrap();
+        std::fs::write(pack.machine_file("retrieval_chunks.jsonl"), "not json\n").unwrap();
+
+        let err = pack.load_chunks().unwrap_err();
+        assert!(matches!(err, DkpError::JsonlParse { .. }));
+    }
+
+    #[test]
+    fn load_system_prompt_present() {
+        let tmp = TempDir::new().unwrap();
+        write_manifest(tmp.path(), minimal_manifest_json());
+        let pack = Pack::open(tmp.path()).unwrap();
+        std::fs::create_dir_all(pack.machine_dir()).unwrap();
+        std::fs::write(pack.machine_file("system_prompt.md"), "Be helpful.").unwrap();
+
+        assert_eq!(
+            pack.load_system_prompt().unwrap(),
+            Some("Be helpful.".to_string())
+        );
+    }
 }

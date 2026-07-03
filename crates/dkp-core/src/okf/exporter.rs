@@ -212,3 +212,84 @@ pub struct ExportStats {
     pub chunks_written: usize,
     pub ontology_written: usize,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::okf::parser::parse_okf_dir;
+    use tempfile::TempDir;
+
+    fn open_pack_with_glossary(tmp: &TempDir) -> Pack {
+        std::fs::write(
+            tmp.path().join("manifest.json"),
+            r#"{
+                "spec": "dkp/0.2",
+                "name": "test-pack",
+                "version": "1.0.0",
+                "domain": "testing",
+                "audience": "internal",
+                "intended_use": "unit tests",
+                "known_limitations": "none",
+                "update_date": "2026-01-01"
+            }"#,
+        )
+        .unwrap();
+        let pack = Pack::open(tmp.path()).unwrap();
+        std::fs::create_dir_all(pack.machine_dir()).unwrap();
+        std::fs::write(
+            pack.machine_file("glossary.json"),
+            r#"{"terms": [{"id": "t1", "term": "Widget \"Pro\"", "definition": "A useful thing.", "tags": ["core"]}]}"#,
+        )
+        .unwrap();
+        pack
+    }
+
+    #[test]
+    fn export_then_parse_round_trip_preserves_content() {
+        let tmp = TempDir::new().unwrap();
+        let pack = open_pack_with_glossary(&tmp);
+        let out_dir = tmp.path().join("okf-out");
+
+        let stats = export_okf(&pack, &out_dir).unwrap();
+        assert_eq!(stats.terms_written, 1);
+
+        let concepts = parse_okf_dir(&out_dir).unwrap();
+        assert_eq!(concepts.len(), 1);
+        let concept = &concepts[0];
+        assert_eq!(
+            concept.frontmatter.get("type").and_then(|v| v.as_str()),
+            Some("term")
+        );
+        assert_eq!(
+            concept.frontmatter.get("id").and_then(|v| v.as_str()),
+            Some("t1")
+        );
+        assert!(concept.body.contains("A useful thing."));
+    }
+
+    #[test]
+    fn export_okf_empty_pack_writes_nothing() {
+        let tmp = TempDir::new().unwrap();
+        std::fs::write(
+            tmp.path().join("manifest.json"),
+            r#"{
+                "spec": "dkp/0.2",
+                "name": "test-pack",
+                "version": "1.0.0",
+                "domain": "testing",
+                "audience": "internal",
+                "intended_use": "unit tests",
+                "known_limitations": "none",
+                "update_date": "2026-01-01"
+            }"#,
+        )
+        .unwrap();
+        let pack = Pack::open(tmp.path()).unwrap();
+        let out_dir = tmp.path().join("okf-out");
+
+        let stats = export_okf(&pack, &out_dir).unwrap();
+        assert_eq!(stats.terms_written, 0);
+        assert_eq!(stats.rules_written, 0);
+        assert_eq!(stats.chunks_written, 0);
+    }
+}

@@ -8,8 +8,18 @@ pub const MAX_SLUG_LEN: usize = 40;
 /// Distinct from the unrelated `BLOCKED_SCOPES` denylist (scope/namespace
 /// names are a different concept from domain slugs).
 const RESERVED_DOMAIN_SLUGS: &[&str] = &[
-    "all", "none", "null", "undefined", "admin", "root", "system", "test", "example", "unknown",
-    "n-a", "na",
+    "all",
+    "none",
+    "null",
+    "undefined",
+    "admin",
+    "root",
+    "system",
+    "test",
+    "example",
+    "unknown",
+    "n-a",
+    "na",
 ];
 
 /// Lowercase, trim, collapse any run of whitespace/punctuation into a single
@@ -132,9 +142,72 @@ mod tests {
 
     #[test]
     fn derive_round_trip() {
-        assert_eq!(derive_and_validate_domain_slug("Startups").unwrap(), "startups");
+        assert_eq!(
+            derive_and_validate_domain_slug("Startups").unwrap(),
+            "startups"
+        );
         assert_eq!(derive_and_validate_domain_slug("Law").unwrap(), "law");
-        assert_eq!(derive_and_validate_domain_slug("support").unwrap(), "support");
+        assert_eq!(
+            derive_and_validate_domain_slug("support").unwrap(),
+            "support"
+        );
         assert!(derive_and_validate_domain_slug("Admin").is_err());
+    }
+
+    #[test]
+    fn slugify_empty_and_punctuation_only() {
+        assert_eq!(slugify_domain(""), "");
+        assert_eq!(slugify_domain("   "), "");
+        assert_eq!(slugify_domain("!!!"), "");
+    }
+
+    #[test]
+    fn slugify_unicode_dropped_as_separator() {
+        // Non-ASCII chars are dropped as separators, not preserved.
+        assert_eq!(slugify_domain("Café Law"), "caf-law");
+    }
+
+    #[test]
+    fn validate_rejects_all_reserved_words() {
+        for w in [
+            "all",
+            "none",
+            "null",
+            "undefined",
+            "admin",
+            "root",
+            "system",
+            "test",
+            "example",
+            "unknown",
+            "n-a",
+            "na",
+        ] {
+            assert!(validate_domain_slug(w).is_err(), "{w} should be reserved");
+        }
+    }
+
+    #[test]
+    fn validate_rejects_uppercase() {
+        assert!(validate_domain_slug("Startups").is_err());
+    }
+
+    #[test]
+    fn validate_rejects_non_ascii() {
+        assert!(validate_domain_slug("café").is_err());
+    }
+
+    #[test]
+    fn derive_and_validate_reserved_word_collision() {
+        // A display name that slugifies straight into a reserved word must fail.
+        assert!(derive_and_validate_domain_slug("Root").is_err());
+        assert!(derive_and_validate_domain_slug("  Test  ").is_err());
+    }
+
+    #[test]
+    fn derive_and_validate_too_short_after_slugify() {
+        // Punctuation-only input slugifies to empty, which is below MIN_SLUG_LEN.
+        assert!(derive_and_validate_domain_slug("!!!").is_err());
+        assert!(derive_and_validate_domain_slug("a").is_err());
     }
 }

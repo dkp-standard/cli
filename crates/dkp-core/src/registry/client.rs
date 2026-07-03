@@ -284,3 +284,102 @@ impl RegistryClient {
             .map_err(|e| DkpError::Registry(e.to_string()))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use wiremock::matchers::{method, path};
+    use wiremock::{Mock, MockServer, ResponseTemplate};
+
+    fn sample_manifest_json() -> serde_json::Value {
+        serde_json::json!({
+            "spec": "dkp/0.2",
+            "name": "test-pack",
+            "version": "1.0.0",
+            "domain": "testing",
+            "audience": "internal",
+            "intended_use": "test",
+            "known_limitations": "none",
+            "update_date": "2026-01-01"
+        })
+    }
+
+    fn sample_pack_version_response() -> serde_json::Value {
+        serde_json::json!({
+            "name": "test-pack",
+            "version": "1.0.0",
+            "manifest": sample_manifest_json(),
+            "checksums": {},
+            "bundle_sig": "sig",
+            "archive_format": "tar.xz",
+            "publisher_public_key": "pubkey",
+            "published_at": "2026-01-01T00:00:00Z",
+            "conformance": "dkp-conformant",
+            "visibility": "public",
+            "yanked": false,
+            "yank_reason": null,
+            "deprecated": false,
+            "deprecation_message": null,
+            "eval_summary": null,
+            "readme": null,
+            "download_count": 0
+        })
+    }
+
+    #[tokio::test]
+    async fn resolve_200_returns_pack_version() {
+        let server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/api/v1/packages/test-pack/1.0.0"))
+            .respond_with(ResponseTemplate::new(200).set_body_json(sample_pack_version_response()))
+            .mount(&server)
+            .await;
+
+        let client = RegistryClient::new(server.uri(), None);
+        let result = client.resolve("test-pack", "1.0.0").await.unwrap();
+        assert_eq!(result.name, "test-pack");
+        assert_eq!(result.version, "1.0.0");
+    }
+
+    #[tokio::test]
+    async fn resolve_401_maps_to_authentication_error() {
+        let server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/api/v1/packages/test-pack/1.0.0"))
+            .respond_with(ResponseTemplate::new(401))
+            .mount(&server)
+            .await;
+
+        let client = RegistryClient::new(server.uri(), None);
+        let err = client.resolve("test-pack", "1.0.0").await.unwrap_err();
+        assert!(matches!(err, DkpError::Registry(msg) if msg.contains("authentication required")));
+    }
+
+    #[tokio::test]
+    async fn resolve_403_maps_to_authorization_error() {
+        let server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/api/v1/packages/test-pack/1.0.0"))
+            .respond_with(ResponseTemplate::new(403))
+            .mount(&server)
+            .await;
+
+        let client = RegistryClient::new(server.uri(), None);
+        let err = client.resolve("test-pack", "1.0.0").await.unwrap_err();
+        assert!(matches!(err, DkpError::Registry(msg) if msg.contains("not authorized")));
+    }
+
+    #[tokio::test]
+    async fn resolve_404_maps_to_not_found_error() {
+        let server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/api/v1/packages/test-pack/1.0.0"))
+            .respond_with(ResponseTemplate::new(404))
+            .mount(&server)
+            .await;
+
+        let client = RegistryClient::new(server.uri(), None);
+        let err = client.resolve("test-pack", "1.0.0").await.unwrap_err();
+        assert!(matches!(err, DkpError::Registry(msg) if msg.contains("not found")));
+    }
+}

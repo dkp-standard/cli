@@ -128,3 +128,91 @@ fn read_manifest_version(pack_dir: &std::path::Path) -> String {
         .and_then(|v| v["version"].as_str().map(String::from))
         .unwrap_or_else(|| "0.1.0".into())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::config::GenConfig;
+    use crate::llm::mock::MockClient;
+    use std::collections::HashMap;
+    use std::sync::Arc;
+    use tempfile::TempDir;
+
+    fn test_ctx(tmp: &TempDir, fixtures: HashMap<String, String>) -> PipelineContext {
+        PipelineContext {
+            pack_dir: tmp.path().to_path_buf(),
+            domain: "testing".to_string(),
+            pack_name: "test-pack".to_string(),
+            config: GenConfig::default(),
+            client: Arc::new(MockClient::new(fixtures, "")),
+            progress: None,
+            verbose: false,
+        }
+    }
+
+    #[test]
+    fn collect_failures_extracts_query_and_reason() {
+        let report = serde_json::json!({
+            "failures": [
+                {"query": "q1", "reason": "missing detail"},
+                {"query": "q2", "reason": "wrong answer"},
+            ]
+        });
+        let failures = collect_failures(&report);
+        assert_eq!(failures.len(), 2);
+        assert!(failures[0].contains("q1"));
+        assert!(failures[0].contains("missing detail"));
+    }
+
+    #[test]
+    fn collect_failures_skips_entries_with_empty_query() {
+        let report = serde_json::json!({
+            "failures": [{"query": "", "reason": "irrelevant"}]
+        });
+        assert!(collect_failures(&report).is_empty());
+    }
+
+    #[test]
+    fn collect_failures_handles_missing_failures_key() {
+        let report = serde_json::json!({});
+        assert!(collect_failures(&report).is_empty());
+    }
+
+    #[test]
+    fn read_manifest_version_defaults_when_absent() {
+        let tmp = TempDir::new().unwrap();
+        assert_eq!(read_manifest_version(tmp.path()), "0.1.0");
+    }
+
+    #[test]
+    fn read_manifest_version_reads_actual_version() {
+        let tmp = TempDir::new().unwrap();
+        std::fs::write(tmp.path().join("manifest.json"), r#"{"version": "2.3.4"}"#).unwrap();
+        assert_eq!(read_manifest_version(tmp.path()), "2.3.4");
+    }
+
+    #[tokio::test]
+    async fn run_no_failures_returns_zeroed_report_without_llm_call() {
+        let tmp = TempDir::new().unwrap();
+        std::fs::create_dir_all(tmp.path().join("build")).unwrap();
+        std::fs::write(
+            tmp.path().join("build/eval_report.json"),
+            r#"{"failures": []}"#,
+        )
+        .unwrap();
+        // No fixtures registered: if the LLM were called, this would error.
+        let ctx = test_ctx(&tmp, HashMap::new());
+
+        let report = run(&ctx).await.unwrap();
+        assert_eq!(report.failed_count, 0);
+        assert_eq!(report.chunks_written, 0);
+        assert_eq!(report.eval_cases_written, 0);
+    }
+
+    #[tokio::test]
+    async fn run_missing_eval_report_errors() {
+        let tmp = TempDir::new().unwrap();
+        let ctx = test_ctx(&tmp, HashMap::new());
+        assert!(run(&ctx).await.is_err());
+    }
+}

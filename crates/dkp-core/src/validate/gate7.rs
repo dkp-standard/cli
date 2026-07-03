@@ -81,3 +81,132 @@ pub fn run(pack: &Pack) -> GateResult {
         message: None,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::TempDir;
+
+    fn minimal_manifest_json() -> &'static str {
+        r#"{
+            "spec": "dkp/0.2",
+            "name": "test-pack",
+            "version": "1.0.0",
+            "domain": "testing",
+            "audience": "internal",
+            "intended_use": "unit tests",
+            "known_limitations": "none",
+            "update_date": "2026-01-01"
+        }"#
+    }
+
+    fn eval_case_line() -> &'static str {
+        r#"{"query": "q", "expected_dimensions": [], "critical_must_include": [], "scoring_rubric": "r", "version_meta": {"prompt_hash": "h", "model_version": "m", "dataset_version": "d"}}"#
+    }
+
+    fn open_pack(tmp: &TempDir) -> Pack {
+        std::fs::write(tmp.path().join("manifest.json"), minimal_manifest_json()).unwrap();
+        Pack::open(tmp.path()).unwrap()
+    }
+
+    #[test]
+    fn eval_set_absent_is_skipped() {
+        let tmp = TempDir::new().unwrap();
+        let pack = open_pack(&tmp);
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Skipped);
+        assert_eq!(result.gate, 7);
+    }
+
+    #[test]
+    fn eval_set_present_but_empty_is_skipped() {
+        let tmp = TempDir::new().unwrap();
+        let pack = open_pack(&tmp);
+        std::fs::create_dir_all(pack.machine_dir()).unwrap();
+        std::fs::write(pack.machine_file("eval_set.jsonl"), "").unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Skipped);
+    }
+
+    #[test]
+    fn eval_set_present_but_no_summary_fails() {
+        let tmp = TempDir::new().unwrap();
+        let pack = open_pack(&tmp);
+        std::fs::create_dir_all(pack.machine_dir()).unwrap();
+        std::fs::write(
+            pack.machine_file("eval_set.jsonl"),
+            format!("{}\n", eval_case_line()),
+        )
+        .unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Fail);
+        assert!(result.checks.iter().any(|c| c
+            .description
+            .contains("evidence/eval_results/eval_summary.json")
+            && c.status == GateStatus::Fail));
+    }
+
+    #[test]
+    fn eval_summary_gate7_pass_true_passes() {
+        let tmp = TempDir::new().unwrap();
+        let pack = open_pack(&tmp);
+        std::fs::create_dir_all(pack.machine_dir()).unwrap();
+        std::fs::write(
+            pack.machine_file("eval_set.jsonl"),
+            format!("{}\n", eval_case_line()),
+        )
+        .unwrap();
+        let eval_results_dir = pack.evidence_dir().join("eval_results");
+        std::fs::create_dir_all(&eval_results_dir).unwrap();
+        std::fs::write(
+            eval_results_dir.join("eval_summary.json"),
+            r#"{"gate7_pass": true, "mean_delta": 0.42}"#,
+        )
+        .unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Pass);
+    }
+
+    #[test]
+    fn eval_summary_gate7_pass_false_fails() {
+        let tmp = TempDir::new().unwrap();
+        let pack = open_pack(&tmp);
+        std::fs::create_dir_all(pack.machine_dir()).unwrap();
+        std::fs::write(
+            pack.machine_file("eval_set.jsonl"),
+            format!("{}\n", eval_case_line()),
+        )
+        .unwrap();
+        let eval_results_dir = pack.evidence_dir().join("eval_results");
+        std::fs::create_dir_all(&eval_results_dir).unwrap();
+        std::fs::write(
+            eval_results_dir.join("eval_summary.json"),
+            r#"{"gate7_pass": false, "mean_delta": 0.01}"#,
+        )
+        .unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Fail);
+    }
+
+    #[test]
+    fn eval_summary_unparseable_fails() {
+        let tmp = TempDir::new().unwrap();
+        let pack = open_pack(&tmp);
+        std::fs::create_dir_all(pack.machine_dir()).unwrap();
+        std::fs::write(
+            pack.machine_file("eval_set.jsonl"),
+            format!("{}\n", eval_case_line()),
+        )
+        .unwrap();
+        let eval_results_dir = pack.evidence_dir().join("eval_results");
+        std::fs::create_dir_all(&eval_results_dir).unwrap();
+        std::fs::write(eval_results_dir.join("eval_summary.json"), "not json").unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Fail);
+    }
+}

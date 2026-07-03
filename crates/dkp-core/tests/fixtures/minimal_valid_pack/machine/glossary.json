@@ -1,0 +1,10 @@
+{
+    "terms": [
+        {
+            "id": "term-1",
+            "term": "Widget",
+            "definition": "A generic testing artifact.",
+            "source_ref": "generated"
+        }
+    ]
+}
