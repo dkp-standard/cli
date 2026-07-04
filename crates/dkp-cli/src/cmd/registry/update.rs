@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use clap::Args;
 use sha2::Digest;
 
@@ -14,6 +14,12 @@ pub struct UpdateArgs {
     /// Registry API token
     #[arg(long, value_name = "KEY", env = "DKP_REGISTRY_TOKEN")]
     pub token: Option<String>,
+
+    /// Accept a publisher's signing key even if it differs from the
+    /// previously pinned key. Only pass this after verifying the key
+    /// rotation out-of-band.
+    #[arg(long)]
+    pub accept_new_key: bool,
 }
 
 pub async fn run(args: UpdateArgs, cli: &CmdCtx) -> Result<()> {
@@ -70,6 +76,24 @@ pub async fn run(args: UpdateArgs, cli: &CmdCtx) -> Result<()> {
 
         let meta = client.resolve(pack_name, &latest).await?;
 
+        if let Some(pinned) = &locked.publisher_public_key {
+            if pinned != &meta.publisher_public_key && !args.accept_new_key {
+                bail!(
+                    "publisher key for '{pack_name}' changed since it was last pinned.\n  \
+                     pinned:  {pinned}\n  fetched: {}\n\
+                     This could mean the publisher legitimately rotated their key, or that the \
+                     registry response has been tampered with. If you've verified the rotation \
+                     out-of-band, re-run with --accept-new-key.",
+                    meta.publisher_public_key
+                );
+            }
+            if pinned != &meta.publisher_public_key {
+                eprintln!(
+                    "Warning: accepting new publisher key for '{pack_name}' (--accept-new-key)."
+                );
+            }
+        }
+
         let integrity = format!(
             "sha256-{}",
             hex::encode(sha2::Sha256::digest(meta.checksums.to_string().as_bytes()))
@@ -81,6 +105,7 @@ pub async fn run(args: UpdateArgs, cli: &CmdCtx) -> Result<()> {
                 version: latest,
                 archive_format: meta.archive_format,
                 integrity,
+                publisher_public_key: Some(meta.publisher_public_key),
             },
         );
         updated += 1;

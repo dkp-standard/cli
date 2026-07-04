@@ -151,4 +151,9 @@ pub struct LockedPack {
     pub archive_format: String,
     /// "sha256-<hex>" integrity string over checksums.json
     pub integrity: String,
+    /// Base64-encoded Ed25519 public key pinned for this package's publisher,
+    /// as returned by the registry on the install that created/updated this entry.
+    /// Absent on lockfiles written before key pinning was introduced.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub publisher_public_key: Option<String>,
 }

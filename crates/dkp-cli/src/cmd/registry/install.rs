@@ -48,6 +48,12 @@ pub struct InstallArgs {
     /// Skip signature verification for registry installs (NOT RECOMMENDED)
     #[arg(long)]
     pub no_verify: bool,
+
+    /// Accept a publisher's signing key even if it differs from the
+    /// previously pinned key (lockfile and/or ~/.dkp/trusted_keys.json).
+    /// Only pass this after verifying the key rotation out-of-band.
+    #[arg(long)]
+    pub accept_new_key: bool,
 }
 
 pub async fn run(args: InstallArgs, cli: &CmdCtx) -> Result<()> {
@@ -62,11 +68,11 @@ pub async fn run(args: InstallArgs, cli: &CmdCtx) -> Result<()> {
             .ok()?
             .map(|(_, t)| t)
     });
-    let client = dkp_core::registry::RegistryClient::new(base, token);
+    let client = dkp_core::registry::RegistryClient::new(base.clone(), token);
 
     match &args.name {
-        Some(name) => install_one(name, &args, cli, &client).await,
-        None => install_from_lock(&args, cli, &client).await,
+        Some(name) => install_one(name, &args, cli, &client, &base).await,
+        None => install_from_lock(&args, cli, &client, &base).await,
     }
 }
 
@@ -75,6 +81,7 @@ async fn install_one(
     args: &InstallArgs,
     cli: &CmdCtx,
     client: &dkp_core::registry::RegistryClient,
+    registry_url: &str,
 ) -> Result<()> {
     let (pack_name, version) = parse_pack_arg(arg);
 
@@ -123,6 +130,8 @@ async fn install_one(
     let archive_bytes = resp.bytes().await.context("failed to read archive body")?;
 
     if !args.no_verify {
+        check_key_pin(&meta.name, &meta.publisher_public_key, registry_url, args)?;
+
         let expected: HashMap<String, String> =
             serde_json::from_value(meta.checksums.clone()).context("invalid checksums")?;
         let actual = hash_archive(&archive_bytes, &meta.archive_format)?;
@@ -167,7 +176,13 @@ async fn install_one(
         "sha256-{}",
         hex::encode(Sha256::digest(meta.checksums.to_string().as_bytes()))
     );
-    update_lock_file(&meta.name, &meta.version, &meta.archive_format, &integrity)?;
+    update_lock_file(
+        &meta.name,
+        &meta.version,
+        &meta.archive_format,
+        &integrity,
+        Some(&meta.publisher_public_key),
+    )?;
 
     Ok(())
 }
@@ -176,6 +191,7 @@ async fn install_from_lock(
     args: &InstallArgs,
     cli: &CmdCtx,
     client: &dkp_core::registry::RegistryClient,
+    registry_url: &str,
 ) -> Result<()> {
     let lock_path = std::env::current_dir()?.join("dkp.lock");
     if !lock_path.exists() {
@@ -190,8 +206,74 @@ async fn install_from_lock(
             continue;
         }
         // Re-use install_one logic
-        install_one(&format!("{name}@{}", locked.version), args, cli, client).await?;
+        install_one(
+            &format!("{name}@{}", locked.version),
+            args,
+            cli,
+            client,
+            registry_url,
+        )
+        .await?;
     }
+    Ok(())
+}
+
+/// Compare the registry-returned publisher key against any previously pinned
+/// value (project lockfile + global ~/.dkp/trusted_keys.json), hard-failing on
+/// mismatch unless `--accept-new-key` was passed.
+fn check_key_pin(
+    pack_name: &str,
+    fetched_key: &str,
+    registry_url: &str,
+    args: &InstallArgs,
+) -> Result<()> {
+    let scope = pack_name;
+
+    // Project-local lockfile pin, if one exists for this exact package.
+    let lock_path = std::env::current_dir()?.join("dkp.lock");
+    if lock_path.exists() {
+        if let Ok(lock) = serde_json::from_str::<LockFile>(&std::fs::read_to_string(&lock_path)?)
+        {
+            if let Some(locked) = lock.resolved.get(pack_name) {
+                if let Some(pinned) = &locked.publisher_public_key {
+                    if pinned != fetched_key && !args.accept_new_key {
+                        bail!(
+                            "publisher key for '{pack_name}' changed since it was last installed \
+                             in this project.\n  pinned:  {pinned}\n  fetched: {fetched_key}\n\
+                             This could mean the publisher legitimately rotated their key, or \
+                             that the registry response has been tampered with. If you've \
+                             verified the rotation out-of-band, re-run with --accept-new-key."
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    // Global cross-project pin.
+    match dkp_core::trust::check_and_pin(scope, fetched_key, registry_url)? {
+        dkp_core::trust::PinCheck::FirstContact => {
+            println!(
+                "Pinning publisher key for '{scope}' (first time seen on this machine) — \
+                 verify out-of-band if this matters."
+            );
+        }
+        dkp_core::trust::PinCheck::Match => {}
+        dkp_core::trust::PinCheck::Mismatch { pinned_key } => {
+            if !args.accept_new_key {
+                bail!(
+                    "publisher key for '{scope}' differs from the key pinned on this machine.\n  \
+                     pinned:  {pinned_key}\n  fetched: {fetched_key}\n\
+                     This could mean the publisher legitimately rotated their key, or that the \
+                     registry response has been tampered with. If you've verified the rotation \
+                     out-of-band, re-run with --accept-new-key."
+                );
+            }
+            eprintln!("Warning: accepting new publisher key for '{scope}' (--accept-new-key).");
+            dkp_core::trust::accept_new_key(scope, fetched_key, registry_url)?;
+        }
+    }
+
     Ok(())
 }
 
@@ -271,7 +353,7 @@ async fn install_from_url(url: &str, args: &InstallArgs, cli: &CmdCtx) -> Result
     if verified_checksums {
         // We don't have a registry checksums JSON value; use a placeholder integrity
         let integrity = format!("sha256-{}", hex::encode(Sha256::digest(&archive_bytes)));
-        update_lock_file(&pack_name, &version, &archive_format, &integrity)?;
+        update_lock_file(&pack_name, &version, &archive_format, &integrity, None)?;
     }
 
     Ok(())
@@ -476,6 +558,7 @@ fn update_lock_file(
     version: &str,
     archive_format: &str,
     integrity: &str,
+    publisher_public_key: Option<&str>,
 ) -> Result<()> {
     let lock_path = std::env::current_dir()?.join("dkp.lock");
     let mut lock: LockFile = if lock_path.exists() {
@@ -493,6 +576,7 @@ fn update_lock_file(
             version: version.to_owned(),
             archive_format: archive_format.to_owned(),
             integrity: integrity.to_owned(),
+            publisher_public_key: publisher_public_key.map(str::to_owned),
         },
     );
 

@@ -6,6 +6,7 @@ pub mod pack;
 pub mod procedures;
 pub mod registry;
 pub mod search;
+pub mod trust;
 pub mod types;
 pub mod validate;
 
