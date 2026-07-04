@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0](https://github.com/dkp-standard/cli/compare/dkp-core-v0.2.0...dkp-core-v0.3.0) - 2026-07-04
+
+### Added
+
+- *(cli)* add publisher key pinning for registry installs
+- [**breaking**] bump manifest spec to 1.0.0, surface publish warnings
+- *(core)* split domain slug validation for local and registry use
+- update eval workflow, gate 7 validation, add search pagination
+- add domain slugification and normalize list domain filtering/sorting
+- add package deprecation support
+- *(registry)* [**breaking**] migrate auth to email magic links and add eval summary fields
+- *(dkp-core)* enforce WASM-only procedure validation
+- add support for tar.xz and .dkp archive formats
+- *(dkp-cli)* remove --registry flag, use presigned uploads for publish
+
+### Fixed
+
+- *(registry)* correct signing key endpoint, add download/readme fields
+
+### Other
+
+- *(dkp-gen-core)* add unit tests for human pipeline generation
+
 ## [0.2.0](https://github.com/dkp-standard/cli/compare/dkp-core-v0.1.2...dkp-core-v0.2.0) - 2026-06-28
 
 ### Other
