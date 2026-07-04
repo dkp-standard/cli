@@ -248,7 +248,7 @@ mod tests {
 
     fn minimal_manifest_json() -> &'static str {
         r#"{
-            "spec": "dkp/0.2",
+            "spec": "1.0.0",
             "name": "test-pack",
             "version": "1.0.0",
             "domain": "testing",
@@ -292,7 +292,7 @@ mod tests {
         write_manifest(
             tmp.path(),
             r#"{
-                "spec": "dkp/0.2",
+                "spec": "1.0.0",
                 "name": "",
                 "version": "1.0.0",
                 "domain": "testing",
@@ -319,7 +319,7 @@ mod tests {
         write_manifest(
             tmp.path(),
             r#"{
-                "spec": "dkp/0.2",
+                "spec": "1.0.0",
                 "name": "test-pack",
                 "version": "1.0.0",
                 "domain": "!!!",
@@ -339,7 +339,7 @@ mod tests {
         write_manifest(
             tmp.path(),
             r#"{
-                "spec": "dkp/0.2",
+                "spec": "1.0.0",
                 "name": "test-pack",
                 "version": "1.0.0",
                 "domain": "Admin",

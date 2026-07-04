@@ -32,6 +32,10 @@ pub struct PublishResponse {
     pub r2_key: String,
     /// ISO-8601 expiry of the presigned URL.
     pub upload_url_expires_at: String,
+    /// Non-fatal warnings the publisher should see (e.g. manifest declares a
+    /// spec MAJOR newer than the registry has a vendored schema for).
+    #[serde(default)]
+    pub warnings: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

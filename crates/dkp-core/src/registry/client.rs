@@ -293,7 +293,7 @@ mod tests {
 
     fn sample_manifest_json() -> serde_json::Value {
         serde_json::json!({
-            "spec": "dkp/0.2",
+            "spec": "1.0.0",
             "name": "test-pack",
             "version": "1.0.0",
             "domain": "testing",

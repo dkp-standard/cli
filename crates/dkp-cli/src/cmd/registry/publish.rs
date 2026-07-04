@@ -105,6 +105,10 @@ pub async fn run(args: PublishArgs, cli: &CmdCtx) -> Result<()> {
         .await
         .context("publish failed")?;
 
+    for warning in &resp.warnings {
+        eprintln!("Warning: {warning}");
+    }
+
     println!("Uploading archive ({} bytes) ...", size_bytes);
 
     // Step 2: PUT archive directly to R2 via presigned URL

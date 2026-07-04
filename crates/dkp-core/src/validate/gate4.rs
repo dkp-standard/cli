@@ -198,7 +198,7 @@ mod tests {
 
     fn minimal_manifest_json() -> &'static str {
         r#"{
-            "spec": "dkp/0.2",
+            "spec": "1.0.0",
             "name": "test-pack",
             "version": "1.0.0",
             "domain": "testing",

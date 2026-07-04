@@ -223,7 +223,7 @@ mod tests {
         std::fs::write(
             tmp.path().join("manifest.json"),
             r#"{
-                "spec": "dkp/0.2",
+                "spec": "1.0.0",
                 "name": "test-pack",
                 "version": "1.0.0",
                 "domain": "testing",
@@ -273,7 +273,7 @@ mod tests {
         std::fs::write(
             tmp.path().join("manifest.json"),
             r#"{
-                "spec": "dkp/0.2",
+                "spec": "1.0.0",
                 "name": "test-pack",
                 "version": "1.0.0",
                 "domain": "testing",

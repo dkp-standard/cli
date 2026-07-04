@@ -55,7 +55,7 @@ async fn generated_pack_passes_gate4() {
     std::fs::write(
         tmp.path().join("manifest.json"),
         r#"{
-            "spec": "dkp/0.2",
+            "spec": "1.0.0",
             "name": "generated-pack",
             "version": "1.0.0",
             "domain": "testing",
