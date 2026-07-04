@@ -33,8 +33,10 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: ". -> target"
-      - run: cargo clippy --workspace --exclude xtask --no-default-features --features tui,mcp,procedures -- -D warnings
-      - run: cargo test --workspace --exclude xtask --no-default-features --features tui,mcp,procedures
+          shared-key: "build"
+          cache-on-failure: true
+      - run: cargo clippy --workspace --exclude xtask --features full -- -D warnings
+      - run: cargo test --workspace --exclude xtask --features full
 
   # build-check and docs share the expensive pnpm + full-features Rust build.
   build-and-docs:
@@ -58,6 +60,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: ". -> target"
+          shared-key: "build"
           cache-on-failure: true
       - run: cargo build --workspace --features full
       - run: cargo docs
