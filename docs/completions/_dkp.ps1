@@ -68,6 +68,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             [CompletionResult]::new('update', 'update', [CompletionResultType]::ParameterValue, 'Re-resolve and update installed packs to satisfy lock-file constraints')
             [CompletionResult]::new('publish', 'publish', [CompletionResultType]::ParameterValue, 'Publish a built and signed pack to the registry')
             [CompletionResult]::new('yank', 'yank', [CompletionResultType]::ParameterValue, 'Mark a published version as yanked')
+            [CompletionResult]::new('deprecate', 'deprecate', [CompletionResultType]::ParameterValue, 'Mark a published version as deprecated (or clear a prior deprecation with --undo)')
             [CompletionResult]::new('registry', 'registry', [CompletionResultType]::ParameterValue, 'Registry account and pack management (login, logout, keys, access)')
             [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
             break
@@ -1049,6 +1050,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             [CompletionResult]::new('-g', '-g', [CompletionResultType]::ParameterName, 'Install to global store (~/.dkp/packs/)')
             [CompletionResult]::new('--global', '--global', [CompletionResultType]::ParameterName, 'Install to global store (~/.dkp/packs/)')
             [CompletionResult]::new('--no-verify', '--no-verify', [CompletionResultType]::ParameterName, 'Skip signature verification for registry installs (NOT RECOMMENDED)')
+            [CompletionResult]::new('--accept-new-key', '--accept-new-key', [CompletionResultType]::ParameterName, 'Accept a publisher''s signing key even if it differs from the previously pinned key (lockfile and/or ~/.dkp/trusted_keys.json). Only pass this after verifying the key rotation out-of-band')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
@@ -1080,6 +1082,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             [CompletionResult]::new('--token', '--token', [CompletionResultType]::ParameterName, 'Registry API token')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
+            [CompletionResult]::new('--accept-new-key', '--accept-new-key', [CompletionResultType]::ParameterName, 'Accept a publisher''s signing key even if it differs from the previously pinned key. Only pass this after verifying the key rotation out-of-band')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
@@ -1111,6 +1114,22 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             [CompletionResult]::new('--token', '--token', [CompletionResultType]::ParameterName, 'Registry API token')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('-V', '-V ', [CompletionResultType]::ParameterName, 'Print version')
+            [CompletionResult]::new('--version', '--version', [CompletionResultType]::ParameterName, 'Print version')
+            break
+        }
+        'dkp;deprecate' {
+            [CompletionResult]::new('--message', '--message', [CompletionResultType]::ParameterName, 'Message shown to consumers who install this version (required unless --undo)')
+            [CompletionResult]::new('--token', '--token', [CompletionResultType]::ParameterName, 'Registry API token')
+            [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
+            [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
+            [CompletionResult]::new('--undo', '--undo', [CompletionResultType]::ParameterName, 'Clear a previous deprecation')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
@@ -1471,6 +1490,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             [CompletionResult]::new('update', 'update', [CompletionResultType]::ParameterValue, 'Re-resolve and update installed packs to satisfy lock-file constraints')
             [CompletionResult]::new('publish', 'publish', [CompletionResultType]::ParameterValue, 'Publish a built and signed pack to the registry')
             [CompletionResult]::new('yank', 'yank', [CompletionResultType]::ParameterValue, 'Mark a published version as yanked')
+            [CompletionResult]::new('deprecate', 'deprecate', [CompletionResultType]::ParameterValue, 'Mark a published version as deprecated (or clear a prior deprecation with --undo)')
             [CompletionResult]::new('registry', 'registry', [CompletionResultType]::ParameterValue, 'Registry account and pack management (login, logout, keys, access)')
             [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
             break
@@ -1676,6 +1696,9 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;help;yank' {
+            break
+        }
+        'dkp;help;deprecate' {
             break
         }
         'dkp;help;registry' {
