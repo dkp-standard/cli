@@ -21,7 +21,20 @@ jobs:
         with:
           fetch-depth: 0
       - uses: dtolnay/rust-toolchain@stable
-      - uses: release-plz/action@v0.5
+      - id: release-plz
+        uses: release-plz/action@v0.5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Sync generated docs
+        if: steps.release-plz.outputs.releases_created == 'true'
+        run: |
+          cargo docs
+          if ! git diff --quiet -- docs/man docs/completions; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add docs/man docs/completions
+            git commit -m "chore: sync generated docs"
+            git push
+          fi
