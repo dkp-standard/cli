@@ -55,7 +55,10 @@ pub enum GateResult {
 pub struct PackVersionResponse {
     pub name: String,
     pub version: String,
-    pub manifest: Manifest,
+    /// Raw manifest JSON as stored by the registry — not a typed `Manifest`,
+    /// since the registry stores whatever the publisher submitted verbatim
+    /// and may contain fields newer than this CLI version knows about.
+    pub manifest: serde_json::Value,
     pub checksums: serde_json::Value,
     pub bundle_sig: String,
     pub archive_format: String,

@@ -311,6 +311,30 @@ mod tests {
 
     #[test]
     fn open_manifest_invalid_domain_errors() {
+        // Reserved-word domains (e.g. "admin") are registry moderation
+        // policy, not a structural error, so `Pack::open` (local/offline)
+        // must accept them. Use a domain that slugifies to empty (too
+        // short) to exercise the structural-validity error path instead.
+        let tmp = TempDir::new().unwrap();
+        write_manifest(
+            tmp.path(),
+            r#"{
+                "spec": "dkp/0.2",
+                "name": "test-pack",
+                "version": "1.0.0",
+                "domain": "!!!",
+                "audience": "internal",
+                "intended_use": "unit tests",
+                "known_limitations": "none",
+                "update_date": "2026-01-01"
+            }"#,
+        );
+        let err = Pack::open(tmp.path()).unwrap_err();
+        assert!(matches!(err, DkpError::ManifestDomainInvalid { .. }));
+    }
+
+    #[test]
+    fn open_manifest_reserved_word_domain_succeeds_locally() {
         let tmp = TempDir::new().unwrap();
         write_manifest(
             tmp.path(),
@@ -325,8 +349,7 @@ mod tests {
                 "update_date": "2026-01-01"
             }"#,
         );
-        let err = Pack::open(tmp.path()).unwrap_err();
-        assert!(matches!(err, DkpError::ManifestDomainInvalid { .. }));
+        Pack::open(tmp.path()).expect("reserved-word domains are allowed for local builds");
     }
 
     #[test]

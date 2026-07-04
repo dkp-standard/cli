@@ -7,6 +7,10 @@ pub const MAX_SLUG_LEN: usize = 40;
 /// domain moderation is a manual-SQL operator runbook, not an API surface.
 /// Distinct from the unrelated `BLOCKED_SCOPES` denylist (scope/namespace
 /// names are a different concept from domain slugs).
+///
+/// This is registry moderation policy, not structural validity — it's only
+/// enforced via `validate_domain_slug_for_registry`, not the plain
+/// `validate_domain_slug` used for local/offline pack builds.
 const RESERVED_DOMAIN_SLUGS: &[&str] = &[
     "all",
     "none",
@@ -51,9 +55,11 @@ pub fn slugify_domain(display: &str) -> String {
     slug
 }
 
-/// Validate an already-computed slug: length, charset, denylist. Called
-/// independently of `slugify_domain` (e.g. by the registry, which must
-/// validate defensively rather than trust the CLI, and by backfill scripts
+/// Validate an already-computed slug: length, charset, hyphenation. This is
+/// structural validity only — it does not enforce the registry's
+/// reserved-word denylist, so it's safe to run for purely local/offline pack
+/// builds (e.g. `dkp build`) where there's no registry moderation concern.
+/// Called independently of `slugify_domain` (e.g. by backfill scripts
 /// re-deriving slugs from stored data).
 pub fn validate_domain_slug(slug: &str) -> DkpResult<()> {
     if slug.len() < MIN_SLUG_LEN || slug.len() > MAX_SLUG_LEN {
@@ -79,6 +85,14 @@ pub fn validate_domain_slug(slug: &str) -> DkpResult<()> {
             reason: format!("domain slug '{slug}' has malformed hyphenation"),
         });
     }
+    Ok(())
+}
+
+/// Validate a slug for registry publication: structural validity plus the
+/// reserved-word denylist. The registry must validate defensively rather
+/// than trust the CLI, so this is what the publish route calls.
+pub fn validate_domain_slug_for_registry(slug: &str) -> DkpResult<()> {
+    validate_domain_slug(slug)?;
     if RESERVED_DOMAIN_SLUGS.contains(&slug) {
         return Err(DkpError::ManifestInvalid {
             reason: format!("domain '{slug}' is a reserved word and cannot be used"),
@@ -87,11 +101,19 @@ pub fn validate_domain_slug(slug: &str) -> DkpResult<()> {
     Ok(())
 }
 
-/// Convenience: slugify + validate in one call. Used by both the CLI loader
-/// and the registry publish handler.
+/// Convenience: slugify + validate (structural only) in one call. Used by
+/// the CLI loader (`Pack::open`) for local/offline commands like `dkp build`.
 pub fn derive_and_validate_domain_slug(display: &str) -> DkpResult<String> {
     let slug = slugify_domain(display);
     validate_domain_slug(&slug)?;
+    Ok(slug)
+}
+
+/// Convenience: slugify + validate (structural + reserved-word) in one call.
+/// Used by the registry publish handler.
+pub fn derive_and_validate_domain_slug_for_registry(display: &str) -> DkpResult<String> {
+    let slug = slugify_domain(display);
+    validate_domain_slug_for_registry(&slug)?;
     Ok(slug)
 }
 
@@ -118,9 +140,25 @@ mod tests {
     }
 
     #[test]
-    fn reserved_words_rejected() {
+    fn reserved_words_rejected_for_registry() {
         for w in ["all", "none", "admin", "undefined", "null"] {
-            assert!(validate_domain_slug(w).is_err(), "{w} should be reserved");
+            assert!(
+                validate_domain_slug_for_registry(w).is_err(),
+                "{w} should be reserved"
+            );
+        }
+    }
+
+    #[test]
+    fn reserved_words_allowed_locally() {
+        // Local/offline builds shouldn't be blocked by registry moderation
+        // policy — only registry publication enforces the denylist.
+        for w in ["all", "none", "admin", "undefined", "null", "test"] {
+            assert!(
+                validate_domain_slug(w).is_ok(),
+                "{w} should be allowed for local validation"
+            );
+            assert!(derive_and_validate_domain_slug(w).is_ok());
         }
     }
 
@@ -130,6 +168,7 @@ mod tests {
         // blocked as a *scope* name elsewhere, but that's an unrelated
         // denylist — it must remain allowed as a domain.
         assert!(validate_domain_slug("support").is_ok());
+        assert!(validate_domain_slug_for_registry("support").is_ok());
     }
 
     #[test]
@@ -151,7 +190,7 @@ mod tests {
             derive_and_validate_domain_slug("support").unwrap(),
             "support"
         );
-        assert!(derive_and_validate_domain_slug("Admin").is_err());
+        assert!(derive_and_validate_domain_slug_for_registry("Admin").is_err());
     }
 
     #[test]
@@ -168,7 +207,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_rejects_all_reserved_words() {
+    fn validate_rejects_all_reserved_words_for_registry() {
         for w in [
             "all",
             "none",
@@ -183,7 +222,10 @@ mod tests {
             "n-a",
             "na",
         ] {
-            assert!(validate_domain_slug(w).is_err(), "{w} should be reserved");
+            assert!(
+                validate_domain_slug_for_registry(w).is_err(),
+                "{w} should be reserved"
+            );
         }
     }
 
@@ -198,10 +240,13 @@ mod tests {
     }
 
     #[test]
-    fn derive_and_validate_reserved_word_collision() {
-        // A display name that slugifies straight into a reserved word must fail.
-        assert!(derive_and_validate_domain_slug("Root").is_err());
-        assert!(derive_and_validate_domain_slug("  Test  ").is_err());
+    fn derive_and_validate_reserved_word_collision_for_registry() {
+        // A display name that slugifies straight into a reserved word must
+        // fail registry validation, but remain fine for local validation.
+        assert!(derive_and_validate_domain_slug_for_registry("Root").is_err());
+        assert!(derive_and_validate_domain_slug_for_registry("  Test  ").is_err());
+        assert!(derive_and_validate_domain_slug("Root").is_ok());
+        assert!(derive_and_validate_domain_slug("  Test  ").is_ok());
     }
 
     #[test]
