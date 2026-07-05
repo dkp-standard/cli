@@ -2,6 +2,8 @@
 
 [https://dkp-standard.com](https://dkp-standard.com)
 
+[https://dkp.directory](https://dkp.directory)
+
 [SPEC](https://github.com/dkp-standard/docs/blob/main/SPEC.md)
 
 **DKP is an open standard for packaging curated domain knowledge so both Human and AI agents actually use it well.**

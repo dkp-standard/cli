@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
 
+concurrency:
+  group: release-plz-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   ci:
     name: CI
@@ -36,6 +40,6 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add docs/man docs/completions
-            git commit -m "chore: sync generated docs"
+            git commit -s -m "chore: sync generated docs"
             git push
           fi
