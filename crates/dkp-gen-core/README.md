@@ -4,7 +4,7 @@
 
 [SPEC](https://github.com/dkp-standard/docs/blob/main/SPEC.md)
 
-**DKP is an open standard for packaging curated domain knowledge so AI agents actually use it well.**
+**DKP is an open standard for packaging curated domain knowledge so both Human and AI agents actually use it well.**
 
 Most knowledge fed to AI agents is unstructured — raw documents, loosely formatted notes, or ad-hoc context dumps. DKP changes that. It gives producers a clear, validated bundle format and gives processors (agents, RAG pipelines, LLM apps) something they can reliably load, search, and trust.
 
