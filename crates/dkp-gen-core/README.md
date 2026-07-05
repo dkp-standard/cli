@@ -237,7 +237,7 @@ dkp export acme-widgets/ markdown --out ./md-docs/
 dkp export acme-widgets/ csv --out ./csv-export/
 dkp export acme-widgets/ anki --out ./anki-export/
 
-# OKF-specific operations (export, validate, stats, links, browse)
+# OKF-specific operations (export, validate, stats, links)
 dkp okf acme-widgets/ validate
 dkp okf acme-widgets/ stats
 ```
@@ -272,6 +272,7 @@ dkp sign dist/acme-widgets-1.0.0.zip --key keys/signing.key
 
 ```sh
 # Account management
+dkp registry register --email you@example.com
 dkp registry login --email you@example.com
 dkp registry logout
 dkp registry token rotate
@@ -281,6 +282,7 @@ dkp registry keys add --key keys/signing.pub
 dkp registry pack versions acme/widgets
 dkp registry pack set-visibility acme/widgets public
 dkp registry pack grant acme/widgets --to colleague@example.com
+dkp registry pack revoke acme/widgets --from colleague@example.com
 dkp registry pack access acme/widgets
 
 # Install a pack from the registry
@@ -297,6 +299,10 @@ dkp publish dist/acme-widgets-1.0.0.zip
 
 # Mark a published version as yanked
 dkp yank acme/widgets@1.0.0
+
+# Deprecate a version with a message shown on install (or clear it)
+dkp deprecate acme/widgets@1.0.0 --message "Use 2.x instead"
+dkp deprecate acme/widgets@1.0.0 --undo
 ```
 
 ---
@@ -305,9 +311,9 @@ dkp yank acme/widgets@1.0.0
 
 The full DKP Specification is in [SPEC.md](SPEC.md). It covers:
 
-- Bundle structure and all layer schemas (§7–§14)
-- The manifest and all its fields (§8)
-- The 8-gate quality standard (§5)
+- Bundle structure (§5) and all layer schemas (§9–§14)
+- The manifest and all its fields (§6)
+- The 8-gate quality standard (§16)
 - MCP surface declaration and tool schemas (§15)
 - Normative JSON Schemas for every machine-layer asset (Appendix B)
 - A complete worked example bundle (Appendix A)
