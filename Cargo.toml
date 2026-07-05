@@ -8,7 +8,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.3.1"
+version = "0.3.2"
 edition = "2021"
 authors = ["DKP Contributors"]
 license = "MIT OR Apache-2.0"
@@ -106,8 +106,8 @@ predicates = "3"
 wiremock = "0.6"
 
 # Internal crates
-dkp-core = { path = "crates/dkp-core", version = "0.3.1" }
-dkp-gen-core = { path = "crates/dkp-gen-core", version = "0.3.1" }
+dkp-core = { path = "crates/dkp-core", version = "0.3.2" }
+dkp-gen-core = { path = "crates/dkp-gen-core", version = "0.3.2" }
 
 [profile.release]
 opt-level = "z"
