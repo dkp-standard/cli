@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1](https://github.com/dkp-standard/cli/compare/dkp-gen-core-v0.3.0...dkp-gen-core-v0.3.1) - 2026-07-05
+
+### Fixed
+
+- release fixes, update READMEs to include human agents
+
+### Other
+
+- Merge branch 'main' of github.com:dkp-standard/cli
+
 ## [0.3.0](https://github.com/dkp-standard/cli/compare/dkp-gen-core-v0.2.0...dkp-gen-core-v0.3.0) - 2026-07-04
 
 ### Added
