@@ -77,7 +77,7 @@ depends = "$auto"
 section = "utility"
 priority = "optional"
 assets = [
-    ["../../target/release/dkp", "usr/bin/", "755"],
+    ["target/release/dkp", "usr/bin/", "755"],
     ["../../docs/man/dkp.1", "usr/share/man/man1/", "644"],
     ["../../docs/completions/dkp.bash", "usr/share/bash-completion/completions/dkp", "644"],
     ["../../docs/completions/_dkp", "usr/share/zsh/vendor-completions/", "644"],
