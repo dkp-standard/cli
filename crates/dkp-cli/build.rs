@@ -24,12 +24,14 @@ fn main() {
         stub.to_string_lossy().into_owned()
     };
 
-    // Generate embed.rs with the resolved literal path.
+    // Generate embed.rs with the resolved literal path. Escape backslashes so
+    // Windows paths (D:\a\...) survive as a valid Rust string literal.
+    let embed_dir_escaped = embed_dir.replace('\\', "\\\\");
     let embed_rs = format!(
         r#"use rust_embed::Embed;
 
 #[derive(Embed)]
-#[folder = "{embed_dir}"]
+#[folder = "{embed_dir_escaped}"]
 pub struct Assets;
 "#
     );
