@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.3](https://github.com/dkp-standard/cli/compare/dkp-core-v0.3.2...dkp-core-v0.3.3) - 2026-07-05
+
+### Other
+
+- update CLI examples and spec references across all READMEs
+
 ## [0.3.1](https://github.com/dkp-standard/cli/compare/dkp-core-v0.3.0...dkp-core-v0.3.1) - 2026-07-05
 
 ### Fixed
