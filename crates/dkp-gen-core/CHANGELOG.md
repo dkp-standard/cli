@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0](https://github.com/dkp-standard/cli/compare/dkp-gen-core-v0.2.0...dkp-gen-core-v0.3.0) - 2026-07-04
+
+### Added
+
+- [**breaking**] bump manifest spec to 1.0.0, surface publish warnings
+- update eval workflow, gate 7 validation, add search pagination
+
+### Other
+
+- *(dkp-gen-core)* add unit tests for human pipeline generation
+
 ## [0.1.2](https://github.com/dkp-standard/cli/compare/dkp-gen-core-v0.1.1...dkp-gen-core-v0.1.2) - 2026-06-28
 
 ### Added

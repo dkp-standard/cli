@@ -1,10 +1,10 @@
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
-.TH dkp-install 1  "install 0.2.0" 
+.TH dkp-install 1  "install 0.3.0" 
 .SH NAME
 dkp\-install \- Install a pack from the registry
 .SH SYNOPSIS
-\fBdkp install\fR [\fB\-\-output\fR] [\fB\-\-url\fR] [\fB\-\-checksums\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-sig\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-\-pubkey\fR] [\fB\-g\fR|\fB\-\-global\fR] [\fB\-\-out\fR] [\fB\-\-token\fR] [\fB\-\-no\-verify\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] [\fINAME\fR] 
+\fBdkp install\fR [\fB\-\-output\fR] [\fB\-\-url\fR] [\fB\-\-checksums\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-sig\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-\-pubkey\fR] [\fB\-g\fR|\fB\-\-global\fR] [\fB\-\-out\fR] [\fB\-\-token\fR] [\fB\-\-no\-verify\fR] [\fB\-\-accept\-new\-key\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] [\fINAME\fR] 
 .SH DESCRIPTION
 Install a pack from the registry
 .SH OPTIONS
@@ -57,6 +57,9 @@ Registry API token
 \fB\-\-no\-verify\fR
 Skip signature verification for registry installs (NOT RECOMMENDED)
 .TP
+\fB\-\-accept\-new\-key\fR
+Accept a publisher\*(Aqs signing key even if it differs from the previously pinned key (lockfile and/or ~/.dkp/trusted_keys.json). Only pass this after verifying the key rotation out\-of\-band
+.TP
 \fB\-h\fR, \fB\-\-help\fR
 Print help (see a summary with \*(Aq\-h\*(Aq)
 .TP
@@ -66,4 +69,4 @@ Print version
 [\fINAME\fR]
 Pack name, e.g. @example/nutrition\-for\-men or @example/pack@1.2.0. Omit to install all packs from dkp.lock
 .SH VERSION
-v0.2.0
+v0.3.0

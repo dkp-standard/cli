@@ -1,10 +1,10 @@
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
-.TH dkp-update 1  "update 0.2.0" 
+.TH dkp-update 1  "update 0.3.0" 
 .SH NAME
 dkp\-update \- Re\-resolve and update installed packs to satisfy lock\-file constraints
 .SH SYNOPSIS
-\fBdkp update\fR [\fB\-\-output\fR] [\fB\-\-token\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] [\fINAME\fR] 
+\fBdkp update\fR [\fB\-\-output\fR] [\fB\-\-token\fR] [\fB\-\-accept\-new\-key\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] [\fINAME\fR] 
 .SH DESCRIPTION
 Re\-resolve and update installed packs to satisfy lock\-file constraints
 .SH OPTIONS
@@ -27,6 +27,9 @@ json: Pretty\-printed JSON
 \fB\-\-token\fR \fI<KEY>\fR
 Registry API token
 .TP
+\fB\-\-accept\-new\-key\fR
+Accept a publisher\*(Aqs signing key even if it differs from the previously pinned key. Only pass this after verifying the key rotation out\-of\-band
+.TP
 \fB\-q\fR, \fB\-\-quiet\fR
 Suppress informational output; print only results
 .TP
@@ -45,4 +48,4 @@ Print version
 [\fINAME\fR]
 Update only this pack (omit to update all packs in dkp.lock)
 .SH VERSION
-v0.2.0
+v0.3.0
