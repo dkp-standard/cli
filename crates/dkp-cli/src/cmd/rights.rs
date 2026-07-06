@@ -333,12 +333,13 @@ pub async fn run(args: RightsArgs, _cli: &CmdCtx) -> Result<()> {
 
             for r in &rights {
                 if let Some(expiry) = &r.expiry_date
-                    && is_expired(expiry) {
-                        warnings.push(format!(
-                            "rights {} (source {}): expired on {expiry}",
-                            r.rights_holder, r.source_id
-                        ));
-                    }
+                    && is_expired(expiry)
+                {
+                    warnings.push(format!(
+                        "rights {} (source {}): expired on {expiry}",
+                        r.rights_holder, r.source_id
+                    ));
+                }
             }
 
             if warnings.is_empty() {

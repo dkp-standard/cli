@@ -37,48 +37,52 @@ fn load_concepts(pack: &Pack, filter: Option<&str>) -> anyhow::Result<Vec<Concep
     let want = |t: &str| filter.is_none_or(|f| f.eq_ignore_ascii_case(t));
 
     if want("term")
-        && let Ok(Some(gf)) = pack.load_glossary() {
-            for t in gf.terms {
-                concepts.push(Concept {
-                    id: t.id.clone(),
-                    asset_type: "term".into(),
-                    content: format!("{} {}", t.term, t.definition),
-                });
-            }
+        && let Ok(Some(gf)) = pack.load_glossary()
+    {
+        for t in gf.terms {
+            concepts.push(Concept {
+                id: t.id.clone(),
+                asset_type: "term".into(),
+                content: format!("{} {}", t.term, t.definition),
+            });
         }
+    }
 
     if want("rule")
-        && let Ok(Some(rf)) = pack.load_rules() {
-            for r in rf.rules {
-                concepts.push(Concept {
-                    id: r.id.clone(),
-                    asset_type: "rule".into(),
-                    content: format!("{} {}", r.title, r.description),
-                });
-            }
+        && let Ok(Some(rf)) = pack.load_rules()
+    {
+        for r in rf.rules {
+            concepts.push(Concept {
+                id: r.id.clone(),
+                asset_type: "rule".into(),
+                content: format!("{} {}", r.title, r.description),
+            });
         }
+    }
 
     if want("constraint")
-        && let Ok(Some(cf)) = pack.load_constraints() {
-            for c in cf.all_constraints() {
-                concepts.push(Concept {
-                    id: c.id.clone(),
-                    asset_type: "constraint".into(),
-                    content: format!("{} {}", c.title, c.description),
-                });
-            }
+        && let Ok(Some(cf)) = pack.load_constraints()
+    {
+        for c in cf.all_constraints() {
+            concepts.push(Concept {
+                id: c.id.clone(),
+                asset_type: "constraint".into(),
+                content: format!("{} {}", c.title, c.description),
+            });
         }
+    }
 
     if want("chunk")
-        && let Ok(chunks) = pack.load_chunks() {
-            for c in chunks {
-                concepts.push(Concept {
-                    id: c.id.clone(),
-                    asset_type: "chunk".into(),
-                    content: format!("{} {}", c.title, c.chunk_text),
-                });
-            }
+        && let Ok(chunks) = pack.load_chunks()
+    {
+        for c in chunks {
+            concepts.push(Concept {
+                id: c.id.clone(),
+                asset_type: "chunk".into(),
+                content: format!("{} {}", c.title, c.chunk_text),
+            });
         }
+    }
 
     Ok(concepts)
 }

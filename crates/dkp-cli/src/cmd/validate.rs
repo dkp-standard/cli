@@ -156,11 +156,12 @@ pub(crate) fn warn_if_handbook_formats_stale(pack_root: &std::path::Path) {
     };
     for name in ["handbook.pdf", "handbook.epub"] {
         if let Ok(mtime) = std::fs::metadata(human_dir.join(name)).and_then(|m| m.modified())
-            && mtime < md_mtime {
-                eprintln!(
-                    "  ⚠ human/{name} is older than handbook.md — consider `dkp render-handbook`"
-                );
-            }
+            && mtime < md_mtime
+        {
+            eprintln!(
+                "  ⚠ human/{name} is older than handbook.md — consider `dkp render-handbook`"
+            );
+        }
     }
 }
 

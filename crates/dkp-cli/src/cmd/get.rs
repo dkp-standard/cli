@@ -63,10 +63,11 @@ fn render_item_plain(v: &serde_json::Value) -> String {
         }
     }
     if let Some(tags) = v.get("tags").and_then(|x| x.as_array())
-        && !tags.is_empty() {
-            let t: Vec<&str> = tags.iter().filter_map(|x| x.as_str()).collect();
-            out.push_str(&format!("  tags: {}\n", t.join(", ")));
-        }
+        && !tags.is_empty()
+    {
+        let t: Vec<&str> = tags.iter().filter_map(|x| x.as_str()).collect();
+        out.push_str(&format!("  tags: {}\n", t.join(", ")));
+    }
     out
 }
 
@@ -318,11 +319,13 @@ pub async fn run(args: GetArgs, cli: &CmdCtx) -> Result<()> {
     }
 
     // system-prompt plain output is just the raw text
-    if asset_type == "system-prompt" && cli.output == OutputFormat::Plain
-        && let Some(v) = items.first() {
-            println!("{}", v["content"].as_str().unwrap_or(""));
-            return Ok(());
-        }
+    if asset_type == "system-prompt"
+        && cli.output == OutputFormat::Plain
+        && let Some(v) = items.first()
+    {
+        println!("{}", v["content"].as_str().unwrap_or(""));
+        return Ok(());
+    }
 
     GetOutput { asset_type, items }.print(cli.output);
     Ok(())

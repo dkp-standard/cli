@@ -233,17 +233,19 @@ fn check_key_pin(
     let lock_path = std::env::current_dir()?.join("dkp.lock");
     if lock_path.exists()
         && let Ok(lock) = serde_json::from_str::<LockFile>(&std::fs::read_to_string(&lock_path)?)
-            && let Some(locked) = lock.resolved.get(pack_name)
-                && let Some(pinned) = &locked.publisher_public_key
-                    && pinned != fetched_key && !args.accept_new_key {
-                        bail!(
-                            "publisher key for '{pack_name}' changed since it was last installed \
+        && let Some(locked) = lock.resolved.get(pack_name)
+        && let Some(pinned) = &locked.publisher_public_key
+        && pinned != fetched_key
+        && !args.accept_new_key
+    {
+        bail!(
+            "publisher key for '{pack_name}' changed since it was last installed \
                              in this project.\n  pinned:  {pinned}\n  fetched: {fetched_key}\n\
                              This could mean the publisher legitimately rotated their key, or \
                              that the registry response has been tampered with. If you've \
                              verified the rotation out-of-band, re-run with --accept-new-key."
-                        );
-                    }
+        );
+    }
 
     // Global cross-project pin.
     match dkp_core::trust::check_and_pin(scope, fetched_key, registry_url)? {
