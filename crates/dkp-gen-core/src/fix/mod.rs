@@ -43,9 +43,19 @@ pub async fn run(ctx: &PipelineContext) -> GenResult<FixReport> {
         .take(4000)
         .collect();
 
+    // Search the failing queries specifically, rather than just rephrasing
+    // the same (already insufficient) chunk corpus.
+    let tools = ctx.build_tool_executor("fix")?;
     let (sys, user) =
         templates::prompt_fix_chunks(&ctx.domain, &ctx.pack_name, &failure_summary, &corpus);
-    let raw = ctx.generate("fix_chunks", &sys, &user).await?;
+    let sys = if tools.is_some() {
+        sys + templates::grounding_preamble()
+    } else {
+        sys
+    };
+    let raw = ctx
+        .generate_maybe_tools("fix_chunks", &sys, &user, tools.as_ref())
+        .await?;
     let new_chunks = chunk::split(&raw, &ctx.domain, &ctx.pack_name);
     let chunks_written = new_chunks.len();
     ctx.write_jsonl(&chunks_path, &new_chunks)?;

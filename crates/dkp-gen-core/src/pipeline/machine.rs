@@ -9,17 +9,22 @@ use crate::chunk;
 use crate::error::GenResult;
 use crate::pipeline::context::PipelineContext;
 use crate::prompt::{extract_json, extract_jsonl, templates};
+use crate::tools::GenToolExecutor;
 
 pub async fn run(ctx: &PipelineContext) -> GenResult<()> {
+    // Built once per run; `None` when tool use is disabled (`--no-tools`).
+    let tools = ctx.build_tool_executor("generate")?;
+
     generate_system_prompt(ctx).await?;
-    let rules = generate_rules(ctx).await?;
-    let ontology = generate_ontology(ctx).await?;
+    let rules = generate_rules(ctx, tools.as_ref()).await?;
+    let ontology = generate_ontology(ctx, tools.as_ref()).await?;
     generate_knowledge_graph(ctx, &ontology)?;
-    let glossary = generate_glossary(ctx).await?;
-    generate_constraints(ctx).await?;
+    let glossary = generate_glossary(ctx, tools.as_ref()).await?;
+    let constraints = generate_constraints(ctx).await?;
     generate_decision_trees(ctx).await?;
-    let chunks = generate_chunks(ctx, &ontology, &glossary).await?;
+    let chunks = generate_chunks(ctx, tools.as_ref(), &ontology, &glossary).await?;
     generate_eval_set(ctx, &chunks, &rules).await?;
+    run_consistency_check(ctx, &rules, &constraints, &glossary, &chunks).await?;
     Ok(())
 }
 
@@ -33,7 +38,10 @@ async fn generate_system_prompt(ctx: &PipelineContext) -> GenResult<()> {
     ctx.write_text(&path, text.trim())
 }
 
-async fn generate_rules(ctx: &PipelineContext) -> GenResult<Value> {
+async fn generate_rules(
+    ctx: &PipelineContext,
+    tools: Option<&GenToolExecutor>,
+) -> GenResult<Value> {
     let path = ctx.machine_path().join("rules.json");
     if !ctx.should_generate(&path) {
         if let Ok(content) = std::fs::read_to_string(&path) {
@@ -43,13 +51,17 @@ async fn generate_rules(ctx: &PipelineContext) -> GenResult<Value> {
         }
     }
     let (sys, user) = templates::prompt_rules(&ctx.domain, &ctx.pack_name);
-    let raw = ctx.generate("rules", &sys, &user).await?;
+    let sys = grounded_system(sys, tools);
+    let raw = ctx.generate_maybe_tools("rules", &sys, &user, tools).await?;
     let value = extract_json(&raw)?;
     ctx.write_json(&path, &value)?;
     Ok(value)
 }
 
-async fn generate_ontology(ctx: &PipelineContext) -> GenResult<Value> {
+async fn generate_ontology(
+    ctx: &PipelineContext,
+    tools: Option<&GenToolExecutor>,
+) -> GenResult<Value> {
     let path = ctx.machine_path().join("ontology.json");
     if !ctx.should_generate(&path) {
         if let Ok(content) = std::fs::read_to_string(&path) {
@@ -59,13 +71,19 @@ async fn generate_ontology(ctx: &PipelineContext) -> GenResult<Value> {
         }
     }
     let (sys, user) = templates::prompt_ontology(&ctx.domain, &ctx.pack_name);
-    let raw = ctx.generate("ontology", &sys, &user).await?;
+    let sys = grounded_system(sys, tools);
+    let raw = ctx
+        .generate_maybe_tools("ontology", &sys, &user, tools)
+        .await?;
     let value = extract_json(&raw)?;
     ctx.write_json(&path, &value)?;
     Ok(value)
 }
 
-async fn generate_glossary(ctx: &PipelineContext) -> GenResult<Value> {
+async fn generate_glossary(
+    ctx: &PipelineContext,
+    tools: Option<&GenToolExecutor>,
+) -> GenResult<Value> {
     let path = ctx.machine_path().join("glossary.json");
     if !ctx.should_generate(&path) {
         if let Ok(content) = std::fs::read_to_string(&path) {
@@ -75,21 +93,39 @@ async fn generate_glossary(ctx: &PipelineContext) -> GenResult<Value> {
         }
     }
     let (sys, user) = templates::prompt_glossary(&ctx.domain, &ctx.pack_name);
-    let raw = ctx.generate("glossary", &sys, &user).await?;
+    let sys = grounded_system(sys, tools);
+    let raw = ctx
+        .generate_maybe_tools("glossary", &sys, &user, tools)
+        .await?;
     let value = extract_json(&raw)?;
     ctx.write_json(&path, &value)?;
     Ok(value)
 }
 
-async fn generate_constraints(ctx: &PipelineContext) -> GenResult<()> {
+/// Appends the grounding preamble to `sys` when tool use is available for
+/// this step, so grounded steps are told to actually call the tools.
+fn grounded_system(sys: String, tools: Option<&GenToolExecutor>) -> String {
+    if tools.is_some() {
+        sys + templates::grounding_preamble()
+    } else {
+        sys
+    }
+}
+
+async fn generate_constraints(ctx: &PipelineContext) -> GenResult<Value> {
     let path = ctx.machine_path().join("constraints.json");
     if !ctx.should_generate(&path) {
-        return Ok(());
+        if let Ok(content) = std::fs::read_to_string(&path) {
+            if let Ok(v) = serde_json::from_str(&content) {
+                return Ok(v);
+            }
+        }
     }
     let (sys, user) = templates::prompt_constraints(&ctx.domain, &ctx.pack_name);
     let raw = ctx.generate("constraints", &sys, &user).await?;
     let value = extract_json(&raw)?;
-    ctx.write_json(&path, &value)
+    ctx.write_json(&path, &value)?;
+    Ok(value)
 }
 
 async fn generate_decision_trees(ctx: &PipelineContext) -> GenResult<()> {
@@ -105,6 +141,7 @@ async fn generate_decision_trees(ctx: &PipelineContext) -> GenResult<()> {
 
 async fn generate_chunks(
     ctx: &PipelineContext,
+    tools: Option<&GenToolExecutor>,
     ontology: &Value,
     glossary: &Value,
 ) -> GenResult<Vec<RetrievalChunk>> {
@@ -122,8 +159,17 @@ async fn generate_chunks(
         }
     }
     let context_bundle = build_context_bundle(&ctx.domain, ontology, glossary);
-    let (sys, user) = templates::prompt_chunks_raw(&ctx.domain, &ctx.pack_name, &context_bundle);
-    let raw = ctx.generate("retrieval_chunks", &sys, &user).await?;
+    let discovered_source_count = count_discovered_sources(ctx);
+    let (sys, user) = templates::prompt_chunks_raw(
+        &ctx.domain,
+        &ctx.pack_name,
+        &context_bundle,
+        discovered_source_count,
+    );
+    let sys = grounded_system(sys, tools);
+    let raw = ctx
+        .generate_maybe_tools("retrieval_chunks", &sys, &user, tools)
+        .await?;
     let chunks = chunk::split(&raw, &ctx.domain, &ctx.pack_name);
     ctx.write_jsonl(&path, &chunks)?;
     Ok(chunks)
@@ -192,6 +238,36 @@ async fn generate_eval_set(
     ctx.write_jsonl(&path, &eval_cases)
 }
 
+async fn run_consistency_check(
+    ctx: &PipelineContext,
+    rules: &Value,
+    constraints: &Value,
+    glossary: &Value,
+    chunks: &[RetrievalChunk],
+) -> GenResult<()> {
+    let chunk_excerpt: String = chunks
+        .iter()
+        .map(|c| c.chunk_text.as_str())
+        .collect::<Vec<_>>()
+        .join("\n\n")
+        .chars()
+        .take(4000)
+        .collect();
+    let bundle = serde_json::json!({
+        "rules": rules,
+        "constraints": constraints,
+        "glossary": glossary,
+        "chunks_excerpt": chunk_excerpt,
+    })
+    .to_string();
+    let bundle: String = bundle.chars().take(12_000).collect();
+
+    let (sys, user) = templates::prompt_consistency_check(&ctx.domain, &ctx.pack_name, &bundle);
+    let raw = ctx.generate("consistency_check", &sys, &user).await?;
+    let value = extract_json(&raw)?;
+    ctx.write_json(&ctx.build_path().join("consistency_report.json"), &value)
+}
+
 fn build_context_bundle(domain: &str, ontology: &Value, glossary: &Value) -> String {
     let entity_names: Vec<&str> = ontology["entity_types"]
         .as_array()
@@ -217,6 +293,17 @@ fn build_context_bundle(domain: &str, ontology: &Value, glossary: &Value) -> Str
         "key_terms": top_terms,
     })
     .to_string()
+}
+
+/// Number of sources logged to `build/sources_discovered.jsonl` so far this
+/// run — a proxy for "how much grounding material has this pipeline already
+/// gathered," used to scale the chunk-count guidance in `prompt_chunks_raw`.
+/// Earlier grounded steps (rules/ontology/glossary) run before chunks and may
+/// have already populated this file via `web_fetch`/`web_search`.
+fn count_discovered_sources(ctx: &PipelineContext) -> usize {
+    std::fs::read_to_string(ctx.build_path().join("sources_discovered.jsonl"))
+        .map(|content| content.lines().filter(|l| !l.trim().is_empty()).count())
+        .unwrap_or(0)
 }
 
 fn hex_hash(s: &str) -> String {
@@ -361,6 +448,10 @@ mod tests {
             "evaluation entries".to_string(),
             r#"{"query": "q1", "expected_dimensions": [], "critical_must_include": [], "scoring_rubric": "r"}"#.to_string(),
         );
+        m.insert(
+            "internal contradictions".to_string(),
+            r#"{"consistent": true, "issues": []}"#.to_string(),
+        );
         m
     }
 
@@ -380,6 +471,7 @@ mod tests {
         assert!(ctx.machine_path().join("decision_trees.json").exists());
         assert!(ctx.machine_path().join("retrieval_chunks.jsonl").exists());
         assert!(ctx.machine_path().join("knowledge_graph.json").exists());
+        assert!(ctx.build_path().join("consistency_report.json").exists());
     }
 
     #[tokio::test]
@@ -411,7 +503,7 @@ mod tests {
         );
         let ctx = test_ctx(&tmp, fixtures);
 
-        let result = generate_rules(&ctx).await;
+        let result = generate_rules(&ctx, None).await;
         assert!(result.is_err());
         assert!(!ctx.machine_path().join("rules.json").exists());
     }
@@ -434,5 +526,25 @@ mod tests {
             relation_from_name("some unrelated phrase"),
             KgRelation::SeeAlso
         ));
+    }
+
+    #[test]
+    fn count_discovered_sources_is_zero_when_file_absent() {
+        let tmp = TempDir::new().unwrap();
+        let ctx = test_ctx(&tmp, HashMap::new());
+        assert_eq!(count_discovered_sources(&ctx), 0);
+    }
+
+    #[test]
+    fn count_discovered_sources_counts_jsonl_lines() {
+        let tmp = TempDir::new().unwrap();
+        let ctx = test_ctx(&tmp, HashMap::new());
+        std::fs::create_dir_all(ctx.build_path()).unwrap();
+        std::fs::write(
+            ctx.build_path().join("sources_discovered.jsonl"),
+            "{\"url\":\"a\"}\n{\"url\":\"b\"}\n\n",
+        )
+        .unwrap();
+        assert_eq!(count_discovered_sources(&ctx), 2);
     }
 }

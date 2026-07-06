@@ -296,6 +296,8 @@ pub async fn run(args: PromptArgs, _cli: &CmdCtx) -> Result<()> {
         api_key: args.api_key,
         model: args.model,
         overwrite: false,
+        no_tools: true,
+        instructions: None,
     })?;
     if config.api_key.is_empty() {
         bail!(

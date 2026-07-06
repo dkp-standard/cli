@@ -65,6 +65,9 @@ jsonschema = { version = "0.26", default-features = false }
 # CSV
 csv = "1"
 
+# HTML to plain text (web_fetch tool)
+html2text = "0.17.1"
+
 # Platform paths
 dirs = "5"
 

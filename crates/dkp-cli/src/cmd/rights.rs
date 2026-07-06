@@ -28,7 +28,12 @@ pub enum RightsCommands {
     /// Flag entries with missing fields or expired rights
     Check,
     /// Interactive prompt to add a source entry
-    AddSource,
+    AddSource {
+        /// Promote entries from build/sources_discovered.jsonl instead of
+        /// prompting for a brand-new source from scratch
+        #[arg(long)]
+        from_discovered: bool,
+    },
     /// Formatted compliance report for human review
     Report,
 }
@@ -106,6 +111,154 @@ fn chrono_today() -> String {
     }
     let d = remaining + 1;
     format!("{y:04}-{m:02}-{d:02}")
+}
+
+fn append_source_record(pack: &Pack, fields: [&str; 6]) -> Result<()> {
+    let sources_path = pack.evidence_file("sources.csv");
+    let write_header = !sources_path.exists() || std::fs::metadata(&sources_path)?.len() == 0;
+
+    let file = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(&sources_path)?;
+    let mut wtr = csv::WriterBuilder::new()
+        .has_headers(write_header)
+        .from_writer(file);
+
+    if write_header {
+        wtr.write_record(["id", "title", "url", "retrieved_date", "license", "notes"])?;
+    }
+    wtr.write_record(fields)?;
+    wtr.flush()?;
+    Ok(())
+}
+
+fn add_source_interactive(pack: &Pack) -> Result<()> {
+    let stdin = io::stdin();
+    let mut stdout = io::stdout();
+
+    macro_rules! prompt {
+        ($label:expr) => {{
+            print!("{}: ", $label);
+            stdout.flush()?;
+            let mut line = String::new();
+            stdin.lock().read_line(&mut line)?;
+            line.trim().to_string()
+        }};
+    }
+
+    let id = prompt!("Source ID (e.g. src-001)");
+    let title = prompt!("Title");
+    let url = prompt!("URL");
+    let retrieved_date = prompt!("Retrieved date (YYYY-MM-DD)");
+    let license = prompt!("License (SPDX or prose)");
+    let notes = prompt!("Notes (optional)");
+
+    append_source_record(pack, [&id, &title, &url, &retrieved_date, &license, &notes])?;
+    println!("\nAdded source '{id}' to evidence/sources.csv");
+    Ok(())
+}
+
+/// Reads `build/sources_discovered.jsonl` (populated by tool-using
+/// `dkp generate`/`dkp fix` runs) and interactively promotes selected entries
+/// into `evidence/sources.csv`, skipping URLs already present there. Never
+/// writes `sources.csv` in bulk — each promotion is a human decision.
+fn add_sources_from_discovered(pack: &Pack) -> Result<()> {
+    let discovered_path = pack.root.join("build").join("sources_discovered.jsonl");
+    let content = match std::fs::read_to_string(&discovered_path) {
+        Ok(c) => c,
+        Err(_) => {
+            println!(
+                "No discovered sources found at '{}'. Run `dkp generate` or `dkp fix` with tool \
+                 use enabled first.",
+                discovered_path.display()
+            );
+            return Ok(());
+        }
+    };
+    let discovered: Vec<dkp_gen_core::DiscoveredSource> = content
+        .lines()
+        .filter(|l| !l.trim().is_empty())
+        .filter_map(|l| serde_json::from_str(l).ok())
+        .collect();
+
+    let existing_urls: std::collections::HashSet<String> =
+        load_sources(pack)?.into_iter().map(|s| s.url).collect();
+    let candidates: Vec<_> = discovered
+        .into_iter()
+        .filter(|d| !existing_urls.contains(&d.url))
+        .collect();
+
+    if candidates.is_empty() {
+        println!("No new discovered sources to promote (all already in sources.csv).");
+        return Ok(());
+    }
+
+    let stdin = io::stdin();
+    let mut stdout = io::stdout();
+    let mut next_id = load_sources(pack)?.len() + 1;
+    let mut promoted = 0usize;
+
+    for candidate in &candidates {
+        println!(
+            "\nDiscovered source ({}/{}):",
+            promoted + 1,
+            candidates.len()
+        );
+        println!("  URL:          {}", candidate.url);
+        println!("  Title:        {}", candidate.title.as_deref().unwrap_or("(none)"));
+        println!("  Retrieved at: {}", candidate.retrieved_at);
+        println!("  Via:          {}", candidate.via);
+
+        print!("Promote to evidence/sources.csv? [y/N/q]: ");
+        stdout.flush()?;
+        let mut answer = String::new();
+        stdin.lock().read_line(&mut answer)?;
+        let answer = answer.trim().to_lowercase();
+
+        if answer == "q" {
+            break;
+        }
+        if answer != "y" {
+            continue;
+        }
+
+        print!("License (SPDX or prose, required): ");
+        stdout.flush()?;
+        let mut license = String::new();
+        stdin.lock().read_line(&mut license)?;
+        let license = license.trim().to_string();
+        if license.is_empty() {
+            println!("  Skipped: license is required.");
+            continue;
+        }
+
+        print!("Notes (optional): ");
+        stdout.flush()?;
+        let mut notes = String::new();
+        stdin.lock().read_line(&mut notes)?;
+        let notes = notes.trim().to_string();
+
+        let id = format!("src-{next_id:03}");
+        let title = candidate.title.clone().unwrap_or_default();
+        let retrieved_date = candidate
+            .retrieved_at
+            .split('T')
+            .next()
+            .unwrap_or(&candidate.retrieved_at)
+            .to_string();
+
+        append_source_record(
+            pack,
+            [&id, &title, &candidate.url, &retrieved_date, &license, &notes],
+        )?;
+        println!("  Added as '{id}'.");
+        next_id += 1;
+        promoted += 1;
+    }
+
+    println!("\nPromoted {promoted} source(s) to evidence/sources.csv");
+    Ok(())
 }
 
 pub async fn run(args: RightsArgs, _cli: &CmdCtx) -> Result<()> {
@@ -192,46 +345,12 @@ pub async fn run(args: RightsArgs, _cli: &CmdCtx) -> Result<()> {
             }
         }
 
-        RightsCommands::AddSource => {
-            let stdin = io::stdin();
-            let mut stdout = io::stdout();
-
-            macro_rules! prompt {
-                ($label:expr) => {{
-                    print!("{}: ", $label);
-                    stdout.flush()?;
-                    let mut line = String::new();
-                    stdin.lock().read_line(&mut line)?;
-                    line.trim().to_string()
-                }};
+        RightsCommands::AddSource { from_discovered } => {
+            if from_discovered {
+                add_sources_from_discovered(&pack)?;
+            } else {
+                add_source_interactive(&pack)?;
             }
-
-            let id = prompt!("Source ID (e.g. src-001)");
-            let title = prompt!("Title");
-            let url = prompt!("URL");
-            let retrieved_date = prompt!("Retrieved date (YYYY-MM-DD)");
-            let license = prompt!("License (SPDX or prose)");
-            let notes = prompt!("Notes (optional)");
-
-            let sources_path = pack.evidence_file("sources.csv");
-            let write_header =
-                !sources_path.exists() || std::fs::metadata(&sources_path)?.len() == 0;
-
-            let file = std::fs::OpenOptions::new()
-                .create(true)
-                .append(true)
-                .open(&sources_path)?;
-            let mut wtr = csv::WriterBuilder::new()
-                .has_headers(write_header)
-                .from_writer(file);
-
-            if write_header {
-                wtr.write_record(["id", "title", "url", "retrieved_date", "license", "notes"])?;
-            }
-            wtr.write_record([&id, &title, &url, &retrieved_date, &license, &notes])?;
-            wtr.flush()?;
-
-            println!("\nAdded source '{id}' to evidence/sources.csv");
         }
 
         RightsCommands::Report => {

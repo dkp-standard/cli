@@ -25,6 +25,15 @@ pub struct FixArgs {
 
     #[arg(long, value_name = "MODEL")]
     pub model: Option<String>,
+
+    /// Disable web_fetch/web_search tool use (on by default)
+    #[arg(long)]
+    pub no_tools: bool,
+
+    /// Extra free-text guidance appended to every generation prompt (e.g.
+    /// tone, focus areas, things to emphasize or avoid)
+    #[arg(long, value_name = "TEXT")]
+    pub instructions: Option<String>,
 }
 
 pub async fn run(args: FixArgs, ctx: &CmdCtx) -> Result<()> {
@@ -37,11 +46,19 @@ pub async fn run(args: FixArgs, ctx: &CmdCtx) -> Result<()> {
         api_key: args.api_key,
         model: args.model,
         overwrite: true,
+        no_tools: args.no_tools,
+        instructions: args.instructions,
     })?;
     if config.api_key.is_empty() {
         anyhow::bail!(
             "API key required: pass --api-key, set DKP_GEN_API_KEY, \
              or add api_key to ~/.dkp/gen.toml"
+        );
+    }
+    if config.tools_enabled && config.search_api_key.is_empty() {
+        anyhow::bail!(
+            "Tool use is enabled but no search API key is set: set DKP_GEN_SEARCH_API_KEY, \
+             add [search] api_key to ~/.dkp/gen.toml, or pass --no-tools."
         );
     }
 

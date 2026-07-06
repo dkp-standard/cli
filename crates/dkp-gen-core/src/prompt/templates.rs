@@ -8,6 +8,15 @@ pub fn base_system(domain: &str, pack_name: &str) -> String {
     )
 }
 
+/// Appended to `base_system` when tool use is available, so grounded steps
+/// actually use `web_fetch`/`web_search` rather than relying solely on
+/// training-data recall.
+pub fn grounding_preamble() -> &'static str {
+    " Before writing, use the web_search and web_fetch tools to find and read \
+      authoritative, current sources on this domain. Ground your output in what \
+      you find rather than relying solely on general knowledge."
+}
+
 pub fn prompt_system_prompt(domain: &str, pack_name: &str) -> (String, String) {
     let system = base_system(domain, pack_name);
     let user = format!(
@@ -80,11 +89,31 @@ pub fn prompt_decision_trees(domain: &str, pack_name: &str) -> (String, String) 
     (system, user)
 }
 
-pub fn prompt_chunks_raw(domain: &str, pack_name: &str, context_bundle: &str) -> (String, String) {
+pub fn prompt_chunks_raw(
+    domain: &str,
+    pack_name: &str,
+    context_bundle: &str,
+    discovered_source_count: usize,
+) -> (String, String) {
     let system = base_system(domain, pack_name);
+    let coverage_guidance = "Cover between 20 and approximately 60 distinct topics/facts as \
+         separate ## or ### sections, scaling with how broad the domain naturally is — a narrow \
+         domain should land near 20, a broad one can go higher, but don't pad a narrow domain \
+         with filler or repetition just to reach the upper end.";
+    let source_guidance = if discovered_source_count > 0 {
+        format!(
+            " You have already gathered {discovered_source_count} source(s) via web_search/web_fetch \
+             during earlier generation steps in this pipeline; aim for roughly 1-3 chunks per \
+             distinct source in addition to the general topic coverage above, and feel free to \
+             fetch or search for more sources here if it would improve coverage."
+        )
+    } else {
+        String::new()
+    };
     let user = format!(
         "Write comprehensive domain knowledge for '{domain}' structured as discrete, self-contained facts, \
          rules, procedures, and patterns. Use markdown headers (##, ###) and numbered lists to separate topics. \
+         {coverage_guidance}{source_guidance} \
          Context summary: {context_bundle}. \
          Each unit should be independently useful when retrieved by an agent."
     );
@@ -154,10 +183,26 @@ pub fn prompt_manifest_meta(domain: &str, pack_name: &str) -> (String, String) {
     let user = format!(
         "For the '{domain}' domain knowledge pack '{pack_name}', write concise values for these manifest fields. \
          Respond with ONLY a JSON object containing these exact keys: \
+         \"title\" (a short, human-readable display name for the pack, distinct from the machine-readable pack name), \
          \"audience\" (1-2 sentences describing the target user), \
          \"intended_use\" (1-2 sentences on how the pack should be used), \
          \"known_limitations\" (1-2 sentences on what the pack does not cover or guarantee). \
          Output ONLY the JSON object."
+    );
+    (system, user)
+}
+
+pub fn prompt_readme_contents(domain: &str, pack_name: &str, pack_summary: &str) -> (String, String) {
+    let system = base_system(domain, pack_name);
+    let user = format!(
+        "Write the \"Contents\" section of a README for the '{domain}' domain knowledge pack \
+         '{pack_name}'. Describe, in 2-4 short paragraphs or a bullet list, what this pack \
+         actually covers — the key topics, rule categories, and terminology a reader should \
+         expect to find, based on the summary below. Be specific to this pack's real content, \
+         not generic DKP boilerplate.\n\n\
+         Pack contents summary:\n{pack_summary}\n\n\
+         Output ONLY the section body in markdown (no \"## Contents\" heading, no surrounding \
+         explanation)."
     );
     (system, user)
 }
@@ -207,6 +252,52 @@ pub fn prompt_eval_score(
     (system, user)
 }
 
+pub fn prompt_consistency_check(
+    domain: &str,
+    pack_name: &str,
+    machine_bundle: &str,
+) -> (String, String) {
+    let system = "You are a domain QA reviewer checking a Domain Knowledge Pack's machine layer \
+                  for internal contradictions. Respond with ONLY a JSON object with keys: \
+                  \"consistent\" (bool), \"issues\" (list of objects with \"assets\" (list of str), \
+                  \"description\" (str), \"severity\" (\"error\" | \"warning\"))."
+        .to_string();
+    let user = format!(
+        "Review the following machine-layer assets for the '{domain}' domain pack '{pack_name}' \
+         and flag any internal contradictions between rules, constraints, glossary, and retrieval chunks \
+         (e.g. a rule that a constraint's hard_limits contradicts, or a chunk that uses a glossary term \
+         inconsistently with its definition). If there are no contradictions, return \
+         {{\"consistent\": true, \"issues\": []}}.\n\n\
+         Machine layer bundle:\n{machine_bundle}\n\n\
+         Output ONLY valid JSON, no explanation."
+    );
+    (system, user)
+}
+
+pub fn prompt_citation_check(
+    domain: &str,
+    claims_excerpt: &str,
+    sources_text: &str,
+) -> (String, String) {
+    let system = "You are a fact-checker verifying that a Domain Knowledge Pack's claims are \
+                  supported by its cited sources. Respond with ONLY a JSON object with key \
+                  \"unsupported_claims\", a list of objects with \"asset\" (str, which file the \
+                  claim is from), \"claim\" (str, the specific claim text), \"reason\" (str, why \
+                  it isn't supported by the sources)."
+        .to_string();
+    let user = format!(
+        "For the '{domain}' domain pack, check whether the claims below are supported by the \
+         provided sources. Flag specific, checkable factual claims (e.g. version numbers, dates, \
+         legal requirements) that are NOT backed by any source text. Do not flag general domain \
+         knowledge or structural content. If everything is supported, return \
+         {{\"unsupported_claims\": []}}.\n\n\
+         Claims to check:\n{claims_excerpt}\n\n\
+         Sources:\n{sources_text}\n\n\
+         Output ONLY valid JSON, no explanation."
+    );
+    (system, user)
+}
+
 pub fn prompt_fix_chunks(
     domain: &str,
     pack_name: &str,
@@ -224,4 +315,23 @@ pub fn prompt_fix_chunks(
          Each section should be independently useful when retrieved by an agent."
     );
     (system, user)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn prompt_chunks_raw_always_includes_min_max_guidance() {
+        let (_, user) = prompt_chunks_raw("testing", "Test Pack", "{}", 0);
+        assert!(user.contains("between 20 and approximately 60"));
+        assert!(!user.contains("You have already gathered"));
+    }
+
+    #[test]
+    fn prompt_chunks_raw_adds_source_scaling_guidance_when_sources_discovered() {
+        let (_, user) = prompt_chunks_raw("testing", "Test Pack", "{}", 7);
+        assert!(user.contains("You have already gathered 7 source(s)"));
+        assert!(user.contains("1-3 chunks per"));
+    }
 }

@@ -51,10 +51,28 @@ async fn generate_against_mock_server_writes_generated_assets() {
         .arg("--base-url")
         .arg(server.uri())
         .arg("--overwrite")
+        .arg("--no-tools")
         .assert()
         .success();
 
     let content = std::fs::read_to_string(pack.join("machine/rules.json")).unwrap();
     let rules: serde_json::Value = serde_json::from_str(&content).unwrap();
     assert_eq!(rules["rules"].as_array().unwrap().len(), 0);
+}
+
+#[tokio::test]
+async fn generate_with_tools_enabled_but_no_search_key_fails_fast() {
+    let tmp = TempDir::new().unwrap();
+    let pack = scaffold_pack(tmp.path(), "gen-no-search-key-pack", "testing");
+
+    dkp_cmd()
+        .arg("generate")
+        .arg(&pack)
+        .arg("--api-key")
+        .arg("test-key")
+        .env_remove("DKP_GEN_SEARCH_API_KEY")
+        .env("HOME", tmp.path()) // avoid picking up a real ~/.dkp/gen.toml
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("no search API key is set"));
 }

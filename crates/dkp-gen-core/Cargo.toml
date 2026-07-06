@@ -26,7 +26,9 @@ async-trait = { workspace = true }
 futures = { workspace = true }
 zip = { workspace = true }
 csv = { workspace = true }
+html2text = { workspace = true }
 
 [dev-dependencies]
 tempfile = { workspace = true }
 wiremock = { workspace = true }
+figment = { workspace = true, features = ["test"] }

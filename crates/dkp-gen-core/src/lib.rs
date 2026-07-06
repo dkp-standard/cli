@@ -6,8 +6,13 @@ pub mod fix;
 pub mod llm;
 pub mod pipeline;
 pub mod prompt;
+pub mod review;
+pub mod tools;
 
 pub use config::{CliOverrides, GenConfig};
 pub use error::{GenError, GenResult};
-pub use llm::{LlmClient, MockClient, OpenAiClient};
+pub use llm::{LlmClient, MockClient, MockToolClient, OpenAiClient};
 pub use pipeline::PipelineContext;
+pub use tools::discovered::DiscoveredSource;
+pub use tools::search::{MockSearchProvider, SearchProvider, SearchResult};
+pub use tools::{make_search_provider, GenToolExecutor, ToolExecutor, ToolSpec};
