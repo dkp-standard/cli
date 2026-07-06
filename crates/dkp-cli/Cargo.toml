@@ -93,3 +93,5 @@ assets = [
     { source = "../../docs/completions/dkp.fish", dest = "/usr/share/fish/vendor_completions.d/dkp.fish", mode = "644" },
 ]
 
+[profile.dev]
+incremental = false

@@ -50,6 +50,13 @@ pub async fn run(args: EvalArgs, ctx: &CmdCtx) -> Result<()> {
         api_key: args.api_key,
         model: args.model,
         overwrite: true,
+        // `dkp eval` measures what the pack adds over an unaided baseline
+        // answer; tool access would contaminate that comparison, so it's
+        // always disabled here regardless of global config.
+        no_tools: true,
+        instructions: None,
+        no_render_formats: true,
+        max_tool_turns: None,
     })?;
     if config.api_key.is_empty() {
         anyhow::bail!(

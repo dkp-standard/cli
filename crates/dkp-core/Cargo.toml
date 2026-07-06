@@ -10,7 +10,8 @@ documentation = "https://docs.rs/dkp-core"
 readme = "README.md"
 
 [features]
-default = []
+default = ["search"]
+search = ["dep:tantivy"]
 procedures = ["dep:wasmtime", "dep:wasmtime-wasi"]
 
 [dependencies]
@@ -19,7 +20,7 @@ serde_json = { workspace = true }
 serde_yaml = { workspace = true }
 thiserror = { workspace = true }
 anyhow = { workspace = true }
-tantivy = { workspace = true }
+tantivy = { workspace = true, optional = true }
 jsonschema = { workspace = true }
 figment = { workspace = true }
 csv = { workspace = true }

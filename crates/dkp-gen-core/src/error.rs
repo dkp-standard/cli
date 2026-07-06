@@ -28,6 +28,12 @@ pub enum GenError {
 
     #[error("asset skipped: {0}")]
     AssetSkipped(String),
+
+    #[error("tool loop error: {0}")]
+    ToolLoop(String),
+
+    #[error("tool '{name}' failed: {message}")]
+    ToolFailed { name: String, message: String },
 }
 
 pub type GenResult<T> = Result<T, GenError>;

@@ -38,6 +38,7 @@ pub enum DkpError {
     SchemaValidation { asset: String, violations: String },
 
     // Search
+    #[cfg(feature = "search")]
     #[error("search index error: {0}")]
     SearchIndex(String),
 

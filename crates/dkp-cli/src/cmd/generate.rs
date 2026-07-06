@@ -33,6 +33,23 @@ pub struct GenerateArgs {
 
     #[arg(long, value_name = "MODEL")]
     pub model: Option<String>,
+
+    /// Disable web_fetch/web_search tool use (on by default)
+    #[arg(long)]
+    pub no_tools: bool,
+
+    /// Skip rendering human/handbook.md to handbook.pdf/handbook.epub (on by default)
+    #[arg(long)]
+    pub no_render_formats: bool,
+
+    /// Extra free-text guidance appended to every generation prompt (e.g.
+    /// tone, focus areas, things to emphasize or avoid)
+    #[arg(long, value_name = "TEXT")]
+    pub instructions: Option<String>,
+
+    /// Max tool round-trips per generation call before giving up (default: 6)
+    #[arg(long, value_name = "N")]
+    pub max_tool_turns: Option<u32>,
 }
 
 pub async fn run(args: GenerateArgs, ctx: &CmdCtx) -> Result<()> {
@@ -46,11 +63,21 @@ pub async fn run(args: GenerateArgs, ctx: &CmdCtx) -> Result<()> {
         api_key: args.api_key,
         model: args.model,
         overwrite: args.overwrite,
+        no_tools: args.no_tools,
+        instructions: args.instructions,
+        no_render_formats: args.no_render_formats,
+        max_tool_turns: args.max_tool_turns,
     })?;
     if config.api_key.is_empty() {
         anyhow::bail!(
             "API key required: pass --api-key, set DKP_GEN_API_KEY, \
              or add api_key to ~/.dkp/gen.toml"
+        );
+    }
+    if config.tools_enabled && config.search_api_key.is_empty() {
+        anyhow::bail!(
+            "Tool use is enabled but no search API key is set: set DKP_GEN_SEARCH_API_KEY, \
+             add [search] api_key to ~/.dkp/gen.toml, or pass --no-tools."
         );
     }
 
@@ -76,6 +103,7 @@ pub async fn run(args: GenerateArgs, ctx: &CmdCtx) -> Result<()> {
     dkp_gen_core::pipeline::human::run(&gen_ctx).await?;
 
     dkp_gen_core::pipeline::manifest::update_meta(&gen_ctx).await?;
+    dkp_gen_core::pipeline::readme::update_readme(&gen_ctx).await?;
 
     if !ctx.quiet {
         println!("Done.");

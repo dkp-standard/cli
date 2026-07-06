@@ -136,12 +136,33 @@ pub async fn run(args: ValidateArgs, cli: &CmdCtx) -> Result<()> {
     };
 
     report.print(cli.output);
+    warn_if_handbook_formats_stale(&pack.root);
 
     if any_failed {
         anyhow::bail!("validation failed");
     }
 
     Ok(())
+}
+
+/// Non-blocking check for spec §11.2 ("SHOULD be regenerated whenever
+/// handbook.md changes"): warns if handbook.pdf/.epub exist but predate
+/// handbook.md. Never fails validation over this.
+pub(crate) fn warn_if_handbook_formats_stale(pack_root: &std::path::Path) {
+    let human_dir = pack_root.join("human");
+    let md_path = human_dir.join("handbook.md");
+    let Ok(md_mtime) = std::fs::metadata(&md_path).and_then(|m| m.modified()) else {
+        return;
+    };
+    for name in ["handbook.pdf", "handbook.epub"] {
+        if let Ok(mtime) = std::fs::metadata(human_dir.join(name)).and_then(|m| m.modified()) {
+            if mtime < md_mtime {
+                eprintln!(
+                    "  ⚠ human/{name} is older than handbook.md — consider `dkp render-handbook`"
+                );
+            }
+        }
+    }
 }
 
 /// Returns true only if review_notes.md contains the canonical sign-off line.

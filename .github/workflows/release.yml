@@ -311,7 +311,7 @@ jobs:
 
             **ARM64 Linux note:** The `aarch64` build ships without WASM procedure support (`--features tui,mcp,webui` only).
 
-            See [SHA256SUMS](SHA256SUMS) to verify downloads.
+            See [SHA256SUMS](https://github.com/dkp-standard/cli/releases/download/${{ github.ref_name }}/SHA256SUMS) to verify downloads.
 
   # ── Sigstore / cosign signing for Linux tarballs ───────────────────────────
   sign-linux:

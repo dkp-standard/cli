@@ -14,6 +14,26 @@ pub async fn run(ctx: &PipelineContext) -> GenResult<()> {
     r2?;
     r3?;
     r4?;
+    render_handbook(ctx)?;
+    Ok(())
+}
+
+/// Renders `human/handbook.md` to `handbook.pdf`/`handbook.epub` (DKP spec
+/// §11.2), unless disabled via `--no-render-formats`. Per-format failures
+/// are surfaced as warnings, never a hard error, since these renderings
+/// are optional.
+fn render_handbook(ctx: &PipelineContext) -> GenResult<()> {
+    if !ctx.config.render_formats {
+        return Ok(());
+    }
+    let md_path = ctx.human_path().join("handbook.md");
+    let Ok(markdown) = std::fs::read_to_string(&md_path) else {
+        return Ok(());
+    };
+    let report = crate::render::render_handbook_formats(&markdown, &ctx.human_path())?;
+    for w in &report.warnings {
+        ctx.report_warning(w);
+    }
     Ok(())
 }
 

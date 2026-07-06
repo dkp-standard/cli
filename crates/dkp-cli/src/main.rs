@@ -32,6 +32,7 @@ async fn run(cli: Cli) -> Result<()> {
         Commands::Diff(args) => cmd::diff::run(args, &ctx).await,
         // Phase 3
         Commands::Build(args) => cmd::build::run(args, &ctx).await,
+        Commands::RenderHandbook(args) => cmd::render_handbook::run(args, &ctx).await,
         Commands::ReleaseCheck(args) => cmd::release_check::run(args, &ctx).await,
         Commands::Rights(args) => cmd::rights::run(args, &ctx).await,
         // Phase 4

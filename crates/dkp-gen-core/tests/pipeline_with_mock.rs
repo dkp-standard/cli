@@ -43,6 +43,10 @@ fn happy_path_fixtures() -> HashMap<String, String> {
         "evaluation entries".to_string(),
         r#"{"query": "q1", "expected_dimensions": [], "critical_must_include": [], "scoring_rubric": "r"}"#.to_string(),
     );
+    m.insert(
+        "internal contradictions".to_string(),
+        r#"{"consistent": true, "issues": []}"#.to_string(),
+    );
     m
 }
 

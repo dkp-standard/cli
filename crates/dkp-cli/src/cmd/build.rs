@@ -35,6 +35,11 @@ pub struct BuildArgs {
     /// Regenerate machine/mcp_manifest.json before packaging
     #[arg(long)]
     pub gen_mcp_manifest: bool,
+
+    /// Render human/handbook.md to handbook.pdf/handbook.epub before
+    /// packaging, if missing or older than handbook.md
+    #[arg(long)]
+    pub render_handbook: bool,
 }
 
 pub async fn run(args: BuildArgs, _cli: &CmdCtx) -> Result<()> {
@@ -53,6 +58,8 @@ pub async fn run(args: BuildArgs, _cli: &CmdCtx) -> Result<()> {
 
     let out_dir = args.out.unwrap_or_else(|| pack_dir.join("build"));
     fs::create_dir_all(&out_dir)?;
+
+    maybe_render_handbook(&pack_dir, args.render_handbook)?;
 
     let files = collect_files(&pack_dir, args.no_human)?;
 
@@ -119,6 +126,57 @@ pub async fn run(args: BuildArgs, _cli: &CmdCtx) -> Result<()> {
     println!("            {}", checksums_path.display());
     println!("  Files:    {}", files.len() + 1); // +1 for checksums.json inside archive
     Ok(())
+}
+
+// ── Handbook rendering ───────────────────────────────────────────────────────
+
+/// If `render_handbook` is set and `human/handbook.md` exists, (re)renders
+/// `handbook.pdf`/`handbook.epub` when either is missing or older than
+/// `handbook.md`. If not set, just warns when the rendered formats look stale
+/// — packaging still proceeds either way, since these artifacts are optional
+/// per spec §11.2.
+fn maybe_render_handbook(pack_dir: &Path, render_handbook: bool) -> Result<()> {
+    let human_dir = pack_dir.join("human");
+    let md_path = human_dir.join("handbook.md");
+    if !md_path.exists() {
+        return Ok(());
+    }
+
+    if !handbook_formats_stale(&human_dir) {
+        return Ok(());
+    }
+
+    if render_handbook {
+        let markdown = fs::read_to_string(&md_path)?;
+        let report = dkp_gen_core::render_handbook_formats(&markdown, &human_dir)?;
+        for w in &report.warnings {
+            eprintln!("  ⚠ {w}");
+        }
+    } else {
+        eprintln!(
+            "  ⚠ human/handbook.pdf or .epub is missing or older than handbook.md — \
+             pass --render-handbook or run `dkp render-handbook` to refresh"
+        );
+    }
+    Ok(())
+}
+
+/// True if either rendered format is missing or older than `handbook.md`.
+fn handbook_formats_stale(human_dir: &Path) -> bool {
+    let md_mtime = match fs::metadata(human_dir.join("handbook.md")).and_then(|m| m.modified()) {
+        Ok(t) => t,
+        Err(_) => return false,
+    };
+    for name in ["handbook.pdf", "handbook.epub"] {
+        let stale = match fs::metadata(human_dir.join(name)).and_then(|m| m.modified()) {
+            Ok(t) => t < md_mtime,
+            Err(_) => true, // missing counts as stale
+        };
+        if stale {
+            return true;
+        }
+    }
+    false
 }
 
 // ── File collection ──────────────────────────────────────────────────────────

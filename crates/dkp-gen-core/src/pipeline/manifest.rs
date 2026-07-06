@@ -14,13 +14,14 @@ pub async fn update_meta(ctx: &PipelineContext) -> GenResult<()> {
     let content = std::fs::read_to_string(&manifest_path)?;
     let mut manifest: Value = serde_json::from_str(&content)?;
 
-    let needs_fill = ["audience", "intended_use", "known_limitations"]
+    let is_placeholder = |s: &str| s.trim().is_empty() || s.starts_with("TODO");
+    let needs_fill = ["audience", "intended_use", "known_limitations", "title"]
         .iter()
         .any(|f| {
             manifest[f]
                 .as_str()
-                .map(|s| s.trim().is_empty() || s.starts_with("TODO"))
-                .unwrap_or(true)
+                .map(is_placeholder)
+                .unwrap_or(*f != "title") // title is optional: absent is fine, but a TODO placeholder isn't
         });
 
     if needs_fill {
@@ -31,6 +32,18 @@ pub async fn update_meta(ctx: &PipelineContext) -> GenResult<()> {
                 if let Some(v) = meta[field].as_str() {
                     if !v.trim().is_empty() {
                         manifest[field] = Value::String(v.to_string());
+                    }
+                }
+            }
+            // title is optional and only overwritten if it's a placeholder/absent.
+            let title_is_placeholder = manifest["title"]
+                .as_str()
+                .map(is_placeholder)
+                .unwrap_or(true);
+            if title_is_placeholder {
+                if let Some(v) = meta["title"].as_str() {
+                    if !v.trim().is_empty() {
+                        manifest["title"] = Value::String(v.to_string());
                     }
                 }
             }
@@ -133,6 +146,46 @@ mod tests {
         assert_eq!(manifest["audience"], "filled audience");
         assert_eq!(manifest["intended_use"], "filled use");
         assert_eq!(manifest["known_limitations"], "filled limits");
+    }
+
+    #[tokio::test]
+    async fn update_meta_replaces_todo_title_but_leaves_real_title_alone() {
+        let tmp = TempDir::new().unwrap();
+        std::fs::write(
+            tmp.path().join("manifest.json"),
+            r#"{"audience": "a", "intended_use": "b", "known_limitations": "c", "title": "TODO: human-readable display name", "update_date": "2020-01-01"}"#,
+        )
+        .unwrap();
+        let mut fixtures = HashMap::new();
+        fixtures.insert(
+            "manifest".to_string(),
+            r#"{"title": "Real Pack Title", "audience": "a", "intended_use": "b", "known_limitations": "c"}"#.to_string(),
+        );
+        let ctx = test_ctx(&tmp, fixtures);
+
+        update_meta(&ctx).await.unwrap();
+
+        let content = std::fs::read_to_string(tmp.path().join("manifest.json")).unwrap();
+        let manifest: Value = serde_json::from_str(&content).unwrap();
+        assert_eq!(manifest["title"], "Real Pack Title");
+    }
+
+    #[tokio::test]
+    async fn update_meta_does_not_call_llm_when_title_absent_and_others_filled() {
+        let tmp = TempDir::new().unwrap();
+        std::fs::write(
+            tmp.path().join("manifest.json"),
+            r#"{"audience": "a", "intended_use": "b", "known_limitations": "c", "update_date": "2020-01-01"}"#,
+        )
+        .unwrap();
+        // No fixtures registered; if the LLM were called this would error out.
+        let ctx = test_ctx(&tmp, HashMap::new());
+
+        update_meta(&ctx).await.unwrap();
+
+        let content = std::fs::read_to_string(tmp.path().join("manifest.json")).unwrap();
+        let manifest: Value = serde_json::from_str(&content).unwrap();
+        assert!(manifest["title"].is_null());
     }
 
     #[test]

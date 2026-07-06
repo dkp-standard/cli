@@ -382,6 +382,8 @@ fn readme_md(name: &str, domain: &str) -> String {
          dkp info .\n\
          dkp validate .\n\
          dkp inject . --scope system-prompt\n\
+         dkp tui .\n\
+         dkp webui .\n\
          ```\n\
          \n\
          ## Contents\n\

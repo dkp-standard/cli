@@ -105,6 +105,10 @@ pub enum Commands {
     /// Package a pack into a versioned archive with checksums.json
     Build(crate::cmd::build::BuildArgs),
 
+    /// Render human/handbook.md to handbook.pdf/handbook.epub (spec §11.2)
+    #[command(name = "render-handbook")]
+    RenderHandbook(crate::cmd::render_handbook::RenderHandbookArgs),
+
     /// Pre-release compliance checklist (runs all gates, checks human fields)
     #[command(name = "release-check")]
     ReleaseCheck(crate::cmd::release_check::ReleaseCheckArgs),

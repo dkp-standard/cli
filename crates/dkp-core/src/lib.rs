@@ -5,6 +5,7 @@ pub mod okf;
 pub mod pack;
 pub mod procedures;
 pub mod registry;
+#[cfg(feature = "search")]
 pub mod search;
 pub mod trust;
 pub mod types;
