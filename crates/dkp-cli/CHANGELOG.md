@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.4](https://github.com/dkp-standard/cli/compare/dkp-v0.3.3...dkp-v0.3.4) - 2026-07-05
+
+### Fixed
+
+- *(dkp-cli)* correct dkp binary asset path in package manifest
+
+### Other
+
+- Merge branch 'main' of github.com:dkp-standard/cli
+- improve CI workflows, add DCO config, update README links
+
 ## [0.3.3](https://github.com/dkp-standard/cli/compare/dkp-v0.3.2...dkp-v0.3.3) - 2026-07-05
 
 ### Other
