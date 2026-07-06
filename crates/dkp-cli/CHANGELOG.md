@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.2](https://github.com/dkp-standard/cli/compare/dkp-v0.4.1...dkp-v0.4.2) - 2026-07-06
+
+### Other
+
+- Merge branch 'main' of github.com:dkp-standard/cli
+- ensure webui assets are built and included in release
+
 ## [0.4.1](https://github.com/dkp-standard/cli/compare/dkp-v0.4.0...dkp-v0.4.1) - 2026-07-06
 
 ### Added
