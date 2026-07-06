@@ -119,12 +119,12 @@ fn pack_to_summary(pack: &Pack, path: &Path) -> PackSummary {
 }
 
 fn passes_filters(pack: &Pack, domain: &Option<String>, tier: &Option<String>) -> bool {
-    if let Some(ref d) = domain {
+    if let Some(d) = domain {
         if slugify_domain(&pack.manifest.domain) != slugify_domain(d) {
             return false;
         }
     }
-    if let Some(ref t) = tier {
+    if let Some(t) = tier {
         if !pack
             .manifest
             .tags

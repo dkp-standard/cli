@@ -138,7 +138,7 @@ fn add_source_interactive(pack: &Pack) -> Result<()> {
     let mut stdout = io::stdout();
 
     macro_rules! prompt {
-        ($label:expr) => {{
+        ($label:expr_2021) => {{
             print!("{}: ", $label);
             stdout.flush()?;
             let mut line = String::new();

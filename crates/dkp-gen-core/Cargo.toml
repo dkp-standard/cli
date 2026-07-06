@@ -35,6 +35,3 @@ pulldown-cmark = "0.13.4"
 tempfile = { workspace = true }
 wiremock = { workspace = true }
 figment = { workspace = true, features = ["test"] }
-
-[profile.dev]
-incremental = false

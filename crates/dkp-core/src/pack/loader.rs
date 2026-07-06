@@ -168,7 +168,7 @@ impl Pack {
 
 fn validate_required_fields(m: &Manifest) -> DkpResult<()> {
     macro_rules! require {
-        ($field:expr, $name:literal) => {
+        ($field:expr_2021, $name:literal) => {
             if $field.trim().is_empty() {
                 return Err(DkpError::ManifestFieldMissing { field: $name });
             }
