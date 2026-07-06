@@ -9,6 +9,16 @@ homepage = "https://dkp-standard.com"
 documentation = "https://docs.rs/dkp"
 readme = "README.md"
 build = "build.rs"
+# `include` replaces cargo's default (VCS-tracked) file set entirely, so the
+# normal source tree must be listed explicitly alongside dist/, which is
+# gitignored (build output) but must ship in the published crate so build.rs
+# can embed the real webui assets instead of falling back to its stub.
+include = [
+  "/src/**/*.rs",
+  "/build.rs",
+  "/README.md",
+  "/src/cmd/webui/web/dist/**/*",
+]
 
 [lib]
 name = "dkp"
