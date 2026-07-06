@@ -30,9 +30,10 @@ pub async fn update_meta(ctx: &PipelineContext) -> GenResult<()> {
         if let Ok(meta) = extract_json(&raw) {
             for field in ["audience", "intended_use", "known_limitations"] {
                 if let Some(v) = meta[field].as_str()
-                    && !v.trim().is_empty() {
-                        manifest[field] = Value::String(v.to_string());
-                    }
+                    && !v.trim().is_empty()
+                {
+                    manifest[field] = Value::String(v.to_string());
+                }
             }
             // title is optional and only overwritten if it's a placeholder/absent.
             let title_is_placeholder = manifest["title"]
@@ -41,9 +42,10 @@ pub async fn update_meta(ctx: &PipelineContext) -> GenResult<()> {
                 .unwrap_or(true);
             if title_is_placeholder
                 && let Some(v) = meta["title"].as_str()
-                    && !v.trim().is_empty() {
-                        manifest["title"] = Value::String(v.to_string());
-                    }
+                && !v.trim().is_empty()
+            {
+                manifest["title"] = Value::String(v.to_string());
+            }
         }
     }
 
