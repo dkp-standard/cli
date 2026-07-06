@@ -40,7 +40,7 @@ json\:"Pretty-printed JSON"))' \
 _arguments "${_arguments_options[@]}" : \
 '--domain=[Top-level domain category (e.g. "Health", "Finance")]:DOMAIN:_default' \
 '--out=[Output directory (default\: ./<name-slug>/)]:OUT:_files' \
-'--title=[Human-readable display name for the pack (defaults to a TODO placeholder)]:TITLE:_default' \
+'--title=[Human-readable display name for the pack (defaults to a title-cased form of \`name\`)]:TITLE:_default' \
 '--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
 table\:"Aligned table using comfy-table"
 json\:"Pretty-printed JSON"))' \

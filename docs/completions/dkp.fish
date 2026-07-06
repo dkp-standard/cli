@@ -75,7 +75,7 @@ complete -c dkp -n "__fish_dkp_needs_command" -f -a "registry" -d 'Registry acco
 complete -c dkp -n "__fish_dkp_needs_command" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
 complete -c dkp -n "__fish_dkp_using_subcommand init" -l domain -d 'Top-level domain category (e.g. "Health", "Finance")' -r
 complete -c dkp -n "__fish_dkp_using_subcommand init" -l out -d 'Output directory (default: ./<name-slug>/)' -r -F
-complete -c dkp -n "__fish_dkp_using_subcommand init" -l title -d 'Human-readable display name for the pack (defaults to a TODO placeholder)' -r
+complete -c dkp -n "__fish_dkp_using_subcommand init" -l title -d 'Human-readable display name for the pack (defaults to a title-cased form of `name`)' -r
 complete -c dkp -n "__fish_dkp_using_subcommand init" -l output -d 'Output format' -r -f -a "plain\t'Human-readable plain text (default)'
 table\t'Aligned table using comfy-table'
 json\t'Pretty-printed JSON'"

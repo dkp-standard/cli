@@ -1,6 +1,6 @@
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
-.TH dkp-init 1  "init 0.4.2" 
+.TH dkp-init 1  "init 0.4.3" 
 .SH NAME
 dkp\-init \- Scaffold a new DKP pack directory with all required files
 .SH SYNOPSIS
@@ -43,7 +43,7 @@ Print debug info (schema paths, provider calls, etc.)
 Filter content to assets tagged for a specific audience profile
 .TP
 \fB\-\-title\fR \fI<TITLE>\fR
-Human\-readable display name for the pack (defaults to a TODO placeholder)
+Human\-readable display name for the pack (defaults to a title\-cased form of `name`)
 .TP
 \fB\-\-force\fR
 Overwrite if directory already exists
@@ -57,4 +57,4 @@ Print version
 <\fINAME\fR>
 Scoped pack name (e.g. "@scope/my\-pack")
 .SH VERSION
-v0.4.2
+v0.4.3

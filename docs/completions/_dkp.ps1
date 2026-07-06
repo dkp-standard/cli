@@ -77,7 +77,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
         'dkp;init' {
             [CompletionResult]::new('--domain', '--domain', [CompletionResultType]::ParameterName, 'Top-level domain category (e.g. "Health", "Finance")')
             [CompletionResult]::new('--out', '--out', [CompletionResultType]::ParameterName, 'Output directory (default: ./<name-slug>/)')
-            [CompletionResult]::new('--title', '--title', [CompletionResultType]::ParameterName, 'Human-readable display name for the pack (defaults to a TODO placeholder)')
+            [CompletionResult]::new('--title', '--title', [CompletionResultType]::ParameterName, 'Human-readable display name for the pack (defaults to a title-cased form of `name`)')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('--extras', '--extras', [CompletionResultType]::ParameterName, 'Also scaffold optional recommended assets: eval_set.jsonl, knowledge_graph.json, human/handbook.md, README.md, CHANGELOG.md')
