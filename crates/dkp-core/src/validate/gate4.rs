@@ -70,28 +70,31 @@ pub fn run(pack: &Pack) -> GateResult {
 
         if let Ok(Some(gf)) = pack.load_glossary() {
             for t in &gf.terms {
-                if let Some(ref sr) = t.source_ref {
-                    if sr != "generated" && !known_ids.contains(sr.as_str()) {
-                        unresolved.push(format!("term/{}: {sr}", t.id));
-                    }
+                if let Some(ref sr) = t.source_ref
+                    && sr != "generated"
+                    && !known_ids.contains(sr.as_str())
+                {
+                    unresolved.push(format!("term/{}: {sr}", t.id));
                 }
             }
         }
         if let Ok(Some(rf)) = pack.load_rules() {
             for r in &rf.rules {
-                if let Some(ref sr) = r.source_ref {
-                    if sr != "generated" && !known_ids.contains(sr.as_str()) {
-                        unresolved.push(format!("rule/{}: {sr}", r.id));
-                    }
+                if let Some(ref sr) = r.source_ref
+                    && sr != "generated"
+                    && !known_ids.contains(sr.as_str())
+                {
+                    unresolved.push(format!("rule/{}: {sr}", r.id));
                 }
             }
         }
         if let Ok(Some(cf)) = pack.load_constraints() {
             for c in cf.all_constraints() {
-                if let Some(ref sr) = c.source_ref {
-                    if sr != "generated" && !known_ids.contains(sr.as_str()) {
-                        unresolved.push(format!("constraint/{}: {sr}", c.id));
-                    }
+                if let Some(ref sr) = c.source_ref
+                    && sr != "generated"
+                    && !known_ids.contains(sr.as_str())
+                {
+                    unresolved.push(format!("constraint/{}: {sr}", c.id));
                 }
             }
         }

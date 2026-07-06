@@ -232,15 +232,15 @@ fn run_subprocess(
         .name(format!("dkp-proc-watchdog-{}", def.id))
         .spawn(move || {
             std::thread::sleep(Duration::from_millis(timeout_ms));
-            if let Ok(mut guard) = watchdog_shared.lock() {
-                if let Some(ref mut c) = *guard {
-                    let _ = c.kill();
-                    killed_flag.store(true, Ordering::SeqCst);
-                    eprintln!(
-                        "dkp: procedure '{}' killed after {}ms timeout",
-                        id_for_watchdog, timeout_ms
-                    );
-                }
+            if let Ok(mut guard) = watchdog_shared.lock()
+                && let Some(ref mut c) = *guard
+            {
+                let _ = c.kill();
+                killed_flag.store(true, Ordering::SeqCst);
+                eprintln!(
+                    "dkp: procedure '{}' killed after {}ms timeout",
+                    id_for_watchdog, timeout_ms
+                );
             }
         })
         .map_err(|e| DkpError::ProcedureTrap {

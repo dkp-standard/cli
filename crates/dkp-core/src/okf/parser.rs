@@ -14,22 +14,21 @@ pub struct OkfConcept {
 pub fn parse_concept(path: &Path) -> DkpResult<OkfConcept> {
     let content = std::fs::read_to_string(path)?;
 
-    if let Some(stripped) = content.strip_prefix("---\n") {
-        if let Some(end) = stripped.find("\n---\n") {
-            let yaml_str = &stripped[..end];
-            let body = stripped[end + 5..].to_string();
-            let frontmatter: serde_yaml::Value = serde_yaml::from_str(yaml_str).map_err(|e| {
-                crate::error::DkpError::OkfFrontmatter {
-                    file: path.display().to_string(),
-                    reason: e.to_string(),
-                }
+    if let Some(stripped) = content.strip_prefix("---\n")
+        && let Some(end) = stripped.find("\n---\n")
+    {
+        let yaml_str = &stripped[..end];
+        let body = stripped[end + 5..].to_string();
+        let frontmatter: serde_yaml::Value =
+            serde_yaml::from_str(yaml_str).map_err(|e| crate::error::DkpError::OkfFrontmatter {
+                file: path.display().to_string(),
+                reason: e.to_string(),
             })?;
-            return Ok(OkfConcept {
-                path: path.to_path_buf(),
-                frontmatter,
-                body,
-            });
-        }
+        return Ok(OkfConcept {
+            path: path.to_path_buf(),
+            frontmatter,
+            body,
+        });
     }
 
     Err(crate::error::DkpError::OkfFrontmatter {
