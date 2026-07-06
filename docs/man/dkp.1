@@ -1,6 +1,6 @@
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
-.TH dkp 1  "dkp 0.3.4" 
+.TH dkp 1  "dkp 0.4.0" 
 .SH NAME
 dkp \- Manage, inspect, search, and deploy Domain Knowledge Packs
 .SH SYNOPSIS
@@ -82,6 +82,9 @@ Compare two pack versions and report what changed
 dkp\-build(1)
 Package a pack into a versioned archive with checksums.json
 .TP
+dkp\-render\-handbook(1)
+Render human/handbook.md to handbook.pdf/handbook.epub (spec §11.2)
+.TP
 dkp\-release\-check(1)
 Pre\-release compliance checklist (runs all gates, checks human fields)
 .TP
@@ -157,4 +160,4 @@ Mark a published version as deprecated (or clear a prior deprecation with \-\-un
 dkp\-registry(1)
 Registry account and pack management (login, logout, keys, access)
 .SH VERSION
-v0.3.4
+v0.4.0

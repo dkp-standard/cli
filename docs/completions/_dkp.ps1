@@ -45,6 +45,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             [CompletionResult]::new('prompt', 'prompt', [CompletionResultType]::ParameterValue, 'Interactive grounded prompt REPL for testing a pack')
             [CompletionResult]::new('diff', 'diff', [CompletionResultType]::ParameterValue, 'Compare two pack versions and report what changed')
             [CompletionResult]::new('build', 'build', [CompletionResultType]::ParameterValue, 'Package a pack into a versioned archive with checksums.json')
+            [CompletionResult]::new('render-handbook', 'render-handbook', [CompletionResultType]::ParameterValue, 'Render human/handbook.md to handbook.pdf/handbook.epub (spec §11.2)')
             [CompletionResult]::new('release-check', 'release-check', [CompletionResultType]::ParameterValue, 'Pre-release compliance checklist (runs all gates, checks human fields)')
             [CompletionResult]::new('rights', 'rights', [CompletionResultType]::ParameterValue, 'Source and rights log operations')
             [CompletionResult]::new('mcp-manifest', 'mcp-manifest', [CompletionResultType]::ParameterValue, 'Generate or regenerate machine/mcp_manifest.json')
@@ -384,6 +385,20 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('--no-human', '--no-human', [CompletionResultType]::ParameterName, 'Exclude human/ assets (machine-only distribution)')
             [CompletionResult]::new('--gen-mcp-manifest', '--gen-mcp-manifest', [CompletionResultType]::ParameterName, 'Regenerate machine/mcp_manifest.json before packaging')
+            [CompletionResult]::new('--render-handbook', '--render-handbook', [CompletionResultType]::ParameterName, 'Render human/handbook.md to handbook.pdf/handbook.epub before packaging, if missing or older than handbook.md')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('-V', '-V ', [CompletionResultType]::ParameterName, 'Print version')
+            [CompletionResult]::new('--version', '--version', [CompletionResultType]::ParameterName, 'Print version')
+            break
+        }
+        'dkp;render-handbook' {
+            [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
+            [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
@@ -455,6 +470,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
         'dkp;rights;add-source' {
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
+            [CompletionResult]::new('--from-discovered', '--from-discovered', [CompletionResultType]::ParameterName, 'Promote entries from build/sources_discovered.jsonl instead of prompting for a brand-new source from scratch')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
@@ -947,11 +963,15 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             [CompletionResult]::new('--api-key', '--api-key', [CompletionResultType]::ParameterName, 'api-key')
             [CompletionResult]::new('--base-url', '--base-url', [CompletionResultType]::ParameterName, 'base-url')
             [CompletionResult]::new('--model', '--model', [CompletionResultType]::ParameterName, 'model')
+            [CompletionResult]::new('--instructions', '--instructions', [CompletionResultType]::ParameterName, 'Extra free-text guidance appended to every generation prompt (e.g. tone, focus areas, things to emphasize or avoid)')
+            [CompletionResult]::new('--max-tool-turns', '--max-tool-turns', [CompletionResultType]::ParameterName, 'Max tool round-trips per generation call before giving up (default: 6)')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('--overwrite', '--overwrite', [CompletionResultType]::ParameterName, 'Overwrite already-generated assets')
             [CompletionResult]::new('--skip-validate', '--skip-validate', [CompletionResultType]::ParameterName, 'Skip validation step')
             [CompletionResult]::new('--skip-package', '--skip-package', [CompletionResultType]::ParameterName, 'Skip packaging step')
+            [CompletionResult]::new('--no-tools', '--no-tools', [CompletionResultType]::ParameterName, 'Disable web_fetch/web_search tool use (on by default)')
+            [CompletionResult]::new('--no-render-formats', '--no-render-formats', [CompletionResultType]::ParameterName, 'Skip rendering human/handbook.md to handbook.pdf/handbook.epub (on by default)')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
@@ -966,9 +986,13 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             [CompletionResult]::new('--api-key', '--api-key', [CompletionResultType]::ParameterName, 'api-key')
             [CompletionResult]::new('--base-url', '--base-url', [CompletionResultType]::ParameterName, 'base-url')
             [CompletionResult]::new('--model', '--model', [CompletionResultType]::ParameterName, 'model')
+            [CompletionResult]::new('--instructions', '--instructions', [CompletionResultType]::ParameterName, 'Extra free-text guidance appended to every generation prompt (e.g. tone, focus areas, things to emphasize or avoid)')
+            [CompletionResult]::new('--max-tool-turns', '--max-tool-turns', [CompletionResultType]::ParameterName, 'Max tool round-trips per generation call before giving up (default: 6)')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
             [CompletionResult]::new('--overwrite', '--overwrite', [CompletionResultType]::ParameterName, 'Overwrite existing assets')
+            [CompletionResult]::new('--no-tools', '--no-tools', [CompletionResultType]::ParameterName, 'Disable web_fetch/web_search tool use (on by default)')
+            [CompletionResult]::new('--no-render-formats', '--no-render-formats', [CompletionResultType]::ParameterName, 'Skip rendering human/handbook.md to handbook.pdf/handbook.epub (on by default)')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
@@ -983,8 +1007,12 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             [CompletionResult]::new('--api-key', '--api-key', [CompletionResultType]::ParameterName, 'api-key')
             [CompletionResult]::new('--base-url', '--base-url', [CompletionResultType]::ParameterName, 'base-url')
             [CompletionResult]::new('--model', '--model', [CompletionResultType]::ParameterName, 'model')
+            [CompletionResult]::new('--instructions', '--instructions', [CompletionResultType]::ParameterName, 'Extra free-text guidance appended to every generation prompt (e.g. tone, focus areas, things to emphasize or avoid)')
+            [CompletionResult]::new('--max-tool-turns', '--max-tool-turns', [CompletionResultType]::ParameterName, 'Max tool round-trips per generation call before giving up (default: 6)')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
+            [CompletionResult]::new('--no-tools', '--no-tools', [CompletionResultType]::ParameterName, 'Disable web_fetch/web_search tool use (on by default)')
+            [CompletionResult]::new('--no-render-formats', '--no-render-formats', [CompletionResultType]::ParameterName, 'Skip rendering human/handbook.md to handbook.pdf/handbook.epub (on by default)')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
@@ -996,8 +1024,12 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;review' {
+            [CompletionResult]::new('--api-key', '--api-key', [CompletionResultType]::ParameterName, 'api-key')
+            [CompletionResult]::new('--base-url', '--base-url', [CompletionResultType]::ParameterName, 'base-url')
+            [CompletionResult]::new('--model', '--model', [CompletionResultType]::ParameterName, 'model')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
+            [CompletionResult]::new('--no-citations', '--no-citations', [CompletionResultType]::ParameterName, 'Skip the citation-checking pass even if an API key and discovered sources are available')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
@@ -1467,6 +1499,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             [CompletionResult]::new('prompt', 'prompt', [CompletionResultType]::ParameterValue, 'Interactive grounded prompt REPL for testing a pack')
             [CompletionResult]::new('diff', 'diff', [CompletionResultType]::ParameterValue, 'Compare two pack versions and report what changed')
             [CompletionResult]::new('build', 'build', [CompletionResultType]::ParameterValue, 'Package a pack into a versioned archive with checksums.json')
+            [CompletionResult]::new('render-handbook', 'render-handbook', [CompletionResultType]::ParameterValue, 'Render human/handbook.md to handbook.pdf/handbook.epub (spec §11.2)')
             [CompletionResult]::new('release-check', 'release-check', [CompletionResultType]::ParameterValue, 'Pre-release compliance checklist (runs all gates, checks human fields)')
             [CompletionResult]::new('rights', 'rights', [CompletionResultType]::ParameterValue, 'Source and rights log operations')
             [CompletionResult]::new('mcp-manifest', 'mcp-manifest', [CompletionResultType]::ParameterValue, 'Generate or regenerate machine/mcp_manifest.json')
@@ -1555,6 +1588,9 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;help;build' {
+            break
+        }
+        'dkp;help;render-handbook' {
             break
         }
         'dkp;help;release-check' {

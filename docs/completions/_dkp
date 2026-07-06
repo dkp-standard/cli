@@ -442,6 +442,24 @@ json\:"Pretty-printed JSON"))' \
 '--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
 '--no-human[Exclude human/ assets (machine-only distribution)]' \
 '--gen-mcp-manifest[Regenerate machine/mcp_manifest.json before packaging]' \
+'--render-handbook[Render human/handbook.md to handbook.pdf/handbook.epub before packaging, if missing or older than handbook.md]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP bundle directory:_files' \
+&& ret=0
+;;
+(render-handbook)
+_arguments "${_arguments_options[@]}" : \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
 '-q[Suppress informational output; print only results]' \
 '--quiet[Suppress informational output; print only results]' \
 '-v[Print debug info (schema paths, provider calls, etc.)]' \
@@ -534,6 +552,7 @@ _arguments "${_arguments_options[@]}" : \
 table\:"Aligned table using comfy-table"
 json\:"Pretty-printed JSON"))' \
 '--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--from-discovered[Promote entries from build/sources_discovered.jsonl instead of prompting for a brand-new source from scratch]' \
 '-q[Suppress informational output; print only results]' \
 '--quiet[Suppress informational output; print only results]' \
 '-v[Print debug info (schema paths, provider calls, etc.)]' \
@@ -1241,6 +1260,8 @@ _arguments "${_arguments_options[@]}" : \
 '--api-key=[]:KEY:_default' \
 '--base-url=[]:URL:_default' \
 '--model=[]:MODEL:_default' \
+'--instructions=[Extra free-text guidance appended to every generation prompt (e.g. tone, focus areas, things to emphasize or avoid)]:TEXT:_default' \
+'--max-tool-turns=[Max tool round-trips per generation call before giving up (default\: 6)]:N:_default' \
 '--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
 table\:"Aligned table using comfy-table"
 json\:"Pretty-printed JSON"))' \
@@ -1248,6 +1269,8 @@ json\:"Pretty-printed JSON"))' \
 '--overwrite[Overwrite already-generated assets]' \
 '--skip-validate[Skip validation step]' \
 '--skip-package[Skip packaging step]' \
+'--no-tools[Disable web_fetch/web_search tool use (on by default)]' \
+'--no-render-formats[Skip rendering human/handbook.md to handbook.pdf/handbook.epub (on by default)]' \
 '-q[Suppress informational output; print only results]' \
 '--quiet[Suppress informational output; print only results]' \
 '-v[Print debug info (schema paths, provider calls, etc.)]' \
@@ -1264,11 +1287,15 @@ _arguments "${_arguments_options[@]}" : \
 '--api-key=[]:KEY:_default' \
 '--base-url=[]:URL:_default' \
 '--model=[]:MODEL:_default' \
+'--instructions=[Extra free-text guidance appended to every generation prompt (e.g. tone, focus areas, things to emphasize or avoid)]:TEXT:_default' \
+'--max-tool-turns=[Max tool round-trips per generation call before giving up (default\: 6)]:N:_default' \
 '--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
 table\:"Aligned table using comfy-table"
 json\:"Pretty-printed JSON"))' \
 '--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
 '--overwrite[Overwrite existing assets]' \
+'--no-tools[Disable web_fetch/web_search tool use (on by default)]' \
+'--no-render-formats[Skip rendering human/handbook.md to handbook.pdf/handbook.epub (on by default)]' \
 '-q[Suppress informational output; print only results]' \
 '--quiet[Suppress informational output; print only results]' \
 '-v[Print debug info (schema paths, provider calls, etc.)]' \
@@ -1286,10 +1313,14 @@ _arguments "${_arguments_options[@]}" : \
 '--api-key=[]:KEY:_default' \
 '--base-url=[]:URL:_default' \
 '--model=[]:MODEL:_default' \
+'--instructions=[Extra free-text guidance appended to every generation prompt (e.g. tone, focus areas, things to emphasize or avoid)]:TEXT:_default' \
+'--max-tool-turns=[Max tool round-trips per generation call before giving up (default\: 6)]:N:_default' \
 '--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
 table\:"Aligned table using comfy-table"
 json\:"Pretty-printed JSON"))' \
 '--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--no-tools[Disable web_fetch/web_search tool use (on by default)]' \
+'--no-render-formats[Skip rendering human/handbook.md to handbook.pdf/handbook.epub (on by default)]' \
 '-q[Suppress informational output; print only results]' \
 '--quiet[Suppress informational output; print only results]' \
 '-v[Print debug info (schema paths, provider calls, etc.)]' \
@@ -1303,10 +1334,14 @@ json\:"Pretty-printed JSON"))' \
 ;;
 (review)
 _arguments "${_arguments_options[@]}" : \
+'--api-key=[]:KEY:_default' \
+'--base-url=[]:URL:_default' \
+'--model=[]:MODEL:_default' \
 '--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
 table\:"Aligned table using comfy-table"
 json\:"Pretty-printed JSON"))' \
 '--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--no-citations[Skip the citation-checking pass even if an API key and discovered sources are available]' \
 '-q[Suppress informational output; print only results]' \
 '--quiet[Suppress informational output; print only results]' \
 '-v[Print debug info (schema paths, provider calls, etc.)]' \
@@ -2060,6 +2095,10 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
+(render-handbook)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
 (release-check)
 _arguments "${_arguments_options[@]}" : \
 && ret=0
@@ -2434,6 +2473,7 @@ _dkp_commands() {
 'prompt:Interactive grounded prompt REPL for testing a pack' \
 'diff:Compare two pack versions and report what changed' \
 'build:Package a pack into a versioned archive with checksums.json' \
+'render-handbook:Render human/handbook.md to handbook.pdf/handbook.epub (spec §11.2)' \
 'release-check:Pre-release compliance checklist (runs all gates, checks human fields)' \
 'rights:Source and rights log operations' \
 'mcp-manifest:Generate or regenerate machine/mcp_manifest.json' \
@@ -2623,6 +2663,7 @@ _dkp__subcmd__help_commands() {
 'prompt:Interactive grounded prompt REPL for testing a pack' \
 'diff:Compare two pack versions and report what changed' \
 'build:Package a pack into a versioned archive with checksums.json' \
+'render-handbook:Render human/handbook.md to handbook.pdf/handbook.epub (spec §11.2)' \
 'release-check:Pre-release compliance checklist (runs all gates, checks human fields)' \
 'rights:Source and rights log operations' \
 'mcp-manifest:Generate or regenerate machine/mcp_manifest.json' \
@@ -2969,6 +3010,11 @@ _dkp__subcmd__help__subcmd__registry__subcmd__token__subcmd__rotate_commands() {
 _dkp__subcmd__help__subcmd__release-check_commands() {
     local commands; commands=()
     _describe -t commands 'dkp help release-check commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__render-handbook_commands] )) ||
+_dkp__subcmd__help__subcmd__render-handbook_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help render-handbook commands' commands "$@"
 }
 (( $+functions[_dkp__subcmd__help__subcmd__review_commands] )) ||
 _dkp__subcmd__help__subcmd__review_commands() {
@@ -3584,6 +3630,11 @@ _dkp__subcmd__registry__subcmd__token__subcmd__rotate_commands() {
 _dkp__subcmd__release-check_commands() {
     local commands; commands=()
     _describe -t commands 'dkp release-check commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__render-handbook_commands] )) ||
+_dkp__subcmd__render-handbook_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp render-handbook commands' commands "$@"
 }
 (( $+functions[_dkp__subcmd__review_commands] )) ||
 _dkp__subcmd__review_commands() {

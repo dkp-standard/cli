@@ -1,10 +1,10 @@
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
-.TH dkp-build 1  "build 0.3.4" 
+.TH dkp-build 1  "build 0.4.0" 
 .SH NAME
 dkp\-build \- Package a pack into a versioned archive with checksums.json
 .SH SYNOPSIS
-\fBdkp build\fR [\fB\-\-format\fR] [\fB\-\-output\fR] [\fB\-\-out\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-no\-human\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-\-gen\-mcp\-manifest\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIPACK\fR> 
+\fBdkp build\fR [\fB\-\-format\fR] [\fB\-\-output\fR] [\fB\-\-out\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-no\-human\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-\-gen\-mcp\-manifest\fR] [\fB\-\-render\-handbook\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIPACK\fR> 
 .SH DESCRIPTION
 Package a pack into a versioned archive with checksums.json
 .SH OPTIONS
@@ -45,6 +45,9 @@ Filter content to assets tagged for a specific audience profile
 \fB\-\-gen\-mcp\-manifest\fR
 Regenerate machine/mcp_manifest.json before packaging
 .TP
+\fB\-\-render\-handbook\fR
+Render human/handbook.md to handbook.pdf/handbook.epub before packaging, if missing or older than handbook.md
+.TP
 \fB\-h\fR, \fB\-\-help\fR
 Print help (see a summary with \*(Aq\-h\*(Aq)
 .TP
@@ -54,4 +57,4 @@ Print version
 <\fIPACK\fR>
 Path to the DKP bundle directory
 .SH VERSION
-v0.3.4
+v0.4.0

@@ -1,10 +1,10 @@
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
-.TH dkp-new 1  "new 0.3.4" 
+.TH dkp-new 1  "new 0.4.0" 
 .SH NAME
 dkp\-new \- Scaffold + LLM\-generate a complete pack in one command
 .SH SYNOPSIS
-\fBdkp new\fR <\fB\-\-domain\fR> [\fB\-\-output\fR] [\fB\-\-dir\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-api\-key\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-\-base\-url\fR] [\fB\-\-model\fR] [\fB\-\-overwrite\fR] [\fB\-\-skip\-validate\fR] [\fB\-\-skip\-package\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fINAME\fR> 
+\fBdkp new\fR <\fB\-\-domain\fR> [\fB\-\-output\fR] [\fB\-\-dir\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-api\-key\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-\-base\-url\fR] [\fB\-\-model\fR] [\fB\-\-overwrite\fR] [\fB\-\-skip\-validate\fR] [\fB\-\-skip\-package\fR] [\fB\-\-no\-tools\fR] [\fB\-\-no\-render\-formats\fR] [\fB\-\-instructions\fR] [\fB\-\-max\-tool\-turns\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fINAME\fR> 
 .SH DESCRIPTION
 Scaffold + LLM\-generate a complete pack in one command
 .SH OPTIONS
@@ -57,6 +57,18 @@ Skip validation step
 \fB\-\-skip\-package\fR
 Skip packaging step
 .TP
+\fB\-\-no\-tools\fR
+Disable web_fetch/web_search tool use (on by default)
+.TP
+\fB\-\-no\-render\-formats\fR
+Skip rendering human/handbook.md to handbook.pdf/handbook.epub (on by default)
+.TP
+\fB\-\-instructions\fR \fI<TEXT>\fR
+Extra free\-text guidance appended to every generation prompt (e.g. tone, focus areas, things to emphasize or avoid)
+.TP
+\fB\-\-max\-tool\-turns\fR \fI<N>\fR
+Max tool round\-trips per generation call before giving up (default: 6)
+.TP
 \fB\-h\fR, \fB\-\-help\fR
 Print help (see a summary with \*(Aq\-h\*(Aq)
 .TP
@@ -66,4 +78,4 @@ Print version
 <\fINAME\fR>
 Pack name (e.g. "Kubernetes Networking")
 .SH VERSION
-v0.3.4
+v0.4.0

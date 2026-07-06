@@ -1,10 +1,10 @@
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
-.TH dkp-fix 1  "fix 0.3.4" 
+.TH dkp-fix 1  "fix 0.4.0" 
 .SH NAME
 dkp\-fix \- Failure\-aware chunk regeneration using eval results
 .SH SYNOPSIS
-\fBdkp fix\fR [\fB\-\-api\-key\fR] [\fB\-\-output\fR] [\fB\-\-base\-url\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-model\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIPACK\fR> 
+\fBdkp fix\fR [\fB\-\-api\-key\fR] [\fB\-\-output\fR] [\fB\-\-base\-url\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-model\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-\-no\-tools\fR] [\fB\-\-no\-render\-formats\fR] [\fB\-\-instructions\fR] [\fB\-\-max\-tool\-turns\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIPACK\fR> 
 .SH DESCRIPTION
 Failure\-aware chunk regeneration using eval results
 .SH OPTIONS
@@ -42,6 +42,18 @@ Print debug info (schema paths, provider calls, etc.)
 \fB\-\-audience\fR \fI<ID>\fR
 Filter content to assets tagged for a specific audience profile
 .TP
+\fB\-\-no\-tools\fR
+Disable web_fetch/web_search tool use (on by default)
+.TP
+\fB\-\-no\-render\-formats\fR
+Skip rendering human/handbook.md to handbook.pdf/handbook.epub (on by default)
+.TP
+\fB\-\-instructions\fR \fI<TEXT>\fR
+Extra free\-text guidance appended to every generation prompt (e.g. tone, focus areas, things to emphasize or avoid)
+.TP
+\fB\-\-max\-tool\-turns\fR \fI<N>\fR
+Max tool round\-trips per generation call before giving up (default: 6)
+.TP
 \fB\-h\fR, \fB\-\-help\fR
 Print help (see a summary with \*(Aq\-h\*(Aq)
 .TP
@@ -51,4 +63,4 @@ Print version
 <\fIPACK\fR>
 Path to the DKP pack directory
 .SH VERSION
-v0.3.4
+v0.4.0
