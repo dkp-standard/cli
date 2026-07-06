@@ -29,7 +29,12 @@ pub async fn update_readme(ctx: &PipelineContext) -> GenResult<()> {
 /// generated section, preserving the title/tagline/Quick Start block that
 /// `dkp init` scaffolds above it. Falls back to a minimal README shell if no
 /// "## Contents" heading is found (e.g. a hand-edited or missing README).
-fn splice_contents_section(existing: &str, pack_name: &str, domain: &str, contents: &str) -> String {
+fn splice_contents_section(
+    existing: &str,
+    pack_name: &str,
+    domain: &str,
+    contents: &str,
+) -> String {
     const HEADING: &str = "## Contents";
     match existing.find(HEADING) {
         Some(idx) => {
@@ -70,7 +75,12 @@ fn build_pack_summary(ctx: &PipelineContext) -> String {
     .to_string()
 }
 
-fn json_array_field(path: &std::path::Path, array_key: &str, item_key: &str, take: usize) -> Vec<String> {
+fn json_array_field(
+    path: &std::path::Path,
+    array_key: &str,
+    item_key: &str,
+    take: usize,
+) -> Vec<String> {
     let Ok(content) = std::fs::read_to_string(path) else {
         return Vec::new();
     };
@@ -134,7 +144,10 @@ mod tests {
         update_readme(&ctx).await.unwrap();
 
         let content = std::fs::read_to_string(tmp.path().join("README.md")).unwrap();
-        assert!(content.contains("dkp info ."), "Quick Start block should survive");
+        assert!(
+            content.contains("dkp info ."),
+            "Quick Start block should survive"
+        );
         assert!(content.contains("widget troubleshooting rules"));
         assert!(!content.contains("TODO"));
     }

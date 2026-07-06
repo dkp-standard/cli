@@ -52,7 +52,9 @@ async fn generate_rules(
     }
     let (sys, user) = templates::prompt_rules(&ctx.domain, &ctx.pack_name);
     let sys = grounded_system(sys, tools);
-    let raw = ctx.generate_maybe_tools("rules", &sys, &user, tools).await?;
+    let raw = ctx
+        .generate_maybe_tools("rules", &sys, &user, tools)
+        .await?;
     let value = extract_json(&raw)?;
     ctx.write_json(&path, &value)?;
     Ok(value)

@@ -97,7 +97,11 @@ mod tests {
 
         let report = render_handbook_formats(markdown, tmp.path()).unwrap();
 
-        assert!(report.warnings.is_empty(), "warnings: {:?}", report.warnings);
+        assert!(
+            report.warnings.is_empty(),
+            "warnings: {:?}",
+            report.warnings
+        );
         assert!(report.pdf_written);
         assert!(report.epub_written);
 
@@ -113,7 +117,11 @@ mod tests {
     fn renders_empty_markdown_without_error() {
         let tmp = TempDir::new().unwrap();
         let report = render_handbook_formats("", tmp.path()).unwrap();
-        assert!(report.warnings.is_empty(), "warnings: {:?}", report.warnings);
+        assert!(
+            report.warnings.is_empty(),
+            "warnings: {:?}",
+            report.warnings
+        );
         assert!(report.pdf_written);
         assert!(report.epub_written);
     }

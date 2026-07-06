@@ -76,7 +76,10 @@ impl DiscoveredLog {
         }
         let mut line = serde_json::to_string(entry)?;
         line.push('\n');
-        let mut file = OpenOptions::new().create(true).append(true).open(&self.path)?;
+        let mut file = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(&self.path)?;
         file.write_all(line.as_bytes())?;
         Ok(())
     }
@@ -96,7 +99,11 @@ fn format_rfc3339(unix_secs: u64) -> String {
     const DAYS_PER_400Y: i64 = 146_097;
     let days_since_epoch = (unix_secs / 86_400) as i64;
     let secs_of_day = unix_secs % 86_400;
-    let (hour, min, sec) = (secs_of_day / 3600, (secs_of_day / 60) % 60, secs_of_day % 60);
+    let (hour, min, sec) = (
+        secs_of_day / 3600,
+        (secs_of_day / 60) % 60,
+        secs_of_day % 60,
+    );
 
     // Civil-from-days algorithm (Howard Hinnant), epoch = 1970-01-01.
     let z = days_since_epoch + 719_468;
@@ -133,7 +140,8 @@ mod tests {
         let content =
             std::fs::read_to_string(tmp.path().join("build/sources_discovered.jsonl")).unwrap();
         assert_eq!(content.lines().count(), 1);
-        let parsed: DiscoveredSource = serde_json::from_str(content.lines().next().unwrap()).unwrap();
+        let parsed: DiscoveredSource =
+            serde_json::from_str(content.lines().next().unwrap()).unwrap();
         assert_eq!(parsed.url, "https://example.com");
         assert_eq!(parsed.via, "web_fetch");
     }

@@ -192,7 +192,11 @@ pub fn prompt_manifest_meta(domain: &str, pack_name: &str) -> (String, String) {
     (system, user)
 }
 
-pub fn prompt_readme_contents(domain: &str, pack_name: &str, pack_summary: &str) -> (String, String) {
+pub fn prompt_readme_contents(
+    domain: &str,
+    pack_name: &str,
+    pack_summary: &str,
+) -> (String, String) {
     let system = base_system(domain, pack_name);
     let user = format!(
         "Write the \"Contents\" section of a README for the '{domain}' domain knowledge pack \

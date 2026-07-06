@@ -206,7 +206,10 @@ fn add_sources_from_discovered(pack: &Pack) -> Result<()> {
             candidates.len()
         );
         println!("  URL:          {}", candidate.url);
-        println!("  Title:        {}", candidate.title.as_deref().unwrap_or("(none)"));
+        println!(
+            "  Title:        {}",
+            candidate.title.as_deref().unwrap_or("(none)")
+        );
         println!("  Retrieved at: {}", candidate.retrieved_at);
         println!("  Via:          {}", candidate.via);
 
@@ -250,7 +253,14 @@ fn add_sources_from_discovered(pack: &Pack) -> Result<()> {
 
         append_source_record(
             pack,
-            [&id, &title, &candidate.url, &retrieved_date, &license, &notes],
+            [
+                &id,
+                &title,
+                &candidate.url,
+                &retrieved_date,
+                &license,
+                &notes,
+            ],
         )?;
         println!("  Added as '{id}'.");
         next_id += 1;

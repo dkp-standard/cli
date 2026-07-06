@@ -28,9 +28,7 @@ pub fn make_search_provider(config: &GenConfig) -> GenResult<Option<Arc<dyn Sear
         }
         other => Err(GenError::ToolFailed {
             name: "web_search".to_string(),
-            message: format!(
-                "unknown search_provider '{other}' — supported providers: brave"
-            ),
+            message: format!("unknown search_provider '{other}' — supported providers: brave"),
         }),
     }
 }

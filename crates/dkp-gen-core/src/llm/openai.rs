@@ -143,7 +143,10 @@ impl LlmClient for OpenAiClient {
             let json = self.post_chat(&body).await?;
             let message = json["choices"][0]["message"].clone();
 
-            let tool_calls = message["tool_calls"].as_array().cloned().unwrap_or_default();
+            let tool_calls = message["tool_calls"]
+                .as_array()
+                .cloned()
+                .unwrap_or_default();
             if tool_calls.is_empty() {
                 if let Some(text) = message["content"].as_str() {
                     return Ok(text.to_string());
@@ -265,7 +268,10 @@ mod tests {
 
         async fn execute(&self, name: &str, arguments: &Value) -> GenResult<String> {
             assert_eq!(name, "echo");
-            Ok(format!("echoed: {}", arguments["text"].as_str().unwrap_or_default()))
+            Ok(format!(
+                "echoed: {}",
+                arguments["text"].as_str().unwrap_or_default()
+            ))
         }
     }
 

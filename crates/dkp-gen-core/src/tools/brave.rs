@@ -126,8 +126,7 @@ mod tests {
             .await;
 
         let provider =
-            BraveSearchProvider::with_base_url("test-brave-key".to_string(), server.uri())
-                .unwrap();
+            BraveSearchProvider::with_base_url("test-brave-key".to_string(), server.uri()).unwrap();
         let results = provider.search("rust async traits", 5).await.unwrap();
         assert_eq!(results.len(), 2);
         assert_eq!(results[0].url, "https://example.com/a");
@@ -144,8 +143,8 @@ mod tests {
             .mount(&server)
             .await;
 
-        let provider = BraveSearchProvider::with_base_url("bad-key".to_string(), server.uri())
-            .unwrap();
+        let provider =
+            BraveSearchProvider::with_base_url("bad-key".to_string(), server.uri()).unwrap();
         let err = provider.search("query", 5).await.unwrap_err();
         assert!(matches!(err, GenError::ToolFailed { .. }));
     }
@@ -156,14 +155,14 @@ mod tests {
         Mock::given(method("GET"))
             .and(path("/web/search"))
             .respond_with(
-                ResponseTemplate::new(200).set_body_json(serde_json::json!({"web": {"results": []}})),
+                ResponseTemplate::new(200)
+                    .set_body_json(serde_json::json!({"web": {"results": []}})),
             )
             .mount(&server)
             .await;
 
         let provider =
-            BraveSearchProvider::with_base_url("test-brave-key".to_string(), server.uri())
-                .unwrap();
+            BraveSearchProvider::with_base_url("test-brave-key".to_string(), server.uri()).unwrap();
         let results = provider.search("query", 5).await.unwrap();
         assert!(results.is_empty());
     }
