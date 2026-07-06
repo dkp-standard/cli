@@ -43,13 +43,11 @@ async fn generate_rules(
     tools: Option<&GenToolExecutor>,
 ) -> GenResult<Value> {
     let path = ctx.machine_path().join("rules.json");
-    if !ctx.should_generate(&path) {
-        if let Ok(content) = std::fs::read_to_string(&path) {
-            if let Ok(v) = serde_json::from_str(&content) {
+    if !ctx.should_generate(&path)
+        && let Ok(content) = std::fs::read_to_string(&path)
+            && let Ok(v) = serde_json::from_str(&content) {
                 return Ok(v);
             }
-        }
-    }
     let (sys, user) = templates::prompt_rules(&ctx.domain, &ctx.pack_name);
     let sys = grounded_system(sys, tools);
     let raw = ctx
@@ -65,13 +63,11 @@ async fn generate_ontology(
     tools: Option<&GenToolExecutor>,
 ) -> GenResult<Value> {
     let path = ctx.machine_path().join("ontology.json");
-    if !ctx.should_generate(&path) {
-        if let Ok(content) = std::fs::read_to_string(&path) {
-            if let Ok(v) = serde_json::from_str(&content) {
+    if !ctx.should_generate(&path)
+        && let Ok(content) = std::fs::read_to_string(&path)
+            && let Ok(v) = serde_json::from_str(&content) {
                 return Ok(v);
             }
-        }
-    }
     let (sys, user) = templates::prompt_ontology(&ctx.domain, &ctx.pack_name);
     let sys = grounded_system(sys, tools);
     let raw = ctx
@@ -87,13 +83,11 @@ async fn generate_glossary(
     tools: Option<&GenToolExecutor>,
 ) -> GenResult<Value> {
     let path = ctx.machine_path().join("glossary.json");
-    if !ctx.should_generate(&path) {
-        if let Ok(content) = std::fs::read_to_string(&path) {
-            if let Ok(v) = serde_json::from_str(&content) {
+    if !ctx.should_generate(&path)
+        && let Ok(content) = std::fs::read_to_string(&path)
+            && let Ok(v) = serde_json::from_str(&content) {
                 return Ok(v);
             }
-        }
-    }
     let (sys, user) = templates::prompt_glossary(&ctx.domain, &ctx.pack_name);
     let sys = grounded_system(sys, tools);
     let raw = ctx
@@ -116,13 +110,11 @@ fn grounded_system(sys: String, tools: Option<&GenToolExecutor>) -> String {
 
 async fn generate_constraints(ctx: &PipelineContext) -> GenResult<Value> {
     let path = ctx.machine_path().join("constraints.json");
-    if !ctx.should_generate(&path) {
-        if let Ok(content) = std::fs::read_to_string(&path) {
-            if let Ok(v) = serde_json::from_str(&content) {
+    if !ctx.should_generate(&path)
+        && let Ok(content) = std::fs::read_to_string(&path)
+            && let Ok(v) = serde_json::from_str(&content) {
                 return Ok(v);
             }
-        }
-    }
     let (sys, user) = templates::prompt_constraints(&ctx.domain, &ctx.pack_name);
     let raw = ctx.generate("constraints", &sys, &user).await?;
     let value = extract_json(&raw)?;
@@ -148,8 +140,8 @@ async fn generate_chunks(
     glossary: &Value,
 ) -> GenResult<Vec<RetrievalChunk>> {
     let path = ctx.machine_path().join("retrieval_chunks.jsonl");
-    if !ctx.should_generate(&path) {
-        if let Ok(content) = std::fs::read_to_string(&path) {
+    if !ctx.should_generate(&path)
+        && let Ok(content) = std::fs::read_to_string(&path) {
             let chunks: Vec<RetrievalChunk> = content
                 .lines()
                 .filter(|l| !l.trim().is_empty())
@@ -159,7 +151,6 @@ async fn generate_chunks(
                 return Ok(chunks);
             }
         }
-    }
     let context_bundle = build_context_bundle(&ctx.domain, ontology, glossary);
     let discovered_source_count = count_discovered_sources(ctx);
     let (sys, user) = templates::prompt_chunks_raw(

@@ -94,11 +94,10 @@ fn read_discovered(path: &std::path::Path) -> GenResult<Vec<DiscoveredSource>> {
 fn build_claims_excerpt(ctx: &PipelineContext) -> GenResult<String> {
     let mut excerpt = String::new();
     for name in ["rules.json", "glossary.json"] {
-        if let Ok(content) = std::fs::read_to_string(ctx.machine_path().join(name)) {
-            if let Ok(value) = serde_json::from_str::<Value>(&content) {
+        if let Ok(content) = std::fs::read_to_string(ctx.machine_path().join(name))
+            && let Ok(value) = serde_json::from_str::<Value>(&content) {
                 excerpt.push_str(&format!("{name}:\n{value}\n\n"));
             }
-        }
     }
     if let Ok(content) = std::fs::read_to_string(ctx.machine_path().join("retrieval_chunks.jsonl"))
     {

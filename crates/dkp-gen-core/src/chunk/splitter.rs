@@ -97,12 +97,11 @@ fn is_heading(line: &str) -> bool {
 fn is_significant_list_item(line: &str) -> bool {
     let trimmed = line.trim_start();
     // Numbered list: "1. Capital letter" or bold opener
-    if let Some(rest) = trimmed.split_once(". ") {
-        if rest.0.parse::<u32>().is_ok() {
+    if let Some(rest) = trimmed.split_once(". ")
+        && rest.0.parse::<u32>().is_ok() {
             let after = rest.1;
             return after.starts_with(|c: char| c.is_uppercase()) || after.starts_with("**");
         }
-    }
     // Bullet: "- Capital letter" or "- **bold"
     if let Some(rest) = trimmed.strip_prefix("- ") {
         return rest.starts_with(|c: char| c.is_uppercase()) || rest.starts_with("**");
