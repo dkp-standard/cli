@@ -3,8 +3,8 @@ use clap::{Args, Subcommand};
 use std::collections::HashSet;
 use std::path::PathBuf;
 
-use comfy_table::{presets::UTF8_FULL, Table};
-use dkp_core::{types::cross_refs::CrossRefsFile, Pack};
+use comfy_table::{Table, presets::UTF8_FULL};
+use dkp_core::{Pack, types::cross_refs::CrossRefsFile};
 
 use crate::cli::CmdCtx;
 

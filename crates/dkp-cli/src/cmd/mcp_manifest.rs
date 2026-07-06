@@ -20,8 +20,8 @@ pub struct McpManifestArgs {
 
 pub async fn run(args: McpManifestArgs, _cli: &CmdCtx) -> Result<()> {
     use dkp_core::{
-        types::mcp_manifest::{McpManifest, McpResource, McpTool},
         Pack,
+        types::mcp_manifest::{McpManifest, McpResource, McpTool},
     };
 
     let pack = Pack::open(&args.pack)?;

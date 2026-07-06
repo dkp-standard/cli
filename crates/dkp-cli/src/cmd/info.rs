@@ -3,9 +3,9 @@ use clap::Args;
 use serde::Serialize;
 use std::path::PathBuf;
 
-use dkp_core::{procedures, Pack};
+use dkp_core::{Pack, procedures};
 
-use comfy_table::{presets::UTF8_FULL, Table};
+use comfy_table::{Table, presets::UTF8_FULL};
 
 use crate::{cli::CmdCtx, output::Render};
 

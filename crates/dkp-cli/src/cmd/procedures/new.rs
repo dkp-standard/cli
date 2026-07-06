@@ -3,8 +3,8 @@ use clap::Args;
 use std::path::PathBuf;
 
 use dkp_core::{
-    procedures::scaffold::{self, scaffold_script},
     Pack,
+    procedures::scaffold::{self, scaffold_script},
 };
 
 use crate::cli::CmdCtx;

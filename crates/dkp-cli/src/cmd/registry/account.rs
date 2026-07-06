@@ -1,4 +1,4 @@
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use clap::{Args, Subcommand};
 use std::path::PathBuf;
 
@@ -326,7 +326,9 @@ async fn await_verification(base: &str, email: &str, http: &reqwest::Client) -> 
         let _ = std::io::stdout().flush();
     }
 
-    bail!("Timed out waiting for verification. Run 'dkp registry login' again once you've clicked the link.");
+    bail!(
+        "Timed out waiting for verification. Run 'dkp registry login' again once you've clicked the link."
+    );
 }
 
 // --- Credential storage helpers ---

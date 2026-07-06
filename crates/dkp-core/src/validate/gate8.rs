@@ -159,10 +159,12 @@ mod tests {
 
         let result = run(&pack);
         assert_eq!(result.status, GateStatus::Pass);
-        assert!(result
-            .checks
-            .iter()
-            .any(|c| c.description.contains("bundle.sig") && c.status == GateStatus::Skipped));
+        assert!(
+            result
+                .checks
+                .iter()
+                .any(|c| c.description.contains("bundle.sig") && c.status == GateStatus::Skipped)
+        );
     }
 
     #[test]
@@ -179,9 +181,11 @@ mod tests {
 
         let result = run(&pack);
         assert_eq!(result.status, GateStatus::Pass);
-        assert!(result
-            .checks
-            .iter()
-            .any(|c| c.description == "bundle.sig present" && c.status == GateStatus::Pass));
+        assert!(
+            result
+                .checks
+                .iter()
+                .any(|c| c.description == "bundle.sig present" && c.status == GateStatus::Pass)
+        );
     }
 }

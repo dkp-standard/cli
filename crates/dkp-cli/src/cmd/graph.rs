@@ -3,7 +3,7 @@ use clap::{Args, Subcommand};
 use std::collections::{BTreeMap, HashSet};
 use std::path::PathBuf;
 
-use comfy_table::{presets::UTF8_FULL, Table};
+use comfy_table::{Table, presets::UTF8_FULL};
 use dkp_core::Pack;
 
 use crate::cli::CmdCtx;

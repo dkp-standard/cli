@@ -125,8 +125,7 @@ mod tests {
 
     #[test]
     fn splits_on_headings() {
-        let raw =
-            "## Section A\nSome content here that is long enough to pass the filter threshold.\n\
+        let raw = "## Section A\nSome content here that is long enough to pass the filter threshold.\n\
                    ## Section B\nMore content here that is also long enough to pass the filter.";
         let chunks = split(raw, "test", "My Pack");
         assert!(!chunks.is_empty());

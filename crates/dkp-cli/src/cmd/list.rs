@@ -3,7 +3,7 @@ use clap::Args;
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 
-use dkp_core::{slugify_domain, Pack};
+use dkp_core::{Pack, slugify_domain};
 
 use crate::{cli::CmdCtx, output::Render};
 
@@ -68,7 +68,7 @@ impl Render for PackList {
     }
 
     fn render_table(&self) -> String {
-        use comfy_table::{presets::UTF8_FULL, Table};
+        use comfy_table::{Table, presets::UTF8_FULL};
         let mut table = Table::new();
         table.load_preset(UTF8_FULL);
         table.set_header([

@@ -3,8 +3,8 @@ use clap::Args;
 use std::path::PathBuf;
 
 use dkp_core::{
-    validate::{gate4, gate7, gate8, gates::GateStatus},
     Pack,
+    validate::{gate4, gate7, gate8, gates::GateStatus},
 };
 
 use crate::cli::CmdCtx;

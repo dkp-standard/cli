@@ -1,4 +1,4 @@
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use clap::Args;
 use serde::Serialize;
 use std::path::PathBuf;
@@ -83,25 +83,59 @@ pub fn get_assets(
     let id_owned = id.map(String::from);
     let items: Vec<serde_json::Value> = match asset_type.as_str() {
         "term" => {
-            let gf = pack.load_glossary()?.unwrap_or_else(|| dkp_core::types::glossary::GlossaryFile { terms: vec![] });
-            filter_items(gf.terms, &id_owned, by_id, |t| t.id.clone(), |t| t.term.clone())
+            let gf = pack
+                .load_glossary()?
+                .unwrap_or_else(|| dkp_core::types::glossary::GlossaryFile { terms: vec![] });
+            filter_items(
+                gf.terms,
+                &id_owned,
+                by_id,
+                |t| t.id.clone(),
+                |t| t.term.clone(),
+            )
         }
         "rule" => {
-            let rf = pack.load_rules()?.unwrap_or_else(|| dkp_core::types::rules::RulesFile { rules: vec![] });
-            filter_items(rf.rules, &id_owned, by_id, |r| r.id.clone(), |r| r.title.clone())
+            let rf = pack
+                .load_rules()?
+                .unwrap_or_else(|| dkp_core::types::rules::RulesFile { rules: vec![] });
+            filter_items(
+                rf.rules,
+                &id_owned,
+                by_id,
+                |r| r.id.clone(),
+                |r| r.title.clone(),
+            )
         }
         "chunk" => {
             let chunks = pack.load_chunks()?;
-            filter_items(chunks, &id_owned, by_id, |c| c.id.clone(), |c| c.title.clone())
+            filter_items(
+                chunks,
+                &id_owned,
+                by_id,
+                |c| c.id.clone(),
+                |c| c.title.clone(),
+            )
         }
         "constraint" => {
             let cf = pack.load_constraints()?;
-            let all: Vec<_> = cf.map(|c| c.all_constraints().cloned().collect()).unwrap_or_default();
+            let all: Vec<_> = cf
+                .map(|c| c.all_constraints().cloned().collect())
+                .unwrap_or_default();
             filter_items(all, &id_owned, by_id, |c| c.id.clone(), |c| c.title.clone())
         }
         "entity" => {
-            let of = pack.load_ontology()?.unwrap_or_else(|| dkp_core::types::ontology::OntologyFile { entity_types: vec![] });
-            filter_items(of.entity_types, &id_owned, by_id, |e| e.id.clone(), |e| e.name.clone())
+            let of =
+                pack.load_ontology()?
+                    .unwrap_or_else(|| dkp_core::types::ontology::OntologyFile {
+                        entity_types: vec![],
+                    });
+            filter_items(
+                of.entity_types,
+                &id_owned,
+                by_id,
+                |e| e.id.clone(),
+                |e| e.name.clone(),
+            )
         }
         "eval" => {
             let evals = pack.load_eval_set()?;
@@ -109,35 +143,46 @@ pub fn get_assets(
                 None => evals,
                 Some(q) => {
                     let q = q.to_lowercase();
-                    evals.into_iter().filter(|e| e.query.to_lowercase().contains(&q)).collect()
+                    evals
+                        .into_iter()
+                        .filter(|e| e.query.to_lowercase().contains(&q))
+                        .collect()
                 }
             };
-            filtered.into_iter().map(|e| serde_json::to_value(e).unwrap_or(serde_json::Value::Null)).collect()
+            filtered
+                .into_iter()
+                .map(|e| serde_json::to_value(e).unwrap_or(serde_json::Value::Null))
+                .collect()
         }
-        "graph" => {
-            match pack.load_graph()? {
-                None => vec![],
-                Some(g) => vec![serde_json::to_value(&g)?],
-            }
-        }
+        "graph" => match pack.load_graph()? {
+            None => vec![],
+            Some(g) => vec![serde_json::to_value(&g)?],
+        },
         "cross-ref" => {
             use dkp_core::types::cross_refs::CrossRefsFile;
             let path = pack.machine_file("cross_refs.json");
             if path.exists() {
                 let bytes = std::fs::read(&path)?;
                 let crf: CrossRefsFile = serde_json::from_slice(&bytes)?;
-                filter_items(crf.cross_refs, &id_owned, by_id, |c| c.pack_name.clone(), |c| c.pack_name.clone())
+                filter_items(
+                    crf.cross_refs,
+                    &id_owned,
+                    by_id,
+                    |c| c.pack_name.clone(),
+                    |c| c.pack_name.clone(),
+                )
             } else {
                 vec![]
             }
         }
-        "system-prompt" => {
-            match pack.load_system_prompt()? {
-                None => vec![],
-                Some(text) => vec![serde_json::json!({ "id": "system_prompt", "content": text })],
-            }
-        }
-        other => bail!("unknown asset type '{}'. Valid types: term, rule, chunk, constraint, entity, eval, graph, cross-ref, system-prompt", other),
+        "system-prompt" => match pack.load_system_prompt()? {
+            None => vec![],
+            Some(text) => vec![serde_json::json!({ "id": "system_prompt", "content": text })],
+        },
+        other => bail!(
+            "unknown asset type '{}'. Valid types: term, rule, chunk, constraint, entity, eval, graph, cross-ref, system-prompt",
+            other
+        ),
     };
     Ok(items)
 }
@@ -148,25 +193,65 @@ pub async fn run(args: GetArgs, cli: &CmdCtx) -> Result<()> {
 
     let items: Vec<serde_json::Value> = match asset_type.as_str() {
         "term" => {
-            let gf = pack.load_glossary()?.unwrap_or_else(|| dkp_core::types::glossary::GlossaryFile { terms: vec![] });
-            filter_items(gf.terms, &args.id, args.by_id, |t| t.id.clone(), |t| t.term.clone())
+            let gf = pack
+                .load_glossary()?
+                .unwrap_or_else(|| dkp_core::types::glossary::GlossaryFile { terms: vec![] });
+            filter_items(
+                gf.terms,
+                &args.id,
+                args.by_id,
+                |t| t.id.clone(),
+                |t| t.term.clone(),
+            )
         }
         "rule" => {
-            let rf = pack.load_rules()?.unwrap_or_else(|| dkp_core::types::rules::RulesFile { rules: vec![] });
-            filter_items(rf.rules, &args.id, args.by_id, |r| r.id.clone(), |r| r.title.clone())
+            let rf = pack
+                .load_rules()?
+                .unwrap_or_else(|| dkp_core::types::rules::RulesFile { rules: vec![] });
+            filter_items(
+                rf.rules,
+                &args.id,
+                args.by_id,
+                |r| r.id.clone(),
+                |r| r.title.clone(),
+            )
         }
         "chunk" => {
             let chunks = pack.load_chunks()?;
-            filter_items(chunks, &args.id, args.by_id, |c| c.id.clone(), |c| c.title.clone())
+            filter_items(
+                chunks,
+                &args.id,
+                args.by_id,
+                |c| c.id.clone(),
+                |c| c.title.clone(),
+            )
         }
         "constraint" => {
             let cf = pack.load_constraints()?;
-            let all: Vec<_> = cf.map(|c| c.all_constraints().cloned().collect()).unwrap_or_default();
-            filter_items(all, &args.id, args.by_id, |c| c.id.clone(), |c| c.title.clone())
+            let all: Vec<_> = cf
+                .map(|c| c.all_constraints().cloned().collect())
+                .unwrap_or_default();
+            filter_items(
+                all,
+                &args.id,
+                args.by_id,
+                |c| c.id.clone(),
+                |c| c.title.clone(),
+            )
         }
         "entity" => {
-            let of = pack.load_ontology()?.unwrap_or_else(|| dkp_core::types::ontology::OntologyFile { entity_types: vec![] });
-            filter_items(of.entity_types, &args.id, args.by_id, |e| e.id.clone(), |e| e.name.clone())
+            let of =
+                pack.load_ontology()?
+                    .unwrap_or_else(|| dkp_core::types::ontology::OntologyFile {
+                        entity_types: vec![],
+                    });
+            filter_items(
+                of.entity_types,
+                &args.id,
+                args.by_id,
+                |e| e.id.clone(),
+                |e| e.name.clone(),
+            )
         }
         "eval" => {
             let evals = pack.load_eval_set()?;
@@ -175,38 +260,49 @@ pub async fn run(args: GetArgs, cli: &CmdCtx) -> Result<()> {
                 None => evals,
                 Some(q) => {
                     let q = q.to_lowercase();
-                    evals.into_iter().filter(|e| e.query.to_lowercase().contains(&q)).collect()
+                    evals
+                        .into_iter()
+                        .filter(|e| e.query.to_lowercase().contains(&q))
+                        .collect()
                 }
             };
-            filtered.into_iter().map(|e| serde_json::to_value(e).unwrap_or(serde_json::Value::Null)).collect()
+            filtered
+                .into_iter()
+                .map(|e| serde_json::to_value(e).unwrap_or(serde_json::Value::Null))
+                .collect()
         }
-        "graph" => {
-            match pack.load_graph()? {
-                None => vec![],
-                Some(g) => {
-                    let v = serde_json::to_value(&g)?;
-                    vec![v]
-                }
+        "graph" => match pack.load_graph()? {
+            None => vec![],
+            Some(g) => {
+                let v = serde_json::to_value(&g)?;
+                vec![v]
             }
-        }
+        },
         "cross-ref" => {
             use dkp_core::types::cross_refs::CrossRefsFile;
             let path = pack.machine_file("cross_refs.json");
             if path.exists() {
                 let bytes = std::fs::read(&path)?;
                 let crf: CrossRefsFile = serde_json::from_slice(&bytes)?;
-                filter_items(crf.cross_refs, &args.id, args.by_id, |c| c.pack_name.clone(), |c| c.pack_name.clone())
+                filter_items(
+                    crf.cross_refs,
+                    &args.id,
+                    args.by_id,
+                    |c| c.pack_name.clone(),
+                    |c| c.pack_name.clone(),
+                )
             } else {
                 vec![]
             }
         }
-        "system-prompt" => {
-            match pack.load_system_prompt()? {
-                None => vec![],
-                Some(text) => vec![serde_json::json!({ "id": "system_prompt", "content": text })],
-            }
-        }
-        other => bail!("unknown asset type '{}'. Valid types: term, rule, chunk, constraint, entity, eval, graph, cross-ref, system-prompt", other),
+        "system-prompt" => match pack.load_system_prompt()? {
+            None => vec![],
+            Some(text) => vec![serde_json::json!({ "id": "system_prompt", "content": text })],
+        },
+        other => bail!(
+            "unknown asset type '{}'. Valid types: term, rule, chunk, constraint, entity, eval, graph, cross-ref, system-prompt",
+            other
+        ),
     };
 
     if items.is_empty() {

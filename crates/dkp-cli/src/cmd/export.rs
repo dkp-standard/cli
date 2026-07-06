@@ -1,8 +1,8 @@
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use clap::Args;
 use std::path::PathBuf;
 
-use dkp_core::{okf::exporter::export_okf, Pack};
+use dkp_core::{Pack, okf::exporter::export_okf};
 
 use crate::cli::CmdCtx;
 
@@ -36,12 +36,16 @@ pub async fn run(args: ExportArgs, _cli: &CmdCtx) -> Result<()> {
             println!("  Entities:    {}", stats.ontology_written);
         }
         "langchain" => {
-            let out_dir = args.out.unwrap_or_else(|| PathBuf::from("./langchain_export"));
+            let out_dir = args
+                .out
+                .unwrap_or_else(|| PathBuf::from("./langchain_export"));
             export_langchain(&pack, &out_dir)?;
             println!("LangChain export complete → {}", out_dir.display());
         }
         "llamaindex" => {
-            let out_dir = args.out.unwrap_or_else(|| PathBuf::from("./llamaindex_export"));
+            let out_dir = args
+                .out
+                .unwrap_or_else(|| PathBuf::from("./llamaindex_export"));
             export_llamaindex(&pack, &out_dir)?;
             println!("LlamaIndex export complete → {}", out_dir.display());
         }
@@ -51,7 +55,9 @@ pub async fn run(args: ExportArgs, _cli: &CmdCtx) -> Result<()> {
             println!("OpenAI Files export complete → {}", out_dir.display());
         }
         "markdown" => {
-            let out_dir = args.out.unwrap_or_else(|| PathBuf::from("./markdown_export"));
+            let out_dir = args
+                .out
+                .unwrap_or_else(|| PathBuf::from("./markdown_export"));
             export_markdown(&pack, &out_dir)?;
             println!("Markdown export complete → {}", out_dir.display());
         }

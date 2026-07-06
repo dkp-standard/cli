@@ -4,10 +4,10 @@ use std::collections::HashMap;
 use std::io::{self, BufRead, Write};
 use std::path::PathBuf;
 
-use comfy_table::{presets::UTF8_FULL, Cell, Color, Table};
+use comfy_table::{Cell, Color, Table, presets::UTF8_FULL};
 use dkp_core::{
-    types::evidence::{RightsRecord, SourceRecord},
     Pack,
+    types::evidence::{RightsRecord, SourceRecord},
 };
 
 use crate::cli::CmdCtx;

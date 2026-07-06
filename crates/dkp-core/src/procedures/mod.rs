@@ -9,7 +9,7 @@ pub use schema::{EntryPoint, ProcedureDef, ProcedureSchema};
 
 use std::path::Path;
 
-use crate::{error::DkpError, DkpResult, Pack};
+use crate::{DkpResult, Pack, error::DkpError};
 
 /// Enumerate all procedures defined in machine/procedures/.
 ///

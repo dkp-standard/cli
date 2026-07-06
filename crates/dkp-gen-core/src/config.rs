@@ -1,7 +1,7 @@
 use anyhow::Result;
 use figment::{
-    providers::{Env, Format, Toml},
     Figment,
+    providers::{Env, Format, Toml},
 };
 
 /// Configuration for generation commands.

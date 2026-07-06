@@ -245,10 +245,12 @@ mod tests {
 
         let result = run(&pack);
         assert_eq!(result.status, GateStatus::Fail);
-        assert!(result
-            .checks
-            .iter()
-            .any(|c| c.description.contains("glossary.json") && c.status == GateStatus::Fail));
+        assert!(
+            result
+                .checks
+                .iter()
+                .any(|c| c.description.contains("glossary.json") && c.status == GateStatus::Fail)
+        );
     }
 
     #[test]
@@ -259,10 +261,12 @@ mod tests {
 
         let result = run(&pack);
         assert_eq!(result.status, GateStatus::Fail);
-        assert!(result
-            .checks
-            .iter()
-            .any(|c| c.description.contains("rules.json") && c.status == GateStatus::Fail));
+        assert!(
+            result
+                .checks
+                .iter()
+                .any(|c| c.description.contains("rules.json") && c.status == GateStatus::Fail)
+        );
     }
 
     #[test]
@@ -270,10 +274,12 @@ mod tests {
         let tmp = TempDir::new().unwrap();
         let pack = complete_pack(&tmp);
         let result = run(&pack);
-        assert!(!result
-            .checks
-            .iter()
-            .any(|c| c.description == "source_ref resolution"));
+        assert!(
+            !result
+                .checks
+                .iter()
+                .any(|c| c.description == "source_ref resolution")
+        );
     }
 
     #[test]
@@ -290,10 +296,12 @@ mod tests {
 
         let result = run(&pack);
         assert_eq!(result.status, GateStatus::Fail);
-        assert!(result
-            .checks
-            .iter()
-            .any(|c| c.description == "source_ref resolution" && c.status == GateStatus::Fail));
+        assert!(
+            result
+                .checks
+                .iter()
+                .any(|c| c.description == "source_ref resolution" && c.status == GateStatus::Fail)
+        );
     }
 
     #[test]
@@ -344,10 +352,10 @@ mod tests {
 
         let result = run(&pack);
         assert_eq!(result.status, GateStatus::Fail);
-        assert!(result.checks.iter().any(|c| c
-            .description
-            .contains("knowledge_graph edge resolution")
-            && c.status == GateStatus::Fail));
+        assert!(result.checks.iter().any(|c| {
+            c.description.contains("knowledge_graph edge resolution")
+                && c.status == GateStatus::Fail
+        }));
     }
 
     #[test]

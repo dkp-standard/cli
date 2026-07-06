@@ -37,7 +37,7 @@ fn run_tui(pack_path: PathBuf) -> Result<()> {
         cursor, execute,
         terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
     };
-    use ratatui::{backend::CrosstermBackend, Terminal};
+    use ratatui::{Terminal, backend::CrosstermBackend};
     use std::{io, time::Duration};
 
     let state = build_state(pack_path)?;
@@ -75,7 +75,7 @@ fn run_tui(pack_path: PathBuf) -> Result<()> {
 
 #[cfg(feature = "tui")]
 fn build_state(pack_path: PathBuf) -> Result<app::AppState> {
-    use dkp_core::{search::SearchIndex, Pack};
+    use dkp_core::{Pack, search::SearchIndex};
 
     let pack = Pack::open(&pack_path)?;
     let search_index = SearchIndex::build(&pack)?;

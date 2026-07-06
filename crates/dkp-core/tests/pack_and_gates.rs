@@ -45,16 +45,18 @@ fn broken_pack_fails_gate4() {
     assert_eq!(g4.status, GateStatus::Fail);
 
     // Missing glossary.json should be flagged.
-    assert!(g4
-        .checks
-        .iter()
-        .any(|c| c.description.contains("glossary.json") && c.status == GateStatus::Fail));
+    assert!(
+        g4.checks
+            .iter()
+            .any(|c| c.description.contains("glossary.json") && c.status == GateStatus::Fail)
+    );
 
     // Invalid rules.json should be flagged as a parse failure.
-    assert!(g4
-        .checks
-        .iter()
-        .any(|c| c.description.contains("rules.json") && c.status == GateStatus::Fail));
+    assert!(
+        g4.checks
+            .iter()
+            .any(|c| c.description.contains("rules.json") && c.status == GateStatus::Fail)
+    );
 }
 
 #[test]

@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use crate::config::GenConfig;
 use crate::error::{GenError, GenResult};
@@ -320,12 +320,16 @@ mod tests {
         assert_eq!(requests.len(), 2);
         let second_body: Value = requests[1].body_json().unwrap();
         let messages = second_body["messages"].as_array().unwrap();
-        assert!(messages
-            .iter()
-            .any(|m| m["role"] == "assistant" && m["tool_calls"].is_array()));
-        assert!(messages
-            .iter()
-            .any(|m| m["role"] == "tool" && m["tool_call_id"] == "call_1"));
+        assert!(
+            messages
+                .iter()
+                .any(|m| m["role"] == "assistant" && m["tool_calls"].is_array())
+        );
+        assert!(
+            messages
+                .iter()
+                .any(|m| m["role"] == "tool" && m["tool_call_id"] == "call_1")
+        );
     }
 
     #[tokio::test]

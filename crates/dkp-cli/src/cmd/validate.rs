@@ -3,14 +3,14 @@ use clap::Args;
 use std::path::PathBuf;
 
 use dkp_core::{
+    Pack,
     validate::{
         gate4, gate7, gate8,
         gates::{ConformanceLevel, GateStatus, ValidationReport},
     },
-    Pack,
 };
 
-use comfy_table::{presets::UTF8_FULL, Cell, Color, Table};
+use comfy_table::{Cell, Color, Table, presets::UTF8_FULL};
 
 use crate::{cli::CmdCtx, output::Render};
 

@@ -3,7 +3,7 @@ use clap::Args;
 use serde::Serialize;
 use std::path::PathBuf;
 
-use dkp_core::{search::index::SearchIndex, Pack};
+use dkp_core::{Pack, search::index::SearchIndex};
 
 use crate::cli::CmdCtx;
 use crate::output::{OutputFormat, Render};

@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::Args;
-use flate2::{write::GzEncoder, Compression};
+use flate2::{Compression, write::GzEncoder};
 use sha2::{Digest, Sha256};
 use std::{
     collections::BTreeMap,
@@ -9,7 +9,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use xz2::write::XzEncoder;
-use zip::{write::SimpleFileOptions, ZipWriter};
+use zip::{ZipWriter, write::SimpleFileOptions};
 
 use dkp_core::Pack;
 

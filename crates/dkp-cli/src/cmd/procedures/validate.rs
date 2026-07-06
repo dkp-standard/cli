@@ -1,9 +1,9 @@
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use clap::Args;
 use owo_colors::OwoColorize;
 use std::path::PathBuf;
 
-use dkp_core::{procedures, Pack};
+use dkp_core::{Pack, procedures};
 
 use crate::cli::CmdCtx;
 

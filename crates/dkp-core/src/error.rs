@@ -87,7 +87,9 @@ pub enum DkpError {
     #[error("procedure schema '{id}' is not valid JSON Schema: {message}")]
     ProcedureSchemaInvalid { id: String, message: String },
 
-    #[error("procedure '{id}' is a non-WASM executable and cannot be run from an unsigned bundle (pass --allow-unsigned to override)")]
+    #[error(
+        "procedure '{id}' is a non-WASM executable and cannot be run from an unsigned bundle (pass --allow-unsigned to override)"
+    )]
     ProcedureUnsignedSubprocess { id: String },
 
     // Registry

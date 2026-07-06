@@ -142,10 +142,11 @@ mod tests {
 
         let result = run(&pack);
         assert_eq!(result.status, GateStatus::Fail);
-        assert!(result.checks.iter().any(|c| c
-            .description
-            .contains("evidence/eval_results/eval_summary.json")
-            && c.status == GateStatus::Fail));
+        assert!(result.checks.iter().any(|c| {
+            c.description
+                .contains("evidence/eval_results/eval_summary.json")
+                && c.status == GateStatus::Fail
+        }));
     }
 
     #[test]

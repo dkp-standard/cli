@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 use tantivy::{
+    Index, TantivyDocument,
     collector::TopDocs,
     doc,
     query::QueryParser,
-    schema::{Field, SchemaBuilder, Value, STORED, STRING, TEXT},
-    Index, TantivyDocument,
+    schema::{Field, STORED, STRING, SchemaBuilder, TEXT, Value},
 };
 
-use crate::{error::DkpResult, pack::loader::Pack, DkpError};
+use crate::{DkpError, error::DkpResult, pack::loader::Pack};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SearchResult {
@@ -231,9 +231,11 @@ mod tests {
         let index = SearchIndex::build(&pack).unwrap();
 
         let results = index.search("widget", 10).unwrap();
-        assert!(results
-            .iter()
-            .any(|r| r.id == "t1" && r.asset_type == "term"));
+        assert!(
+            results
+                .iter()
+                .any(|r| r.id == "t1" && r.asset_type == "term")
+        );
     }
 
     #[test]

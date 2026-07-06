@@ -1,15 +1,15 @@
 use anyhow::Result;
 use axum::{
-    http::{header, StatusCode, Uri},
+    Router,
+    http::{StatusCode, Uri, header},
     response::{IntoResponse, Response},
     routing::get,
-    Router,
 };
-use dkp_core::{search::SearchIndex, Pack};
+use dkp_core::{Pack, search::SearchIndex};
 use std::{net::SocketAddr, sync::Arc};
 use tower_http::cors::CorsLayer;
 
-use super::{embed::Assets, routes, WebuiArgs};
+use super::{WebuiArgs, embed::Assets, routes};
 
 pub struct AppState {
     pub pack: Pack,

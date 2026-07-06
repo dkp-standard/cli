@@ -1,6 +1,7 @@
 use anyhow::Result;
 use clap::Args;
 use rmcp::{
+    ServerHandler, ServiceExt,
     model::{
         Annotated, CallToolRequestParam, CallToolResult, Content, Implementation,
         ListResourcesResult, ListToolsResult, PaginatedRequestParam, RawResource,
@@ -9,13 +10,12 @@ use rmcp::{
     },
     service::RequestContext,
     transport::sse_server::SseServer,
-    ServerHandler, ServiceExt,
 };
 use std::{path::PathBuf, sync::Arc};
 
 #[cfg(feature = "procedures")]
 use dkp_core::procedures;
-use dkp_core::{search::SearchIndex, Pack};
+use dkp_core::{Pack, search::SearchIndex};
 
 use crate::cli::CmdCtx;
 use crate::cmd::get::get_assets;

@@ -3,20 +3,20 @@ use std::{
     io::Write,
     process::{Child, Command, Stdio},
     sync::{
-        atomic::{AtomicBool, Ordering},
         Arc, Mutex,
+        atomic::{AtomicBool, Ordering},
     },
     time::Duration,
 };
 
 use wasmtime::{Engine, Linker, Module, Store};
 use wasmtime_wasi::{
+    WasiCtxBuilder,
     p1::{self, WasiP1Ctx},
     p2::pipe::{MemoryInputPipe, MemoryOutputPipe},
-    WasiCtxBuilder,
 };
 
-use crate::{error::DkpError, DkpResult, Pack};
+use crate::{DkpResult, Pack, error::DkpError};
 
 use super::schema::{EntryPoint, ProcedureDef};
 
@@ -35,9 +35,11 @@ fn engine() -> &'static Engine {
         let engine_clone = engine.clone();
         std::thread::Builder::new()
             .name("dkp-wasm-epoch".into())
-            .spawn(move || loop {
-                std::thread::sleep(Duration::from_millis(1));
-                engine_clone.increment_epoch();
+            .spawn(move || {
+                loop {
+                    std::thread::sleep(Duration::from_millis(1));
+                    engine_clone.increment_epoch();
+                }
             })
             .expect("failed to spawn epoch thread");
 

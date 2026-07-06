@@ -7,8 +7,8 @@ use serde::Serialize;
 use crate::config::GenConfig;
 use crate::error::GenResult;
 use crate::llm::LlmClient;
-use crate::tools::discovered::DiscoveredLog;
 use crate::tools::GenToolExecutor;
+use crate::tools::discovered::DiscoveredLog;
 
 pub struct PipelineContext {
     pub pack_dir: PathBuf,
