@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0](https://github.com/dkp-standard/cli/compare/dkp-core-v0.3.4...dkp-core-v0.4.0) - 2026-07-06
+
+### Added
+
+- *(dkp-core)* enable search feature by default with optional tantivy
+
+### Other
+
+- Merge pull request #10 from dkp-standard/feat/dkp-gen-core-agent
+
 ## [0.3.4](https://github.com/dkp-standard/cli/compare/dkp-core-v0.3.3...dkp-core-v0.3.4) - 2026-07-05
 
 ### Other

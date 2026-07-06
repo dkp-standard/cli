@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0](https://github.com/dkp-standard/cli/compare/dkp-v0.3.4...dkp-v0.4.0) - 2026-07-06
+
+### Added
+
+- *(dkp)* add font assets, licenses, and update Cargo.lock
+- add tool-use execution framework with web search and fetch
+
+### Other
+
+- Merge pull request #10 from dkp-standard/feat/dkp-gen-core-agent
+- *(dkp-cli, dkp-gen-core)* wrap long lines for improved readability
+
 ## [0.3.4](https://github.com/dkp-standard/cli/compare/dkp-v0.3.3...dkp-v0.3.4) - 2026-07-05
 
 ### Fixed
