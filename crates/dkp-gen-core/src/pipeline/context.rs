@@ -139,6 +139,15 @@ impl PipelineContext {
         }
     }
 
+    /// Surface a non-fatal warning to the user, regardless of `verbose`.
+    pub fn report_warning(&self, msg: &str) {
+        if let Some(pb) = &self.progress {
+            pb.println(format!("  ⚠ {msg}"));
+        } else {
+            eprintln!("  ⚠ {msg}");
+        }
+    }
+
     /// Write JSON to path atomically (tmp → rename).
     pub fn write_json<T: Serialize>(&self, path: &Path, value: &T) -> GenResult<()> {
         let content = serde_json::to_string_pretty(value)? + "\n";

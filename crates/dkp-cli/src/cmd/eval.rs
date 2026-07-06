@@ -55,6 +55,8 @@ pub async fn run(args: EvalArgs, ctx: &CmdCtx) -> Result<()> {
         // always disabled here regardless of global config.
         no_tools: true,
         instructions: None,
+        no_render_formats: true,
+        max_tool_turns: None,
     })?;
     if config.api_key.is_empty() {
         anyhow::bail!(

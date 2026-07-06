@@ -21,6 +21,7 @@ pub mod procedures;
 pub mod prompt;
 pub mod registry;
 pub mod release_check;
+pub mod render_handbook;
 pub mod review;
 pub mod rights;
 pub mod run;

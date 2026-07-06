@@ -23,6 +23,10 @@ pub struct GenConfig {
     /// Free-text guidance appended to every asset's user prompt (e.g. tone,
     /// focus areas, things to emphasize or avoid). Empty means no guidance.
     pub instructions: String,
+    /// Render `human/handbook.md` to `handbook.pdf`/`handbook.epub` after
+    /// generation. On by default (spec §11.2 "SHOULD be regenerated");
+    /// `--no-render-formats` or `render_formats = false` in gen.toml disables it.
+    pub render_formats: bool,
 }
 
 impl Default for GenConfig {
@@ -38,6 +42,7 @@ impl Default for GenConfig {
             max_tool_turns: 6,
             tools_enabled: true,
             instructions: String::new(),
+            render_formats: true,
         }
     }
 }
@@ -52,6 +57,9 @@ pub struct CliOverrides {
     /// `--no-tools` — negative-only flag, so a plain `bool` (not `Option`) is enough.
     pub no_tools: bool,
     pub instructions: Option<String>,
+    /// `--no-render-formats` — negative-only flag, mirrors `no_tools`.
+    pub no_render_formats: bool,
+    pub max_tool_turns: Option<u32>,
 }
 
 #[derive(Debug, serde::Deserialize, Default)]
@@ -69,6 +77,7 @@ struct FileConfig {
     max_tool_turns: Option<u32>,
     tools_enabled: Option<bool>,
     instructions: Option<String>,
+    render_formats: Option<bool>,
     search: Option<SearchFileConfig>,
     // Flat fallbacks: `Env::prefixed("DKP_GEN_")` maps DKP_GEN_SEARCH_PROVIDER /
     // DKP_GEN_SEARCH_API_KEY to top-level keys, not the nested [search] table,
@@ -108,13 +117,21 @@ impl GenConfig {
             timeout_secs: file.timeout_secs.unwrap_or(defaults.timeout_secs),
             search_provider,
             search_api_key,
-            max_tool_turns: file.max_tool_turns.unwrap_or(defaults.max_tool_turns),
+            max_tool_turns: cli
+                .max_tool_turns
+                .or(file.max_tool_turns)
+                .unwrap_or(defaults.max_tool_turns),
             tools_enabled: if cli.no_tools {
                 false
             } else {
                 file.tools_enabled.unwrap_or(defaults.tools_enabled)
             },
             instructions: cli.instructions.or(file.instructions).unwrap_or_default(),
+            render_formats: if cli.no_render_formats {
+                false
+            } else {
+                file.render_formats.unwrap_or(defaults.render_formats)
+            },
         })
     }
 }
@@ -132,6 +149,8 @@ mod tests {
             overwrite: false,
             no_tools: false,
             instructions: None,
+            no_render_formats: false,
+            max_tool_turns: None,
         }
     }
 
@@ -234,6 +253,21 @@ mod tests {
             jail.create_file(".dkp/gen.toml", r#"instructions = "from file""#)?;
             let config = GenConfig::load(no_overrides()).unwrap();
             assert_eq!(config.instructions, "from file");
+            Ok(())
+        });
+    }
+
+    #[test]
+    fn cli_max_tool_turns_overrides_file_default() {
+        Jail::expect_with(|jail| {
+            let home = jail.directory().display().to_string();
+            jail.set_env("HOME", &home);
+            let config = GenConfig::load(CliOverrides {
+                max_tool_turns: Some(20),
+                ..no_overrides()
+            })
+            .unwrap();
+            assert_eq!(config.max_tool_turns, 20);
             Ok(())
         });
     }

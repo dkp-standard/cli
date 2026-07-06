@@ -127,6 +127,8 @@ async fn run_citation_check(args: &ReviewArgs, ctx: &CmdCtx) -> Result<()> {
         overwrite: false,
         no_tools: true,
         instructions: None,
+        no_render_formats: true,
+        max_tool_turns: None,
     })?;
     if config.api_key.is_empty() {
         // No key configured: silently skip rather than failing the whole

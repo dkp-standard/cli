@@ -98,6 +98,11 @@ dkp fix acme-widgets/
 
 # Generate evidence drafts for manual review gates
 dkp review acme-widgets/
+
+# Render human/handbook.md to handbook.pdf/handbook.epub (spec §11.2)
+# — also runs automatically after `dkp generate`/`dkp new` unless
+# --no-render-formats is passed. Pure-Rust, no external tools required.
+dkp render-handbook acme-widgets/
 ```
 
 ### Inspecting a pack

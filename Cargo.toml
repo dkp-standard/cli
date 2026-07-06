@@ -112,6 +112,9 @@ wiremock = "0.6"
 dkp-core = { path = "crates/dkp-core", version = "0.3.3" }
 dkp-gen-core = { path = "crates/dkp-gen-core", version = "0.3.3" }
 
+[profile.dev]
+incremental = false
+
 [profile.release]
 opt-level = "z"
 lto = true

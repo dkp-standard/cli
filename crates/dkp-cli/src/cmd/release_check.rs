@@ -53,6 +53,28 @@ impl Item {
     }
 }
 
+/// Returns a description of which rendered handbook format(s) are missing
+/// or older than `handbook.md`, or `None` if handbook.md is absent or both
+/// formats are up to date.
+fn stale_handbook_formats(pack_root: &std::path::Path) -> Option<String> {
+    let human_dir = pack_root.join("human");
+    let md_mtime = std::fs::metadata(human_dir.join("handbook.md"))
+        .and_then(|m| m.modified())
+        .ok()?;
+    let mut stale = Vec::new();
+    for name in ["handbook.pdf", "handbook.epub"] {
+        match std::fs::metadata(human_dir.join(name)).and_then(|m| m.modified()) {
+            Ok(mtime) if mtime >= md_mtime => {}
+            _ => stale.push(name),
+        }
+    }
+    if stale.is_empty() {
+        None
+    } else {
+        Some(stale.join(", "))
+    }
+}
+
 pub async fn run(args: ReleaseCheckArgs, _cli: &CmdCtx) -> Result<()> {
     let pack = Pack::open(&args.pack)?;
     let mut items: Vec<Item> = Vec::new();
@@ -148,6 +170,16 @@ pub async fn run(args: ReleaseCheckArgs, _cli: &CmdCtx) -> Result<()> {
             "manifest.publisher set",
             "recommended before registry publish",
         ));
+    }
+
+    // ── Handbook PDF/EPUB freshness (spec §11.2, non-blocking) ──────────────
+    if let Some(stale) = stale_handbook_formats(&pack.root) {
+        items.push(Item::warn(
+            "handbook.pdf/.epub up to date",
+            format!("{stale} older than handbook.md — run `dkp render-handbook`"),
+        ));
+    } else if pack.root.join("human/handbook.md").exists() {
+        items.push(Item::pass("handbook.pdf/.epub up to date"));
     }
 
     // ── Print results ────────────────────────────────────────────────────────
