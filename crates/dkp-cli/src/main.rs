@@ -16,7 +16,7 @@ async fn run(cli: Cli) -> Result<()> {
             args.stubs = true;
             cmd::init::run(args, &ctx).await
         }
-        // Phase 1
+        // Pack inspection & consumption
         Commands::Info(args) => cmd::info::run(args, &ctx).await,
         Commands::List(args) => cmd::list::run(args, &ctx).await,
         Commands::Validate(args) => cmd::validate::run(args, &ctx).await,
@@ -26,16 +26,16 @@ async fn run(cli: Cli) -> Result<()> {
         Commands::Export(args) => cmd::export::run(args, &ctx).await,
         Commands::Okf(args) => cmd::okf::run(args, &ctx).await,
         Commands::Chunk(args) => cmd::chunk::run(args, &ctx).await,
-        // Phase 2
+        // Evaluation & comparison
         Commands::Eval(args) => cmd::eval::run(args, &ctx).await,
         Commands::Prompt(args) => cmd::prompt::run(args, &ctx).await,
         Commands::Diff(args) => cmd::diff::run(args, &ctx).await,
-        // Phase 3
+        // Build & release prep
         Commands::Build(args) => cmd::build::run(args, &ctx).await,
         Commands::RenderHandbook(args) => cmd::render_handbook::run(args, &ctx).await,
         Commands::ReleaseCheck(args) => cmd::release_check::run(args, &ctx).await,
         Commands::Rights(args) => cmd::rights::run(args, &ctx).await,
-        // Phase 4
+        // Integration surfaces (MCP, TUI, web UI)
         Commands::McpManifest(args) => cmd::mcp_manifest::run(args, &ctx).await,
         #[cfg(feature = "mcp")]
         Commands::Serve(args) => cmd::serve::run(args, &ctx).await,
@@ -46,7 +46,7 @@ async fn run(cli: Cli) -> Result<()> {
         // Procedures
         Commands::Run(args) => cmd::run::run(args, &ctx).await,
         Commands::Procedures(args) => cmd::procedures::run(args, &ctx).await,
-        // Phase 5
+        // Analysis & enrichment
         Commands::Graph(args) => cmd::graph::run(args, &ctx).await,
         Commands::CrossRefs(args) => cmd::cross_refs::run(args, &ctx).await,
         Commands::Skills(args) => cmd::skills::run(args, &ctx).await,
@@ -56,7 +56,7 @@ async fn run(cli: Cli) -> Result<()> {
         Commands::Generate(args) => cmd::generate::run(args, &ctx).await,
         Commands::Fix(args) => cmd::fix::run(args, &ctx).await,
         Commands::Review(args) => cmd::review::run(args, &ctx).await,
-        // Phase 6
+        // Signing & registry operations
         Commands::Keygen(args) => cmd::keygen::run(args, &ctx).await,
         Commands::Sign(args) => cmd::sign::run(args, &ctx).await,
         Commands::Install(args) => cmd::registry::install::run(args, &ctx).await,

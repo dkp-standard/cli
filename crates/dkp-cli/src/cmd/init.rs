@@ -23,7 +23,8 @@ pub struct InitArgs {
     #[arg(long)]
     pub extras: bool,
 
-    /// Human-readable display name for the pack (defaults to a TODO placeholder)
+    /// Human-readable display name for the pack (defaults to a title-cased
+    /// form of `name`)
     #[arg(long)]
     pub title: Option<String>,
 
@@ -51,10 +52,8 @@ pub async fn run(args: InitArgs, ctx: &CmdCtx) -> Result<()> {
     let today = today_iso8601();
     let name = &args.name;
     let domain = &args.domain;
-    let title = args
-        .title
-        .as_deref()
-        .unwrap_or("TODO: human-readable display name");
+    let default_title = title_from_name(name);
+    let title = args.title.as_deref().unwrap_or(&default_title);
 
     write_file(
         &out.join("manifest.json"),
@@ -135,6 +134,22 @@ fn write_file(path: &Path, content: &str) -> Result<()> {
     }
     std::fs::write(path, content).with_context(|| format!("writing '{}'", path.display()))?;
     Ok(())
+}
+
+fn title_from_name(name: &str) -> String {
+    let last_segment = name.rsplit('/').next().unwrap_or(name);
+    last_segment
+        .split(['-', '_'])
+        .filter(|s| !s.is_empty())
+        .map(|word| {
+            let mut chars = word.chars();
+            match chars.next() {
+                Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+                None => String::new(),
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 fn slugify(name: &str) -> String {

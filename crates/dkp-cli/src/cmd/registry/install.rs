@@ -290,7 +290,7 @@ async fn install_from_url(url: &str, args: &InstallArgs, cli: &CmdCtx) -> Result
     let archive_bytes = resp.bytes().await.context("failed to read archive body")?;
 
     // Detect format from bytes
-    let archive_format = detect_format_from_bytes(&archive_bytes);
+    let archive_format = detect_format_from_bytes(&archive_bytes)?;
 
     // Optional checksums verification
     let mut verified_checksums = false;
@@ -421,17 +421,23 @@ fn strip_top_component(path: &str) -> String {
     }
 }
 
-fn detect_format_from_bytes(bytes: &[u8]) -> String {
+fn detect_format_from_bytes(bytes: &[u8]) -> Result<String> {
     if bytes.starts_with(b"PK\x03\x04") {
-        return "zip".into();
+        return Ok("zip".into());
     }
     if bytes.starts_with(&[0x1f, 0x8b]) {
-        return "tar.gz".into();
+        return Ok("tar.gz".into());
     }
     if bytes.starts_with(b"\xfd7zXZ\x00") {
-        return "tar.xz".into();
+        return Ok("tar.xz".into());
     }
-    "tar.gz".into()
+    bail!("unrecognized archive format (not zip, tar.gz, or tar.xz)")
+}
+
+/// Formats sharing identical tar+xz decode logic, so hashing and extraction
+/// can't silently diverge if a new format is added to only one of them.
+fn is_xz_tar_format(format: &str) -> bool {
+    matches!(format, "tar.xz" | "dkp")
 }
 
 fn hash_archive(bytes: &[u8], format: &str) -> Result<HashMap<String, String>> {
@@ -454,7 +460,7 @@ fn hash_archive(bytes: &[u8], format: &str) -> Result<HashMap<String, String>> {
             }
         }
         "tar.gz" => hash_tar(flate2::read::GzDecoder::new(Cursor::new(bytes)), &mut map)?,
-        "tar.xz" | "dkp" => hash_tar(XzDecoder::new(Cursor::new(bytes)), &mut map)?,
+        _ if is_xz_tar_format(format) => hash_tar(XzDecoder::new(Cursor::new(bytes)), &mut map)?,
         _ => bail!("unsupported archive format: {format}"),
     }
     Ok(map)
@@ -511,7 +517,7 @@ fn extract_archive(bytes: &[u8], format: &str, dest: &std::path::Path) -> Result
         "tar.gz" => {
             tar::Archive::new(flate2::read::GzDecoder::new(Cursor::new(bytes))).unpack(dest)?;
         }
-        "tar.xz" | "dkp" => {
+        _ if is_xz_tar_format(format) => {
             tar::Archive::new(XzDecoder::new(Cursor::new(bytes))).unpack(dest)?;
         }
         _ => bail!("unsupported format: {format}"),
