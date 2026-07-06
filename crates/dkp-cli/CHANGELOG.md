@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1](https://github.com/dkp-standard/cli/compare/dkp-v0.4.0...dkp-v0.4.1) - 2026-07-06
+
+### Added
+
+- bump Rust edition to 2024, optimize release webui build workflow
+
+### Other
+
+- *(dkp)* cargo fmt
+- *(dkp-cli)* flatten nested conditionals using let-chains
+- *(dkp)* cargo fmt
+- upgrade workspace to Rust edition 2024
+
 ## [0.4.0](https://github.com/dkp-standard/cli/compare/dkp-v0.3.4...dkp-v0.4.0) - 2026-07-06
 
 ### Added
