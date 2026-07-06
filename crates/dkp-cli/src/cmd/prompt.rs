@@ -53,14 +53,13 @@ fn build_context(pack: &Pack, scope: &str, max_tokens: u32) -> Result<String> {
                 out.push_str(&sp);
                 out.push_str("\n\n");
             }
-            if let Some(gf) = pack.load_glossary()? {
-                if !gf.terms.is_empty() {
+            if let Some(gf) = pack.load_glossary()?
+                && !gf.terms.is_empty() {
                     out.push_str("## Key Terms\n\n");
                     for t in &gf.terms {
                         out.push_str(&format!("**{}**: {}\n", t.term, t.definition));
                     }
                 }
-            }
             out
         }
         "chunks" => build_chunks(pack, max_tokens)?,
@@ -70,24 +69,22 @@ fn build_context(pack: &Pack, scope: &str, max_tokens: u32) -> Result<String> {
                 out.push_str(&sp);
                 out.push_str("\n\n");
             }
-            if let Some(gf) = pack.load_glossary()? {
-                if !gf.terms.is_empty() {
+            if let Some(gf) = pack.load_glossary()?
+                && !gf.terms.is_empty() {
                     out.push_str("## Glossary\n\n");
                     for t in &gf.terms {
                         out.push_str(&format!("**{}** ({}): {}\n", t.term, t.id, t.definition));
                     }
                     out.push('\n');
                 }
-            }
-            if let Some(rf) = pack.load_rules()? {
-                if !rf.rules.is_empty() {
+            if let Some(rf) = pack.load_rules()?
+                && !rf.rules.is_empty() {
                     out.push_str("## Domain Rules\n\n");
                     for r in &rf.rules {
                         out.push_str(&format!("**{}** [{}]: {}\n", r.title, r.id, r.description));
                     }
                     out.push('\n');
                 }
-            }
             if let Some(cf) = pack.load_constraints()? {
                 let all: Vec<_> = cf.all_constraints().collect();
                 if !all.is_empty() {
@@ -206,11 +203,10 @@ fn show_procedure(pack: &Pack, id: &str) {
         "{}\n",
         serde_json::to_string_pretty(&def.schema.output).unwrap_or_default()
     );
-    if def.doc_path.exists() {
-        if let Ok(doc) = std::fs::read_to_string(&def.doc_path) {
+    if def.doc_path.exists()
+        && let Ok(doc) = std::fs::read_to_string(&def.doc_path) {
             println!("{doc}");
         }
-    }
 }
 
 // ── Procedure runner ─────────────────────────────────────────────────────────

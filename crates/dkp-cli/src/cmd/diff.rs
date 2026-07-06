@@ -36,8 +36,8 @@ fn load_concepts(pack: &Pack, filter: Option<&str>) -> anyhow::Result<Vec<Concep
 
     let want = |t: &str| filter.is_none_or(|f| f.eq_ignore_ascii_case(t));
 
-    if want("term") {
-        if let Ok(Some(gf)) = pack.load_glossary() {
+    if want("term")
+        && let Ok(Some(gf)) = pack.load_glossary() {
             for t in gf.terms {
                 concepts.push(Concept {
                     id: t.id.clone(),
@@ -46,10 +46,9 @@ fn load_concepts(pack: &Pack, filter: Option<&str>) -> anyhow::Result<Vec<Concep
                 });
             }
         }
-    }
 
-    if want("rule") {
-        if let Ok(Some(rf)) = pack.load_rules() {
+    if want("rule")
+        && let Ok(Some(rf)) = pack.load_rules() {
             for r in rf.rules {
                 concepts.push(Concept {
                     id: r.id.clone(),
@@ -58,10 +57,9 @@ fn load_concepts(pack: &Pack, filter: Option<&str>) -> anyhow::Result<Vec<Concep
                 });
             }
         }
-    }
 
-    if want("constraint") {
-        if let Ok(Some(cf)) = pack.load_constraints() {
+    if want("constraint")
+        && let Ok(Some(cf)) = pack.load_constraints() {
             for c in cf.all_constraints() {
                 concepts.push(Concept {
                     id: c.id.clone(),
@@ -70,10 +68,9 @@ fn load_concepts(pack: &Pack, filter: Option<&str>) -> anyhow::Result<Vec<Concep
                 });
             }
         }
-    }
 
-    if want("chunk") {
-        if let Ok(chunks) = pack.load_chunks() {
+    if want("chunk")
+        && let Ok(chunks) = pack.load_chunks() {
             for c in chunks {
                 concepts.push(Concept {
                     id: c.id.clone(),
@@ -82,7 +79,6 @@ fn load_concepts(pack: &Pack, filter: Option<&str>) -> anyhow::Result<Vec<Concep
                 });
             }
         }
-    }
 
     Ok(concepts)
 }

@@ -119,13 +119,12 @@ fn pack_to_summary(pack: &Pack, path: &Path) -> PackSummary {
 }
 
 fn passes_filters(pack: &Pack, domain: &Option<String>, tier: &Option<String>) -> bool {
-    if let Some(d) = domain {
-        if slugify_domain(&pack.manifest.domain) != slugify_domain(d) {
+    if let Some(d) = domain
+        && slugify_domain(&pack.manifest.domain) != slugify_domain(d) {
             return false;
         }
-    }
-    if let Some(t) = tier {
-        if !pack
+    if let Some(t) = tier
+        && !pack
             .manifest
             .tags
             .iter()
@@ -133,7 +132,6 @@ fn passes_filters(pack: &Pack, domain: &Option<String>, tier: &Option<String>) -
         {
             return false;
         }
-    }
     true
 }
 
@@ -162,13 +160,11 @@ pub async fn run(args: ListArgs, cli: &CmdCtx) -> Result<()> {
             if let Ok(children) = std::fs::read_dir(&path) {
                 for child in children {
                     let child_path = child?.path();
-                    if child_path.is_dir() {
-                        if let Ok(pack) = Pack::open(&child_path) {
-                            if passes_filters(&pack, &args.domain, &args.tier) {
+                    if child_path.is_dir()
+                        && let Ok(pack) = Pack::open(&child_path)
+                            && passes_filters(&pack, &args.domain, &args.tier) {
                                 packs.push(pack_to_summary(&pack, &child_path));
                             }
-                        }
-                    }
                 }
             }
         }
