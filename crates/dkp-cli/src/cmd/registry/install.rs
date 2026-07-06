@@ -315,7 +315,7 @@ async fn install_from_url(url: &str, args: &InstallArgs, cli: &CmdCtx) -> Result
         println!("Checksums verified.");
 
         // Optional signature verification (requires --sig and --pubkey)
-        if let (Some(ref sig_path), Some(ref pubkey_path)) = (&args.sig, &args.pubkey) {
+        if let (Some(sig_path), Some(pubkey_path)) = (&args.sig, &args.pubkey) {
             let sig_bytes = std::fs::read(sig_path).context("failed to read .sig file")?;
             let key_bytes = load_public_key(pubkey_path)?;
             verify_signature(&sig_bytes, &key_bytes, &expected)?;
