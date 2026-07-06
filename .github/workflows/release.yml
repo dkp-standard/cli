@@ -9,12 +9,40 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  # ── Linux x86_64 glibc (full features, native) ─────────────────────────────
-  build-linux-x86_64-gnu:
-    name: Build linux/x86_64 (glibc)
+  # ── Webui frontend assets (shared across all platform builds) ─────────────
+  build-webui:
+    name: Build webui frontend assets
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: crates/dkp-cli/src/cmd/webui/web/pnpm-lock.yaml
+      - run: pnpm install
+        working-directory: crates/dkp-cli/src/cmd/webui/web
+      - run: pnpm build
+        working-directory: crates/dkp-cli/src/cmd/webui/web
+      - uses: actions/upload-artifact@v4
+        with:
+          name: webui-dist
+          path: crates/dkp-cli/src/cmd/webui/web/dist/
+
+  # ── Linux x86_64 glibc (full features, native) ─────────────────────────────
+  build-linux-x86_64-gnu:
+    name: Build linux/x86_64 (glibc)
+    needs: build-webui
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: webui-dist
+          path: crates/dkp-cli/src/cmd/webui/web/dist/
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: x86_64-unknown-linux-gnu
@@ -46,9 +74,14 @@ jobs:
   # ── Linux x86_64 musl (full features, static) ──────────────────────────────
   build-linux-x86_64-musl:
     name: Build linux/x86_64 (musl, static)
+    needs: build-webui
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: webui-dist
+          path: crates/dkp-cli/src/cmd/webui/web/dist/
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: x86_64-unknown-linux-musl
@@ -82,9 +115,14 @@ jobs:
   # ── Linux ARM64 musl (lite: no procedures/wasmtime, static) ────────────────
   build-linux-aarch64-musl:
     name: Build linux/aarch64 (musl, static, lite)
+    needs: build-webui
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: webui-dist
+          path: crates/dkp-cli/src/cmd/webui/web/dist/
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
         with:
@@ -114,9 +152,14 @@ jobs:
   # ── macOS universal binary (unsigned) ──────────────────────────────────────
   build-macos-universal:
     name: Build macOS universal (unsigned)
+    needs: build-webui
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: webui-dist
+          path: crates/dkp-cli/src/cmd/webui/web/dist/
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: x86_64-apple-darwin,aarch64-apple-darwin
@@ -155,9 +198,14 @@ jobs:
   # ── Windows x86_64 (unsigned) ───────────────────────────────────────────────
   build-windows-x86_64:
     name: Build Windows x86_64 (unsigned)
+    needs: build-webui
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: webui-dist
+          path: crates/dkp-cli/src/cmd/webui/web/dist/
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: x86_64-pc-windows-msvc
@@ -192,9 +240,14 @@ jobs:
   # ── Debian package (.deb) ──────────────────────────────────────────────────
   build-deb:
     name: Build .deb package (x86_64)
+    needs: build-webui
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: webui-dist
+          path: crates/dkp-cli/src/cmd/webui/web/dist/
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: x86_64-unknown-linux-gnu
@@ -225,9 +278,14 @@ jobs:
   # ── RPM package (.rpm) ─────────────────────────────────────────────────────
   build-rpm:
     name: Build .rpm package (x86_64)
+    needs: build-webui
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: webui-dist
+          path: crates/dkp-cli/src/cmd/webui/web/dist/
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: x86_64-unknown-linux-gnu
