@@ -7,6 +7,10 @@ publish_no_verify = true
 [[package]]
 name = "dkp"
 semver_check = false
+# dist/ (webui frontend build output) is gitignored but force-included via
+# Cargo.toml's `include` so build.rs can embed the real assets; that always
+# looks dirty to cargo's publish safety check.
+publish_allow_dirty = true
 
 [[package]]
 name = "xtask"
