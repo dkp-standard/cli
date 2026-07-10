@@ -96,6 +96,18 @@ pub enum DkpError {
     #[error("registry error: {0}")]
     Registry(String),
 
+    // Versioning
+    #[error("manifest.json version '{version}' is not valid semver: {reason}")]
+    VersionInvalid { version: String, reason: String },
+
+    #[error("'{version}' is not a valid semver version: {reason}")]
+    VersionBumpInvalid { version: String, reason: String },
+
+    #[error(
+        "new version {new} is the same as the current version {current} (pass --allow-same-version to override)"
+    )]
+    VersionUnchanged { current: String, new: String },
+
     // Pass-through
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),

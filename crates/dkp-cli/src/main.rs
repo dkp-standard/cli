@@ -31,6 +31,7 @@ async fn run(cli: Cli) -> Result<()> {
         Commands::Prompt(args) => cmd::prompt::run(args, &ctx).await,
         Commands::Diff(args) => cmd::diff::run(args, &ctx).await,
         // Build & release prep
+        Commands::Version(args) => cmd::version::run(args, &ctx).await,
         Commands::Build(args) => cmd::build::run(args, &ctx).await,
         Commands::RenderHandbook(args) => cmd::render_handbook::run(args, &ctx).await,
         Commands::ReleaseCheck(args) => cmd::release_check::run(args, &ctx).await,

@@ -102,6 +102,9 @@ pub enum Commands {
     Diff(crate::cmd::diff::DiffArgs),
 
     // ── Phase 3: Producer tooling ───────────────────────────────────────────
+    /// Bump a pack's manifest.json version (patch/minor/major/etc., npm-version-style)
+    Version(crate::cmd::version::VersionArgs),
+
     /// Package a pack into a versioned archive with checksums.json
     Build(crate::cmd::build::BuildArgs),
 

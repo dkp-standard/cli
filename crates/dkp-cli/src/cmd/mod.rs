@@ -30,6 +30,7 @@ pub mod search;
 pub mod sign;
 pub mod skills;
 pub mod validate;
+pub mod version;
 
 #[cfg(feature = "tui")]
 pub mod tui;
