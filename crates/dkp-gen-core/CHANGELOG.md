@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0](https://github.com/dkp-standard/cli/compare/dkp-gen-core-v0.4.3...dkp-gen-core-v0.5.0) - 2026-07-10
+
+### Added
+
+- *(cli)* add fix-until subcommand and enhance eval/fix output
+
 ## [0.4.1](https://github.com/dkp-standard/cli/compare/dkp-gen-core-v0.4.0...dkp-gen-core-v0.4.1) - 2026-07-06
 
 ### Added

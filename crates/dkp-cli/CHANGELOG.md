@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0](https://github.com/dkp-standard/cli/compare/dkp-v0.4.3...dkp-v0.5.0) - 2026-07-10
+
+### Added
+
+- *(cli)* add version command to bump pack manifest versions
+- *(cli)* add fix-until subcommand and enhance eval/fix output
+
+### Fixed
+
+- *(tui)* remove unnecessary borrow when formatting chunk ID
+
+### Other
+
+- *(cli, core)* fix code formatting and line wrapping
+- Merge branch 'main' of github.com:dkp-standard/cli
+
 ## [0.4.3](https://github.com/dkp-standard/cli/compare/dkp-v0.4.2...dkp-v0.4.3) - 2026-07-06
 
 ### Added
