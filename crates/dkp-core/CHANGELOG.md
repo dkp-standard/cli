@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0](https://github.com/dkp-standard/cli/compare/dkp-core-v0.4.3...dkp-core-v0.5.0) - 2026-07-10
+
+### Added
+
+- *(cli)* add version command to bump pack manifest versions
+- *(validation)* allow entry_point procedures per spec §9.12
+
+### Other
+
+- *(dkp-core)* clean up version bump logic, use ok_or for errors
+- *(cli, core)* fix code formatting and line wrapping
+
 ## [0.4.1](https://github.com/dkp-standard/cli/compare/dkp-core-v0.4.0...dkp-core-v0.4.1) - 2026-07-06
 
 ### Added
