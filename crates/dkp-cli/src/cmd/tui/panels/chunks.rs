@@ -29,7 +29,7 @@ pub fn draw(f: &mut Frame, area: Rect, state: &AppState) {
                 .unwrap_or_default();
 
             let line = Line::from(vec![
-                Span::styled(format!("{:<14}", &c.id), Style::default().fg(Color::Cyan)),
+                Span::styled(format!("{:<14}", c.id), Style::default().fg(Color::Cyan)),
                 Span::styled(
                     format!(" {:>8} ", priority),
                     Style::default().fg(Color::Yellow),
