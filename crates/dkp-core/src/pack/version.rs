@@ -50,9 +50,11 @@ pub fn bump_version(current: &Version, bump: &VersionBump) -> Version {
         VersionBump::Patch => Version::new(current.major, current.minor, current.patch + 1),
         VersionBump::Premajor => prerelease_of(Version::new(current.major + 1, 0, 0)),
         VersionBump::Preminor => prerelease_of(Version::new(current.major, current.minor + 1, 0)),
-        VersionBump::Prepatch => {
-            prerelease_of(Version::new(current.major, current.minor, current.patch + 1))
-        }
+        VersionBump::Prepatch => prerelease_of(Version::new(
+            current.major,
+            current.minor,
+            current.patch + 1,
+        )),
         VersionBump::Prerelease => bump_prerelease(current),
         VersionBump::Explicit(v) => v.clone(),
     }
@@ -291,12 +293,8 @@ mod tests {
         let tmp = TempDir::new().unwrap();
         write_manifest(tmp.path(), &minimal_manifest("2.0.0"));
 
-        let err = bump_manifest_version(
-            tmp.path(),
-            &VersionBump::Explicit(v("2.0.0")),
-            false,
-        )
-        .unwrap_err();
+        let err = bump_manifest_version(tmp.path(), &VersionBump::Explicit(v("2.0.0")), false)
+            .unwrap_err();
         assert!(matches!(err, DkpError::VersionUnchanged { .. }));
 
         // Manifest must remain unchanged on disk.

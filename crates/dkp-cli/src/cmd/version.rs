@@ -114,7 +114,13 @@ impl GitContext {
         run_git(pack_root, &["commit", "-m", message])?;
         run_git(
             pack_root,
-            &["tag", "-a", &format!("v{new_version}"), "-m", &format!("v{new_version}")],
+            &[
+                "tag",
+                "-a",
+                &format!("v{new_version}"),
+                "-m",
+                &format!("v{new_version}"),
+            ],
         )?;
         Ok(())
     }

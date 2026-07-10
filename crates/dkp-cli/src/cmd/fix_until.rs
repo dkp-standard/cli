@@ -67,7 +67,7 @@ pub async fn run(args: FixUntilArgs, ctx: &CmdCtx) -> Result<()> {
     let pack_version = pack.manifest.version.clone();
     let min_eval_delta = pack.manifest.min_eval_delta.unwrap_or(0.0);
 
-    let threshold = args.threshold.unwrap_or_else(|| {
+    let threshold = args.threshold.unwrap_or({
         if min_eval_delta > 0.0 {
             min_eval_delta
         } else {

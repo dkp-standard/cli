@@ -106,12 +106,7 @@ pub async fn run(args: EvalArgs, ctx: &CmdCtx) -> Result<()> {
     let (prompt, completion) = client_ref.token_usage();
     println!(
         "[{}] Eval complete: {}/{} passed ({}%) — {} prompt + {} completion tokens",
-        display_name,
-        report.summary.passed,
-        report.summary.total,
-        pct,
-        prompt,
-        completion,
+        display_name, report.summary.passed, report.summary.total, pct, prompt, completion,
     );
 
     if !report.failures.is_empty() {
@@ -120,7 +115,10 @@ pub async fn run(args: EvalArgs, ctx: &CmdCtx) -> Result<()> {
             println!("  [{}] ✗ {}", display_name, f.query);
             println!("         Reason: {}", f.reason);
         }
-        println!("  Run `dkp fix {}` to address failures.", args.pack.display());
+        println!(
+            "  Run `dkp fix {}` to address failures.",
+            args.pack.display()
+        );
     }
 
     Ok(())
