@@ -374,4 +374,113 @@ mod tests {
         let result = run(&pack);
         assert_eq!(result.status, GateStatus::Pass);
     }
+
+    #[test]
+    fn wasm_backed_procedure_passes() {
+        let tmp = TempDir::new().unwrap();
+        let pack = complete_pack(&tmp);
+        let procedures = pack.procedures_dir();
+        std::fs::create_dir_all(&procedures).unwrap();
+        std::fs::write(
+            procedures.join("calc.schema.json"),
+            r#"{"id": "calc", "title": "Calc", "description": "d", "input": {}, "output": {}}"#,
+        )
+        .unwrap();
+        std::fs::write(procedures.join("calc.wasm"), b"\0asm").unwrap();
+        std::fs::write(procedures.join("calc.md"), "docs").unwrap();
+        std::fs::write(
+            tmp.path().join("manifest.json"),
+            r#"{
+                "spec": "1.0.0",
+                "name": "test-pack",
+                "version": "1.0.0",
+                "domain": "testing",
+                "audience": "internal",
+                "intended_use": "unit tests",
+                "known_limitations": "none",
+                "update_date": "2026-01-01",
+                "procedure_capabilities": {"sandbox": "wasm"}
+            }"#,
+        )
+        .unwrap();
+        let pack = Pack::open(tmp.path()).unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Pass);
+    }
+
+    #[test]
+    fn entry_point_procedure_without_wasm_passes() {
+        let tmp = TempDir::new().unwrap();
+        let _pack = complete_pack(&tmp);
+        let procedures = tmp.path().join("machine").join("procedures");
+        std::fs::create_dir_all(&procedures).unwrap();
+        std::fs::write(
+            procedures.join("calc.schema.json"),
+            r#"{
+                "id": "calc", "title": "Calc", "description": "d",
+                "input": {}, "output": {},
+                "entry_point": {"filename": "calc.py", "command": "python3 calc.py"}
+            }"#,
+        )
+        .unwrap();
+        std::fs::write(procedures.join("calc.py"), "print('hi')").unwrap();
+        std::fs::write(procedures.join("calc.md"), "docs").unwrap();
+        std::fs::write(
+            tmp.path().join("manifest.json"),
+            r#"{
+                "spec": "1.0.0",
+                "name": "test-pack",
+                "version": "1.0.0",
+                "domain": "testing",
+                "audience": "internal",
+                "intended_use": "unit tests",
+                "known_limitations": "none",
+                "update_date": "2026-01-01",
+                "procedure_capabilities": {"sandbox": "none"}
+            }"#,
+        )
+        .unwrap();
+        let pack = Pack::open(tmp.path()).unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Pass);
+    }
+
+    #[test]
+    fn procedure_without_wasm_or_entry_point_fails() {
+        let tmp = TempDir::new().unwrap();
+        let _pack = complete_pack(&tmp);
+        let procedures = tmp.path().join("machine").join("procedures");
+        std::fs::create_dir_all(&procedures).unwrap();
+        std::fs::write(
+            procedures.join("calc.schema.json"),
+            r#"{"id": "calc", "title": "Calc", "description": "d", "input": {}, "output": {}}"#,
+        )
+        .unwrap();
+        std::fs::write(procedures.join("calc.md"), "docs").unwrap();
+        std::fs::write(
+            tmp.path().join("manifest.json"),
+            r#"{
+                "spec": "1.0.0",
+                "name": "test-pack",
+                "version": "1.0.0",
+                "domain": "testing",
+                "audience": "internal",
+                "intended_use": "unit tests",
+                "known_limitations": "none",
+                "update_date": "2026-01-01",
+                "procedure_capabilities": {"sandbox": "none"}
+            }"#,
+        )
+        .unwrap();
+        let pack = Pack::open(tmp.path()).unwrap();
+
+        let result = run(&pack);
+        assert_eq!(result.status, GateStatus::Fail);
+        assert!(result.checks.iter().any(|c| {
+            c.description.contains("machine/procedures/ completeness")
+                && c.status == GateStatus::Fail
+        }));
+    }
 }

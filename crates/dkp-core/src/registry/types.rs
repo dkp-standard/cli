@@ -45,6 +45,11 @@ pub struct ValidationReport {
     pub gate_8: GateResult,
     pub reviewed_badge: bool,
     pub evaluated_badge: bool,
+    /// Registry-only check: whether every procedure in the pack is WASM-backed.
+    /// Older registries that predate this check omit the field; treat missing
+    /// as `Skipped` rather than assuming a Pass/Fail verdict was made.
+    #[serde(default = "GateResult::skipped")]
+    pub procedures_wasm_only: GateResult,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -53,6 +58,12 @@ pub enum GateResult {
     Pass,
     Fail,
     Skipped,
+}
+
+impl GateResult {
+    fn skipped() -> Self {
+        GateResult::Skipped
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

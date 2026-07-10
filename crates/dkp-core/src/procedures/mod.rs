@@ -110,19 +110,12 @@ pub fn validate_all(pack: &Pack) -> DkpResult<Vec<String>> {
             errors.push(format!("procedures/{id}.md: empty"));
         }
 
-        // Only WASM-backed procedures are permitted
-        if def.wasm_path.is_none() {
-            if def.entry_point.is_none() {
-                errors.push(format!(
-                    "procedures/{id}: no .wasm binary and no entry_point in .schema.json; \
-                     procedure cannot be executed (see spec §9.12)"
-                ));
-            } else {
-                errors.push(format!(
-                    "procedures/{id}: non-WASM procedures are not permitted; \
-                     provide a {id}.wasm binary (entry_point is not accepted)"
-                ));
-            }
+        // Every procedure must be runnable via .wasm or entry_point (spec §9.12)
+        if !def.is_runnable() {
+            errors.push(format!(
+                "procedures/{id}: no .wasm binary and no entry_point in .schema.json; \
+                 procedure cannot be executed (see spec §9.12)"
+            ));
         }
 
         // If entry_point declared, the referenced filename must exist
