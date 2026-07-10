@@ -82,6 +82,7 @@ pub async fn run(args: GenerateArgs, ctx: &CmdCtx) -> Result<()> {
     }
 
     let client = Arc::new(OpenAiClient::new(&config)?);
+    let client_ref = Arc::clone(&client);
     let gen_ctx = PipelineContext {
         pack_dir: args.pack.clone(),
         domain,
@@ -106,7 +107,13 @@ pub async fn run(args: GenerateArgs, ctx: &CmdCtx) -> Result<()> {
     dkp_gen_core::pipeline::readme::update_readme(&gen_ctx).await?;
 
     if !ctx.quiet {
-        println!("Done.");
+        let (prompt, completion) = client_ref.token_usage();
+        println!(
+            "Done. Tokens used: {} prompt + {} completion = {} total",
+            prompt,
+            completion,
+            prompt + completion
+        );
     }
     Ok(())
 }

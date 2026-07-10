@@ -73,6 +73,8 @@ pub async fn run(args: FixArgs, ctx: &CmdCtx) -> Result<()> {
     }
 
     let client = Arc::new(OpenAiClient::new(&config)?);
+    let client_ref = Arc::clone(&client);
+    let display_name = pack_name.clone();
     let gen_ctx = PipelineContext {
         pack_dir: args.pack.clone(),
         domain,
@@ -84,14 +86,20 @@ pub async fn run(args: FixArgs, ctx: &CmdCtx) -> Result<()> {
     };
 
     if !ctx.quiet {
-        println!("Running fix loop...");
+        println!("[{}] Running fix loop...", display_name);
     }
     let report = dkp_gen_core::fix::run(&gen_ctx).await?;
 
     if !ctx.quiet {
+        let (prompt, completion) = client_ref.token_usage();
         println!(
-            "Fix complete: {} failures addressed, {} chunks written, {} eval cases written",
-            report.failed_count, report.chunks_written, report.eval_cases_written
+            "[{}] Fix complete: {} failures addressed, {} chunks written, {} eval cases written — {} prompt + {} completion tokens",
+            display_name,
+            report.failed_count,
+            report.chunks_written,
+            report.eval_cases_written,
+            prompt,
+            completion,
         );
     }
     Ok(())

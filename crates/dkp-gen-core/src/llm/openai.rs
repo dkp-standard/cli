@@ -1,3 +1,5 @@
+use std::sync::atomic::{AtomicU64, Ordering};
+
 use async_trait::async_trait;
 use serde_json::{Value, json};
 
@@ -11,6 +13,8 @@ pub struct OpenAiClient {
     base_url: String,
     api_key: String,
     model: String,
+    prompt_tokens: AtomicU64,
+    completion_tokens: AtomicU64,
 }
 
 impl OpenAiClient {
@@ -27,6 +31,8 @@ impl OpenAiClient {
             base_url: config.base_url.trim_end_matches('/').to_string(),
             api_key: config.api_key.clone(),
             model: config.model.clone(),
+            prompt_tokens: AtomicU64::new(0),
+            completion_tokens: AtomicU64::new(0),
         })
     }
 }
@@ -98,8 +104,24 @@ impl OpenAiClient {
                 }
             };
 
+            if let Some(u) = json.get("usage") {
+                if let Some(p) = u["prompt_tokens"].as_u64() {
+                    self.prompt_tokens.fetch_add(p, Ordering::Relaxed);
+                }
+                if let Some(c) = u["completion_tokens"].as_u64() {
+                    self.completion_tokens.fetch_add(c, Ordering::Relaxed);
+                }
+            }
             return Ok(json);
         }
+    }
+
+    /// Returns `(prompt_tokens, completion_tokens)` accumulated across all calls.
+    pub fn token_usage(&self) -> (u64, u64) {
+        (
+            self.prompt_tokens.load(Ordering::Relaxed),
+            self.completion_tokens.load(Ordering::Relaxed),
+        )
     }
 }
 

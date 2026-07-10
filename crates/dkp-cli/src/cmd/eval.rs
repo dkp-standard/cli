@@ -66,6 +66,8 @@ pub async fn run(args: EvalArgs, ctx: &CmdCtx) -> Result<()> {
     }
 
     let client = Arc::new(OpenAiClient::new(&config)?);
+    let client_ref = Arc::clone(&client);
+    let display_name = pack_name.clone();
     let gen_ctx = Arc::new(PipelineContext {
         pack_dir: args.pack.clone(),
         domain,
@@ -78,7 +80,8 @@ pub async fn run(args: EvalArgs, ctx: &CmdCtx) -> Result<()> {
 
     if !ctx.quiet {
         println!(
-            "Running eval ({} cases)...",
+            "[{}] Running eval ({} cases)...",
+            display_name,
             if let Some(pairs) = args.pairs {
                 format!("up to {}", pairs)
             } else {
@@ -100,18 +103,24 @@ pub async fn run(args: EvalArgs, ctx: &CmdCtx) -> Result<()> {
         .checked_div(report.summary.total)
         .unwrap_or(0);
 
+    let (prompt, completion) = client_ref.token_usage();
     println!(
-        "Eval complete: {}/{} passed ({}%)",
-        report.summary.passed, report.summary.total, pct
+        "[{}] Eval complete: {}/{} passed ({}%) — {} prompt + {} completion tokens",
+        display_name,
+        report.summary.passed,
+        report.summary.total,
+        pct,
+        prompt,
+        completion,
     );
 
     if !report.failures.is_empty() {
-        println!("\nFailed cases:");
+        println!("[{}] Failed cases:", display_name);
         for f in &report.failures {
-            println!("  ✗ {}", f.query);
-            println!("    Reason: {}", f.reason);
+            println!("  [{}] ✗ {}", display_name, f.query);
+            println!("         Reason: {}", f.reason);
         }
-        println!("\nRun `dkp fix <pack>` to address failures.");
+        println!("  Run `dkp fix {}` to address failures.", args.pack.display());
     }
 
     Ok(())

@@ -164,6 +164,10 @@ pub enum Commands {
     /// Failure-aware chunk regeneration using eval results
     Fix(crate::cmd::fix::FixArgs),
 
+    /// Iterative eval+fix loop until a pass-rate threshold is met
+    #[command(name = "fix-until")]
+    FixUntil(crate::cmd::fix_until::FixUntilArgs),
+
     /// Generate evidence drafts for manual review gates
     Review(crate::cmd::review::ReviewArgs),
 

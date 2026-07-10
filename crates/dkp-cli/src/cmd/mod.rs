@@ -5,6 +5,7 @@ pub mod diff;
 pub mod eval;
 pub mod export;
 pub mod fix;
+pub mod fix_until;
 pub mod generate;
 pub mod get;
 pub mod graph;

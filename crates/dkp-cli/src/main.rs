@@ -55,6 +55,7 @@ async fn run(cli: Cli) -> Result<()> {
         Commands::New(args) => cmd::new::run(args, &ctx).await,
         Commands::Generate(args) => cmd::generate::run(args, &ctx).await,
         Commands::Fix(args) => cmd::fix::run(args, &ctx).await,
+        Commands::FixUntil(args) => cmd::fix_until::run(args, &ctx).await,
         Commands::Review(args) => cmd::review::run(args, &ctx).await,
         // Signing & registry operations
         Commands::Keygen(args) => cmd::keygen::run(args, &ctx).await,
