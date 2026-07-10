@@ -69,12 +69,12 @@ fn prerelease_of(mut v: Version) -> Version {
 /// Otherwise starts a new prerelease at `.0` on the current version's numbers.
 fn bump_prerelease(current: &Version) -> Version {
     if !current.pre.is_empty() {
-        if let Some((prefix, num)) = current.pre.as_str().rsplit_once('.') {
-            if let Ok(n) = num.parse::<u64>() {
-                let mut v = current.clone();
-                v.pre = Prerelease::new(&format!("{prefix}.{}", n + 1)).expect("valid prerelease");
-                return v;
-            }
+        if let Some((prefix, num)) = current.pre.as_str().rsplit_once('.')
+            && let Ok(n) = num.parse::<u64>()
+        {
+            let mut v = current.clone();
+            v.pre = Prerelease::new(&format!("{prefix}.{}", n + 1)).expect("valid prerelease");
+            return v;
         }
         // No trailing numeral to increment; restart numbering under the same id.
         let mut v = current.clone();
@@ -109,7 +109,7 @@ pub fn bump_manifest_version(
     let current_str = value
         .get("version")
         .and_then(|v| v.as_str())
-        .ok_or_else(|| DkpError::ManifestFieldMissing { field: "version" })?
+        .ok_or(DkpError::ManifestFieldMissing { field: "version" })?
         .to_string();
 
     let current = Version::parse(&current_str).map_err(|e| DkpError::VersionInvalid {
