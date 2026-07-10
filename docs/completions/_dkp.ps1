@@ -44,6 +44,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             [CompletionResult]::new('eval', 'eval', [CompletionResultType]::ParameterValue, 'Run eval set against baseline and grounded prompts; print delta report')
             [CompletionResult]::new('prompt', 'prompt', [CompletionResultType]::ParameterValue, 'Interactive grounded prompt REPL for testing a pack')
             [CompletionResult]::new('diff', 'diff', [CompletionResultType]::ParameterValue, 'Compare two pack versions and report what changed')
+            [CompletionResult]::new('version', 'version', [CompletionResultType]::ParameterValue, 'Bump a pack''s manifest.json version (patch/minor/major/etc., npm-version-style)')
             [CompletionResult]::new('build', 'build', [CompletionResultType]::ParameterValue, 'Package a pack into a versioned archive with checksums.json')
             [CompletionResult]::new('render-handbook', 'render-handbook', [CompletionResultType]::ParameterValue, 'Render human/handbook.md to handbook.pdf/handbook.epub (spec §11.2)')
             [CompletionResult]::new('release-check', 'release-check', [CompletionResultType]::ParameterValue, 'Pre-release compliance checklist (runs all gates, checks human fields)')
@@ -61,6 +62,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             [CompletionResult]::new('new', 'new', [CompletionResultType]::ParameterValue, 'Scaffold + LLM-generate a complete pack in one command')
             [CompletionResult]::new('generate', 'generate', [CompletionResultType]::ParameterValue, 'Run (or re-run) LLM generation on an existing pack')
             [CompletionResult]::new('fix', 'fix', [CompletionResultType]::ParameterValue, 'Failure-aware chunk regeneration using eval results')
+            [CompletionResult]::new('fix-until', 'fix-until', [CompletionResultType]::ParameterValue, 'Iterative eval+fix loop until a pass-rate threshold is met')
             [CompletionResult]::new('review', 'review', [CompletionResultType]::ParameterValue, 'Generate evidence drafts for manual review gates')
             [CompletionResult]::new('keygen', 'keygen', [CompletionResultType]::ParameterValue, 'Generate an Ed25519 keypair for signing packs')
             [CompletionResult]::new('sign', 'sign', [CompletionResultType]::ParameterValue, 'Sign a built archive with an Ed25519 private key')
@@ -368,6 +370,23 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             [CompletionResult]::new('--threshold', '--threshold', [CompletionResultType]::ParameterName, 'Content-drift percentage threshold for "modified" classification')
             [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
             [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('-V', '-V ', [CompletionResultType]::ParameterName, 'Print version')
+            [CompletionResult]::new('--version', '--version', [CompletionResultType]::ParameterName, 'Print version')
+            break
+        }
+        'dkp;version' {
+            [CompletionResult]::new('-m', '-m', [CompletionResultType]::ParameterName, 'Commit message template; %s is replaced with the new version')
+            [CompletionResult]::new('--message', '--message', [CompletionResultType]::ParameterName, 'Commit message template; %s is replaced with the new version')
+            [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
+            [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
+            [CompletionResult]::new('--no-git-tag-version', '--no-git-tag-version', [CompletionResultType]::ParameterName, 'Skip git commit/tag even if the pack is inside a git repository')
+            [CompletionResult]::new('--allow-same-version', '--allow-same-version', [CompletionResultType]::ParameterName, 'Allow bumping to the same version as the current one')
             [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
             [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
@@ -1023,6 +1042,30 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             [CompletionResult]::new('--version', '--version', [CompletionResultType]::ParameterName, 'Print version')
             break
         }
+        'dkp;fix-until' {
+            [CompletionResult]::new('--api-key', '--api-key', [CompletionResultType]::ParameterName, 'api-key')
+            [CompletionResult]::new('--base-url', '--base-url', [CompletionResultType]::ParameterName, 'base-url')
+            [CompletionResult]::new('--model', '--model', [CompletionResultType]::ParameterName, 'model')
+            [CompletionResult]::new('--instructions', '--instructions', [CompletionResultType]::ParameterName, 'Extra free-text guidance appended to every generation prompt')
+            [CompletionResult]::new('--max-tool-turns', '--max-tool-turns', [CompletionResultType]::ParameterName, 'Max tool round-trips per generation call before giving up (default: 6)')
+            [CompletionResult]::new('--threshold', '--threshold', [CompletionResultType]::ParameterName, 'Target pass rate to stop at (0.0–1.0). Defaults to min_eval_delta from the manifest, or 1.0 if unset')
+            [CompletionResult]::new('--max-rounds', '--max-rounds', [CompletionResultType]::ParameterName, 'Maximum eval+fix rounds before giving up (default: 5)')
+            [CompletionResult]::new('--pairs', '--pairs', [CompletionResultType]::ParameterName, 'Run only first N eval pairs per round (default: all)')
+            [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Output format')
+            [CompletionResult]::new('--audience', '--audience', [CompletionResultType]::ParameterName, 'Filter content to assets tagged for a specific audience profile')
+            [CompletionResult]::new('--no-tools', '--no-tools', [CompletionResultType]::ParameterName, 'Disable web_fetch/web_search tool use (on by default)')
+            [CompletionResult]::new('--no-render-formats', '--no-render-formats', [CompletionResultType]::ParameterName, 'Skip rendering human/handbook.md to handbook.pdf/handbook.epub (on by default)')
+            [CompletionResult]::new('--baseline-only', '--baseline-only', [CompletionResultType]::ParameterName, 'Score without DKP context (baseline only)')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress informational output; print only results')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Print debug info (schema paths, provider calls, etc.)')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('-V', '-V ', [CompletionResultType]::ParameterName, 'Print version')
+            [CompletionResult]::new('--version', '--version', [CompletionResultType]::ParameterName, 'Print version')
+            break
+        }
         'dkp;review' {
             [CompletionResult]::new('--api-key', '--api-key', [CompletionResultType]::ParameterName, 'api-key')
             [CompletionResult]::new('--base-url', '--base-url', [CompletionResultType]::ParameterName, 'base-url')
@@ -1498,6 +1541,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             [CompletionResult]::new('eval', 'eval', [CompletionResultType]::ParameterValue, 'Run eval set against baseline and grounded prompts; print delta report')
             [CompletionResult]::new('prompt', 'prompt', [CompletionResultType]::ParameterValue, 'Interactive grounded prompt REPL for testing a pack')
             [CompletionResult]::new('diff', 'diff', [CompletionResultType]::ParameterValue, 'Compare two pack versions and report what changed')
+            [CompletionResult]::new('version', 'version', [CompletionResultType]::ParameterValue, 'Bump a pack''s manifest.json version (patch/minor/major/etc., npm-version-style)')
             [CompletionResult]::new('build', 'build', [CompletionResultType]::ParameterValue, 'Package a pack into a versioned archive with checksums.json')
             [CompletionResult]::new('render-handbook', 'render-handbook', [CompletionResultType]::ParameterValue, 'Render human/handbook.md to handbook.pdf/handbook.epub (spec §11.2)')
             [CompletionResult]::new('release-check', 'release-check', [CompletionResultType]::ParameterValue, 'Pre-release compliance checklist (runs all gates, checks human fields)')
@@ -1515,6 +1559,7 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             [CompletionResult]::new('new', 'new', [CompletionResultType]::ParameterValue, 'Scaffold + LLM-generate a complete pack in one command')
             [CompletionResult]::new('generate', 'generate', [CompletionResultType]::ParameterValue, 'Run (or re-run) LLM generation on an existing pack')
             [CompletionResult]::new('fix', 'fix', [CompletionResultType]::ParameterValue, 'Failure-aware chunk regeneration using eval results')
+            [CompletionResult]::new('fix-until', 'fix-until', [CompletionResultType]::ParameterValue, 'Iterative eval+fix loop until a pass-rate threshold is met')
             [CompletionResult]::new('review', 'review', [CompletionResultType]::ParameterValue, 'Generate evidence drafts for manual review gates')
             [CompletionResult]::new('keygen', 'keygen', [CompletionResultType]::ParameterValue, 'Generate an Ed25519 keypair for signing packs')
             [CompletionResult]::new('sign', 'sign', [CompletionResultType]::ParameterValue, 'Sign a built archive with an Ed25519 private key')
@@ -1585,6 +1630,9 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;help;diff' {
+            break
+        }
+        'dkp;help;version' {
             break
         }
         'dkp;help;build' {
@@ -1708,6 +1756,9 @@ Register-ArgumentCompleter -Native -CommandName 'dkp' -ScriptBlock {
             break
         }
         'dkp;help;fix' {
+            break
+        }
+        'dkp;help;fix-until' {
             break
         }
         'dkp;help;review' {

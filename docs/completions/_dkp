@@ -432,6 +432,28 @@ json\:"Pretty-printed JSON"))' \
 ':pack_b -- Second pack directory or archive:_files' \
 && ret=0
 ;;
+(version)
+_arguments "${_arguments_options[@]}" : \
+'-m+[Commit message template; %s is replaced with the new version]:MESSAGE:_default' \
+'--message=[Commit message template; %s is replaced with the new version]:MESSAGE:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--no-git-tag-version[Skip git commit/tag even if the pack is inside a git repository]' \
+'--allow-same-version[Allow bumping to the same version as the current one]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':bump -- New version\: major|minor|patch|premajor|preminor|prepatch|prerelease|<x.y.z>:_default' \
+'::pack -- Path to the DKP pack directory (defaults to the current directory):_files' \
+&& ret=0
+;;
 (build)
 _arguments "${_arguments_options[@]}" : \
 '--format=[Archive format\: zip | tar.gz | tar.xz | dkp]:FMT:_default' \
@@ -1332,6 +1354,34 @@ json\:"Pretty-printed JSON"))' \
 ':pack -- Path to the DKP pack directory:_files' \
 && ret=0
 ;;
+(fix-until)
+_arguments "${_arguments_options[@]}" : \
+'--api-key=[]:KEY:_default' \
+'--base-url=[]:URL:_default' \
+'--model=[]:MODEL:_default' \
+'--instructions=[Extra free-text guidance appended to every generation prompt]:TEXT:_default' \
+'--max-tool-turns=[Max tool round-trips per generation call before giving up (default\: 6)]:N:_default' \
+'--threshold=[Target pass rate to stop at (0.0–1.0). Defaults to min_eval_delta from the manifest, or 1.0 if unset]:F:_default' \
+'--max-rounds=[Maximum eval+fix rounds before giving up (default\: 5)]:N:_default' \
+'--pairs=[Run only first N eval pairs per round (default\: all)]:N:_default' \
+'--output=[Output format]:OUTPUT:((plain\:"Human-readable plain text (default)"
+table\:"Aligned table using comfy-table"
+json\:"Pretty-printed JSON"))' \
+'--audience=[Filter content to assets tagged for a specific audience profile]:ID:_default' \
+'--no-tools[Disable web_fetch/web_search tool use (on by default)]' \
+'--no-render-formats[Skip rendering human/handbook.md to handbook.pdf/handbook.epub (on by default)]' \
+'--baseline-only[Score without DKP context (baseline only)]' \
+'-q[Suppress informational output; print only results]' \
+'--quiet[Suppress informational output; print only results]' \
+'-v[Print debug info (schema paths, provider calls, etc.)]' \
+'--verbose[Print debug info (schema paths, provider calls, etc.)]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':pack -- Path to the DKP pack directory:_files' \
+&& ret=0
+;;
 (review)
 _arguments "${_arguments_options[@]}" : \
 '--api-key=[]:KEY:_default' \
@@ -2091,6 +2141,10 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
+(version)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
 (build)
 _arguments "${_arguments_options[@]}" : \
 && ret=0
@@ -2303,6 +2357,10 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
+(fix-until)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
 (review)
 _arguments "${_arguments_options[@]}" : \
 && ret=0
@@ -2472,6 +2530,7 @@ _dkp_commands() {
 'eval:Run eval set against baseline and grounded prompts; print delta report' \
 'prompt:Interactive grounded prompt REPL for testing a pack' \
 'diff:Compare two pack versions and report what changed' \
+'version:Bump a pack'\''s manifest.json version (patch/minor/major/etc., npm-version-style)' \
 'build:Package a pack into a versioned archive with checksums.json' \
 'render-handbook:Render human/handbook.md to handbook.pdf/handbook.epub (spec §11.2)' \
 'release-check:Pre-release compliance checklist (runs all gates, checks human fields)' \
@@ -2489,6 +2548,7 @@ _dkp_commands() {
 'new:Scaffold + LLM-generate a complete pack in one command' \
 'generate:Run (or re-run) LLM generation on an existing pack' \
 'fix:Failure-aware chunk regeneration using eval results' \
+'fix-until:Iterative eval+fix loop until a pass-rate threshold is met' \
 'review:Generate evidence drafts for manual review gates' \
 'keygen:Generate an Ed25519 keypair for signing packs' \
 'sign:Sign a built archive with an Ed25519 private key' \
@@ -2581,6 +2641,11 @@ _dkp__subcmd__fix_commands() {
     local commands; commands=()
     _describe -t commands 'dkp fix commands' commands "$@"
 }
+(( $+functions[_dkp__subcmd__fix-until_commands] )) ||
+_dkp__subcmd__fix-until_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp fix-until commands' commands "$@"
+}
 (( $+functions[_dkp__subcmd__generate_commands] )) ||
 _dkp__subcmd__generate_commands() {
     local commands; commands=()
@@ -2662,6 +2727,7 @@ _dkp__subcmd__help_commands() {
 'eval:Run eval set against baseline and grounded prompts; print delta report' \
 'prompt:Interactive grounded prompt REPL for testing a pack' \
 'diff:Compare two pack versions and report what changed' \
+'version:Bump a pack'\''s manifest.json version (patch/minor/major/etc., npm-version-style)' \
 'build:Package a pack into a versioned archive with checksums.json' \
 'render-handbook:Render human/handbook.md to handbook.pdf/handbook.epub (spec §11.2)' \
 'release-check:Pre-release compliance checklist (runs all gates, checks human fields)' \
@@ -2679,6 +2745,7 @@ _dkp__subcmd__help_commands() {
 'new:Scaffold + LLM-generate a complete pack in one command' \
 'generate:Run (or re-run) LLM generation on an existing pack' \
 'fix:Failure-aware chunk regeneration using eval results' \
+'fix-until:Iterative eval+fix loop until a pass-rate threshold is met' \
 'review:Generate evidence drafts for manual review gates' \
 'keygen:Generate an Ed25519 keypair for signing packs' \
 'sign:Sign a built archive with an Ed25519 private key' \
@@ -2745,6 +2812,11 @@ _dkp__subcmd__help__subcmd__export_commands() {
 _dkp__subcmd__help__subcmd__fix_commands() {
     local commands; commands=()
     _describe -t commands 'dkp help fix commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__fix-until_commands] )) ||
+_dkp__subcmd__help__subcmd__fix-until_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help fix-until commands' commands "$@"
 }
 (( $+functions[_dkp__subcmd__help__subcmd__generate_commands] )) ||
 _dkp__subcmd__help__subcmd__generate_commands() {
@@ -3114,6 +3186,11 @@ _dkp__subcmd__help__subcmd__update_commands() {
 _dkp__subcmd__help__subcmd__validate_commands() {
     local commands; commands=()
     _describe -t commands 'dkp help validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__help__subcmd__version_commands] )) ||
+_dkp__subcmd__help__subcmd__version_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp help version commands' commands "$@"
 }
 (( $+functions[_dkp__subcmd__help__subcmd__webui_commands] )) ||
 _dkp__subcmd__help__subcmd__webui_commands() {
@@ -3802,6 +3879,11 @@ _dkp__subcmd__update_commands() {
 _dkp__subcmd__validate_commands() {
     local commands; commands=()
     _describe -t commands 'dkp validate commands' commands "$@"
+}
+(( $+functions[_dkp__subcmd__version_commands] )) ||
+_dkp__subcmd__version_commands() {
+    local commands; commands=()
+    _describe -t commands 'dkp version commands' commands "$@"
 }
 (( $+functions[_dkp__subcmd__webui_commands] )) ||
 _dkp__subcmd__webui_commands() {

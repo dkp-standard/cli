@@ -40,6 +40,9 @@ _dkp() {
             dkp,fix)
                 cmd="dkp__subcmd__fix"
                 ;;
+            dkp,fix-until)
+                cmd="dkp__subcmd__fix__subcmd__until"
+                ;;
             dkp,generate)
                 cmd="dkp__subcmd__generate"
                 ;;
@@ -133,6 +136,9 @@ _dkp() {
             dkp,validate)
                 cmd="dkp__subcmd__validate"
                 ;;
+            dkp,version)
+                cmd="dkp__subcmd__version"
+                ;;
             dkp,webui)
                 cmd="dkp__subcmd__webui"
                 ;;
@@ -204,6 +210,9 @@ _dkp() {
                 ;;
             dkp__subcmd__help,fix)
                 cmd="dkp__subcmd__help__subcmd__fix"
+                ;;
+            dkp__subcmd__help,fix-until)
+                cmd="dkp__subcmd__help__subcmd__fix__subcmd__until"
                 ;;
             dkp__subcmd__help,generate)
                 cmd="dkp__subcmd__help__subcmd__generate"
@@ -297,6 +306,9 @@ _dkp() {
                 ;;
             dkp__subcmd__help,validate)
                 cmd="dkp__subcmd__help__subcmd__validate"
+                ;;
+            dkp__subcmd__help,version)
+                cmd="dkp__subcmd__help__subcmd__version"
                 ;;
             dkp__subcmd__help,webui)
                 cmd="dkp__subcmd__help__subcmd__webui"
@@ -680,7 +692,7 @@ _dkp() {
 
     case "${cmd}" in
         dkp)
-            opts="-q -v -h -V --output --quiet --verbose --audience --help --version init info list validate search get inject export okf chunk eval prompt diff build render-handbook release-check rights mcp-manifest serve tui webui run procedures graph cross-refs skills l10n new generate fix review keygen sign install uninstall update publish yank deprecate registry help"
+            opts="-q -v -h -V --output --quiet --verbose --audience --help --version init info list validate search get inject export okf chunk eval prompt diff version build render-handbook release-check rights mcp-manifest serve tui webui run procedures graph cross-refs skills l10n new generate fix fix-until review keygen sign install uninstall update publish yank deprecate registry help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -1053,6 +1065,60 @@ _dkp() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
+        dkp__subcmd__fix__subcmd__until)
+            opts="-q -v -h -V --api-key --base-url --model --no-tools --no-render-formats --instructions --max-tool-turns --threshold --max-rounds --pairs --baseline-only --output --quiet --verbose --audience --help --version <PACK>"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                --api-key)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --base-url)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --model)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --instructions)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --max-tool-turns)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --threshold)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --max-rounds)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --pairs)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --output)
+                    COMPREPLY=($(compgen -W "plain table json" -- "${cur}"))
+                    return 0
+                    ;;
+                --audience)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
         dkp__subcmd__generate)
             opts="-q -v -h -V --overwrite --api-key --base-url --model --no-tools --no-render-formats --instructions --max-tool-turns --output --quiet --verbose --audience --help --version <PACK> [ASSET]..."
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
@@ -1280,7 +1346,7 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__help)
-            opts="init info list validate search get inject export okf chunk eval prompt diff build render-handbook release-check rights mcp-manifest serve tui webui run procedures graph cross-refs skills l10n new generate fix review keygen sign install uninstall update publish yank deprecate registry help"
+            opts="init info list validate search get inject export okf chunk eval prompt diff version build render-handbook release-check rights mcp-manifest serve tui webui run procedures graph cross-refs skills l10n new generate fix fix-until review keygen sign install uninstall update publish yank deprecate registry help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -1420,6 +1486,20 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__help__subcmd__fix)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        dkp__subcmd__help__subcmd__fix__subcmd__until)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -2330,6 +2410,20 @@ _dkp() {
             return 0
             ;;
         dkp__subcmd__help__subcmd__validate)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        dkp__subcmd__help__subcmd__version)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -4645,6 +4739,36 @@ _dkp() {
             fi
             case "${prev}" in
                 --gate)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --output)
+                    COMPREPLY=($(compgen -W "plain table json" -- "${cur}"))
+                    return 0
+                    ;;
+                --audience)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        dkp__subcmd__version)
+            opts="-m -q -v -h -V --no-git-tag-version --allow-same-version --message --output --quiet --verbose --audience --help --version <BUMP> [PACK]"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                --message)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                -m)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;

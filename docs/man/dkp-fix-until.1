@@ -1,12 +1,12 @@
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
-.TH dkp-fix 1  "fix 0.5.0" 
+.TH dkp-fix-until 1  "fix-until 0.5.0" 
 .SH NAME
-dkp\-fix \- Failure\-aware chunk regeneration using eval results
+dkp\-fix\-until \- Iterative eval+fix loop until a pass\-rate threshold is met
 .SH SYNOPSIS
-\fBdkp fix\fR [\fB\-\-api\-key\fR] [\fB\-\-output\fR] [\fB\-\-base\-url\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-model\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-\-no\-tools\fR] [\fB\-\-no\-render\-formats\fR] [\fB\-\-instructions\fR] [\fB\-\-max\-tool\-turns\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIPACK\fR> 
+\fBdkp fix\-until\fR [\fB\-\-api\-key\fR] [\fB\-\-output\fR] [\fB\-\-base\-url\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-model\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-\-no\-tools\fR] [\fB\-\-no\-render\-formats\fR] [\fB\-\-instructions\fR] [\fB\-\-max\-tool\-turns\fR] [\fB\-\-threshold\fR] [\fB\-\-max\-rounds\fR] [\fB\-\-pairs\fR] [\fB\-\-baseline\-only\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIPACK\fR> 
 .SH DESCRIPTION
-Failure\-aware chunk regeneration using eval results
+Iterative eval+fix loop until a pass\-rate threshold is met
 .SH OPTIONS
 .TP
 \fB\-\-api\-key\fR \fI<KEY>\fR
@@ -49,10 +49,22 @@ Disable web_fetch/web_search tool use (on by default)
 Skip rendering human/handbook.md to handbook.pdf/handbook.epub (on by default)
 .TP
 \fB\-\-instructions\fR \fI<TEXT>\fR
-Extra free\-text guidance appended to every generation prompt (e.g. tone, focus areas, things to emphasize or avoid)
+Extra free\-text guidance appended to every generation prompt
 .TP
 \fB\-\-max\-tool\-turns\fR \fI<N>\fR
 Max tool round\-trips per generation call before giving up (default: 6)
+.TP
+\fB\-\-threshold\fR \fI<F>\fR
+Target pass rate to stop at (0.0–1.0). Defaults to min_eval_delta from the manifest, or 1.0 if unset
+.TP
+\fB\-\-max\-rounds\fR \fI<N>\fR [default: 5]
+Maximum eval+fix rounds before giving up (default: 5)
+.TP
+\fB\-\-pairs\fR \fI<N>\fR
+Run only first N eval pairs per round (default: all)
+.TP
+\fB\-\-baseline\-only\fR
+Score without DKP context (baseline only)
 .TP
 \fB\-h\fR, \fB\-\-help\fR
 Print help (see a summary with \*(Aq\-h\*(Aq)

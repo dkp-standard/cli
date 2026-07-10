@@ -1,0 +1,57 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH dkp-version 1  "version 0.5.0" 
+.SH NAME
+dkp\-version \- Bump a pack\*(Aqs manifest.json version (patch/minor/major/etc., npm\-version\-style)
+.SH SYNOPSIS
+\fBdkp version\fR [\fB\-\-no\-git\-tag\-version\fR] [\fB\-\-output\fR] [\fB\-\-allow\-same\-version\fR] [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-m\fR|\fB\-\-message\fR] [\fB\-v\fR|\fB\-\-verbose\fR] [\fB\-\-audience\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIBUMP\fR> [\fIPACK\fR] 
+.SH DESCRIPTION
+Bump a pack\*(Aqs manifest.json version (patch/minor/major/etc., npm\-version\-style)
+.SH OPTIONS
+.TP
+\fB\-\-no\-git\-tag\-version\fR
+Skip git commit/tag even if the pack is inside a git repository
+.TP
+\fB\-\-output\fR \fI<OUTPUT>\fR [default: plain]
+Output format
+.br
+
+.br
+\fIPossible values:\fR
+.RS 14
+.IP \(bu 2
+plain: Human\-readable plain text (default)
+.IP \(bu 2
+table: Aligned table using comfy\-table
+.IP \(bu 2
+json: Pretty\-printed JSON
+.RE
+.TP
+\fB\-\-allow\-same\-version\fR
+Allow bumping to the same version as the current one
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Suppress informational output; print only results
+.TP
+\fB\-m\fR, \fB\-\-message\fR \fI<MESSAGE>\fR [default: chore: version %s]
+Commit message template; %s is replaced with the new version
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Print debug info (schema paths, provider calls, etc.)
+.TP
+\fB\-\-audience\fR \fI<ID>\fR
+Filter content to assets tagged for a specific audience profile
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help (see a summary with \*(Aq\-h\*(Aq)
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.TP
+<\fIBUMP\fR>
+New version: major|minor|patch|premajor|preminor|prepatch|prerelease|<x.y.z>
+.TP
+[\fIPACK\fR]
+Path to the DKP pack directory (defaults to the current directory)
+.SH VERSION
+v0.5.0
